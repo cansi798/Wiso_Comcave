@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 12 &ndash; Gesch&auml;fts- und Leistungsprozesse</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 12 &ndash; Gesch&auml;fts- und Leistungsprozesse</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1897). <em>Handelsgesetzbuch (HGB)</em>. In der Fassung der Bekanntmachung vom 10. Mai 1897, zuletzt ge&auml;ndert 2024.</p>
+    <p>Meffert, H., Burmann, C. &amp; Kirchgeorg, M. (2019). <em>Marketing &ndash; Grundlagen marktorientierter Unternehmensf&uuml;hrung</em> (13. Aufl.). Springer Gabler.</p>
+    <p>Porter, M. E. (2014). <em>Wettbewerbsvorteile &ndash; Spitzenleistungen erreichen und behaupten</em> (8. Aufl.). Campus Verlag.</p>
+    <p>Schmalen, H. &amp; Pechtl, H. (2014). <em>Grundlagen und Probleme der Betriebswirtschaft</em> (15. Aufl.). Sch&auml;ffer-Poeschel.</p>
+    <p>Vahs, D. &amp; Sch&auml;fer-Kunz, J. (2015). <em>Einf&uuml;hrung in die Betriebswirtschaftslehre</em> (7. Aufl.). Sch&auml;ffer-Poeschel.</p>
+    <p>W&ouml;he, G. &amp; D&ouml;ring, U. (2020). <em>Einf&uuml;hrung in die Allgemeine Betriebswirtschaftslehre</em> (27. Aufl.). Verlag Franz Vahlen.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Wertsch\u00f6pfungskette (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Was versteht man unter Wertsch\u00f6pfung in einem Unternehmen?",
+                options: [
+                    "A) Die Summe aller Kosten",
+                    "B) Die Differenz zwischen dem Wert des Outputs und dem Wert der Vorleistungen",
+                    "C) Den Umsatz eines Unternehmens",
+                    "D) Die H\u00f6he der Investitionen"
+                ],
+                correct: 1,
+                explanation: "Wertsch\u00f6pfung ist die Differenz zwischen dem Wert der erzeugten G\u00fcter/Dienstleistungen (Output) und dem Wert der eingesetzten Vorleistungen (Input). Sie zeigt den Mehrwert, den ein Unternehmen erzeugt."
+            },
+            {
+                id: 2,
+                text: "Wer hat das Modell der Wertsch\u00f6pfungskette (Value Chain) entwickelt?",
+                options: [
+                    "A) Peter Drucker",
+                    "B) Adam Smith",
+                    "C) Michael E. Porter",
+                    "D) Philip Kotler"
+                ],
+                correct: 2,
+                explanation: "Michael E. Porter, Professor an der Harvard Business School, hat das Modell der Wertsch\u00f6pfungskette 1985 in seinem Buch \u201eCompetitive Advantage\u201c ver\u00f6ffentlicht."
+            },
+            {
+                id: 3,
+                text: "Welche der folgenden Aktivit\u00e4ten ist eine prim\u00e4re Aktivit\u00e4t in Porters Wertsch\u00f6pfungskette?",
+                options: [
+                    "A) Personalwirtschaft",
+                    "B) Technologieentwicklung",
+                    "C) Ausgangslogistik",
+                    "D) Unternehmensinfrastruktur"
+                ],
+                correct: 2,
+                explanation: "Die Ausgangslogistik ist eine der f\u00fcnf prim\u00e4ren Aktivit\u00e4ten: Eingangslogistik, Produktion, Ausgangslogistik, Marketing & Vertrieb und Kundendienst. Die anderen genannten sind unterst\u00fctzende Aktivit\u00e4ten."
+            },
+            {
+                id: 4,
+                text: "Welche Aussage zu den unterst\u00fctzenden Aktivit\u00e4ten ist korrekt?",
+                options: [
+                    "A) Sie sind direkt an der Produktion beteiligt",
+                    "B) Sie erm\u00f6glichen und verbessern die prim\u00e4ren Aktivit\u00e4ten",
+                    "C) Sie bestehen nur aus der Buchhaltung",
+                    "D) Sie sind f\u00fcr die Wertsch\u00f6pfung irrelevant"
+                ],
+                correct: 1,
+                explanation: "Die unterst\u00fctzenden Aktivit\u00e4ten (Unternehmensinfrastruktur, Personalwirtschaft, Technologieentwicklung, Beschaffung) laufen quer \u00fcber alle prim\u00e4ren Aktivit\u00e4ten und erm\u00f6glichen diese."
+            },
+            {
+                id: 5,
+                text: "Zu welcher Kategorie geh\u00f6rt die Beschaffung in Porters Modell?",
+                options: [
+                    "A) Prim\u00e4re Aktivit\u00e4t",
+                    "B) Unterst\u00fctzende Aktivit\u00e4t",
+                    "C) Externe Aktivit\u00e4t",
+                    "D) Sie kommt im Modell nicht vor"
+                ],
+                correct: 1,
+                explanation: "Die Beschaffung ist bei Porter eine unterst\u00fctzende Aktivit\u00e4t, da sie alle prim\u00e4ren Bereiche mit Ressourcen versorgt (nicht nur die Produktion, sondern z. B. auch B\u00fcromaterial f\u00fcr Marketing)."
+            },
+            {
+                id: 6,
+                text: "Welche prim\u00e4re Aktivit\u00e4t umfasst Werbung und Verkaufsf\u00f6rderung?",
+                options: [
+                    "A) Eingangslogistik",
+                    "B) Produktion",
+                    "C) Marketing und Vertrieb",
+                    "D) Kundendienst"
+                ],
+                correct: 2,
+                explanation: "Marketing und Vertrieb ist die vierte prim\u00e4re Aktivit\u00e4t und umfasst Werbung, Verkaufsf\u00f6rderung, Preisgestaltung und Vertriebskan\u00e4le."
+            },
+            {
+                id: 7,
+                text: "Was steht am Ende der Wertsch\u00f6pfungskette als Ergebnis?",
+                options: [
+                    "A) Der Umsatz",
+                    "B) Die Gewinnmarge",
+                    "C) Die Produktionskosten",
+                    "D) Die Mitarbeiterzahl"
+                ],
+                correct: 1,
+                explanation: "Am Ende der Wertsch\u00f6pfungskette steht die Gewinnmarge \u2013 die Differenz zwischen dem Gesamtwert f\u00fcr den Kunden und den Gesamtkosten aller Aktivit\u00e4ten."
+            },
+            {
+                id: 8,
+                text: "Welche strategische Entscheidung kann mithilfe der Wertsch\u00f6pfungskette getroffen werden?",
+                options: [
+                    "A) Welche Mitarbeiter eingestellt werden",
+                    "B) Welche Aktivit\u00e4ten ausgelagert (Outsourcing) werden sollten",
+                    "C) Wie hoch die Steuerlast ist",
+                    "D) Welche Rechtsform gew\u00e4hlt wird"
+                ],
+                correct: 1,
+                explanation: "Die Wertsch\u00f6pfungskette hilft bei der Identifikation von Aktivit\u00e4ten, die nicht zu den Kernkompetenzen geh\u00f6ren und ggf. ausgelagert werden k\u00f6nnen."
+            },
+            {
+                id: 9,
+                text: "Welche Aktivit\u00e4t geh\u00f6rt NICHT zu den prim\u00e4ren Aktivit\u00e4ten nach Porter?",
+                options: [
+                    "A) Eingangslogistik",
+                    "B) Kundendienst",
+                    "C) Personalwirtschaft",
+                    "D) Produktion"
+                ],
+                correct: 2,
+                explanation: "Die Personalwirtschaft ist eine unterst\u00fctzende Aktivit\u00e4t. Die f\u00fcnf prim\u00e4ren sind: Eingangslogistik, Produktion, Ausgangslogistik, Marketing & Vertrieb, Kundendienst."
+            },
+            {
+                id: 10,
+                text: "Was ist das Ziel der Analyse der Wertsch\u00f6pfungskette?",
+                options: [
+                    "A) Die Mitarbeiterzufriedenheit zu messen",
+                    "B) Wettbewerbsvorteile durch Identifikation wertsch\u00f6pfender Aktivit\u00e4ten zu erzielen",
+                    "C) Die Steuerlast zu minimieren",
+                    "D) Die Anzahl der Produkte zu erh\u00f6hen"
+                ],
+                correct: 1,
+                explanation: "Das Ziel ist die Identifikation von Wettbewerbsvorteilen: Welche Aktivit\u00e4ten schaffen den meisten Wert? Wo k\u00f6nnen Kosten gesenkt oder Differenzierungsvorteile erzielt werden?"
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Beschaffung (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Was umfasst die Beschaffung in einem Unternehmen?",
+                options: [
+                    "A) Nur den Einkauf von Rohstoffen",
+                    "B) Alle Ma\u00dfnahmen zur Versorgung des Unternehmens mit Produktionsfaktoren",
+                    "C) Nur die Lagerhaltung",
+                    "D) Nur den Transport von Waren"
+                ],
+                correct: 1,
+                explanation: "Die Beschaffung umfasst alle Ma\u00dfnahmen zur Versorgung des Unternehmens mit Produktionsfaktoren: Material, Betriebsmittel, Arbeitskr\u00e4fte, Kapital und Informationen."
+            },
+            {
+                id: 12,
+                text: "Welches sind die \u201e6 R der Beschaffung\u201c?",
+                options: [
+                    "A) Richtiges Material, Menge, Zeit, Ort, Qualit\u00e4t, Preis",
+                    "B) Rohstoffe, Recycling, Reparatur, Reklamation, R\u00fcckgabe, Recht",
+                    "C) Retoure, Rabatt, Rechnung, Richtlinie, Risiko, Revision",
+                    "D) Recherche, Rahmenvertrag, Rationalisierung, Rekrutierung, Rechnungswesen, Recht"
+                ],
+                correct: 0,
+                explanation: "Die 6 R der Beschaffung lauten: Richtiges Material, in der richtigen Menge, zur richtigen Zeit, am richtigen Ort, in der richtigen Qualit\u00e4t, zum richtigen Preis."
+            },
+            {
+                id: 13,
+                text: "Was versteht man unter der programmorientierten (deterministischen) Bedarfsermittlung?",
+                options: [
+                    "A) Sch\u00e4tzung durch Experten",
+                    "B) Exakte Ableitung des Materialbedarfs aus dem Produktionsprogramm anhand von St\u00fccklisten",
+                    "C) Hochrechnung auf Basis vergangener Verbrauchsdaten",
+                    "D) Zuf\u00e4llige Bestellung je nach Verf\u00fcgbarkeit"
+                ],
+                correct: 1,
+                explanation: "Die programmorientierte Bedarfsermittlung leitet den Bedarf exakt aus dem Produktionsprogramm ab. Wenn z. B. 1.000 Autos gebaut werden sollen, wird anhand der St\u00fcckliste berechnet, wie viele Teile ben\u00f6tigt werden."
+            },
+            {
+                id: 14,
+                text: "F\u00fcr welche G\u00fcter eignet sich die verbrauchsorientierte Bedarfsermittlung am besten?",
+                options: [
+                    "A) A-G\u00fcter mit hohem Wert",
+                    "B) B- und C-G\u00fcter mit regelm\u00e4\u00dfigem Verbrauch",
+                    "C) V\u00f6llig neue Produkte ohne Verbrauchshistorie",
+                    "D) Investitionsg\u00fcter wie Maschinen"
+                ],
+                correct: 1,
+                explanation: "Die verbrauchsorientierte (stochastische) Bedarfsermittlung eignet sich f\u00fcr B- und C-G\u00fcter, deren Verbrauch relativ gleichm\u00e4\u00dfig ist und f\u00fcr die historische Daten vorliegen."
+            },
+            {
+                id: 15,
+                text: "Was beschreibt die ABC-Analyse?",
+                options: [
+                    "A) Die Einteilung von Mitarbeitern nach Leistung",
+                    "B) Die Klassifizierung von Materialien nach ihrem Wertanteil am Gesamtverbrauch",
+                    "C) Die Bewertung von Lieferanten nach Alphabet",
+                    "D) Die Kategorisierung von Kunden nach Alter"
+                ],
+                correct: 1,
+                explanation: "Die ABC-Analyse klassifiziert Materialien nach ihrem wertm\u00e4\u00dfigen Anteil am Gesamtverbrauch: A-G\u00fcter (hoher Wert, geringe Menge), B-G\u00fcter (mittel), C-G\u00fcter (geringer Wert, gro\u00dfe Menge)."
+            },
+            {
+                id: 16,
+                text: "Welche typische Verteilung haben A-G\u00fcter in der ABC-Analyse?",
+                options: [
+                    "A) Ca. 50\u201370 % Mengenanteil, ca. 5\u201310 % Wertanteil",
+                    "B) Ca. 10\u201320 % Mengenanteil, ca. 70\u201380 % Wertanteil",
+                    "C) Ca. 30 % Mengenanteil, ca. 30 % Wertanteil",
+                    "D) Ca. 80 % Mengenanteil, ca. 80 % Wertanteil"
+                ],
+                correct: 1,
+                explanation: "A-G\u00fcter machen typischerweise nur ca. 10\u201320 % der Menge aus, repr\u00e4sentieren aber ca. 70\u201380 % des Gesamtwerts. Sie erfordern daher die intensivste Beschaffungsplanung."
+            },
+            {
+                id: 17,
+                text: "Was ist das Bestellpunktverfahren?",
+                options: [
+                    "A) Bestellung zu festen Zeitpunkten unabh\u00e4ngig vom Bestand",
+                    "B) Bestellung wird ausgel\u00f6st, wenn der Lagerbestand den Meldebestand erreicht",
+                    "C) Bestellung nur einmal j\u00e4hrlich",
+                    "D) Bestellung nach Zufallsprinzip"
+                ],
+                correct: 1,
+                explanation: "Beim Bestellpunktverfahren wird eine Bestellung ausgel\u00f6st, sobald der Lagerbestand auf den Meldebestand (Bestellpunkt) sinkt. So wird sichergestellt, dass der Bedarf bis zum Eintreffen der Lieferung gedeckt ist."
+            },
+            {
+                id: 18,
+                text: "Was versteht man unter Single Sourcing?",
+                options: [
+                    "A) Beschaffung bei mehreren Lieferanten",
+                    "B) Beschaffung bei einem einzigen Lieferanten f\u00fcr ein bestimmtes Material",
+                    "C) Weltweite Beschaffung",
+                    "D) Beschaffung nur im Inland"
+                ],
+                correct: 1,
+                explanation: "Single Sourcing bedeutet, dass ein Unternehmen f\u00fcr ein bestimmtes Material nur einen einzigen Lieferanten hat. Vorteile: Enge Partnerschaft, Mengenrabatte. Nachteil: Hohes Risiko bei Ausfall."
+            },
+            {
+                id: 19,
+                text: "Welche Formel berechnet die Lagerumschlagsh\u00e4ufigkeit?",
+                options: [
+                    "A) Jahresverbrauch \u00d7 durchschnittlicher Lagerbestand",
+                    "B) Jahresverbrauch / durchschnittlicher Lagerbestand",
+                    "C) Durchschnittlicher Lagerbestand / 360",
+                    "D) Anfangsbestand + Endbestand"
+                ],
+                correct: 1,
+                explanation: "Die Lagerumschlagsh\u00e4ufigkeit = Jahresverbrauch / durchschnittlicher Lagerbestand. Sie zeigt, wie oft das Lager pro Jahr umgeschlagen wird. Eine hohe Umschlagsh\u00e4ufigkeit ist positiv."
+            },
+            {
+                id: 20,
+                text: "Was ist der Hauptnachteil von Just-in-Time (JiT)?",
+                options: [
+                    "A) Zu hohe Lagerkosten",
+                    "B) Hohe Abh\u00e4ngigkeit vom Lieferanten und St\u00f6ranf\u00e4lligkeit bei Lieferengp\u00e4ssen",
+                    "C) Zu viel Kapitalbindung im Lager",
+                    "D) Zu lange Lagerdauer"
+                ],
+                correct: 1,
+                explanation: "Der Hauptnachteil von JiT ist die hohe Abh\u00e4ngigkeit von zuverl\u00e4ssigen Lieferanten. Bei Lieferst\u00f6rungen (z. B. Naturkatastrophen, Pandemien) kann die Produktion sofort zum Stillstand kommen, da keine Pufferbest\u00e4nde vorhanden sind."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Produktion und QM (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Welche Fertigungsart liegt vor, wenn jedes Produkt ein Unikat ist?",
+                options: [
+                    "A) Massenfertigung",
+                    "B) Serienfertigung",
+                    "C) Einzelfertigung",
+                    "D) Sortenfertigung"
+                ],
+                correct: 2,
+                explanation: "Bei der Einzelfertigung ist jedes Produkt ein Unikat und wird nach individuellem Kundenauftrag gefertigt. Beispiele: Schiffsbau, Br\u00fcckenbau, Ma\u00dfanz\u00fcge."
+            },
+            {
+                id: 22,
+                text: "Was kennzeichnet die Massenfertigung?",
+                options: [
+                    "A) Produktion einzelner Unikate",
+                    "B) Begrenzte St\u00fcckzahl in Losen",
+                    "C) Produktion gro\u00dfer Mengen identischer Produkte ohne zeitliche Begrenzung",
+                    "D) Produktion in verschiedenen Varianten"
+                ],
+                correct: 2,
+                explanation: "Massenfertigung bedeutet die Produktion gro\u00dfer Mengen identischer Produkte \u00fcber einen langen Zeitraum. Beispiele: Schrauben, Streichh\u00f6lzer, Getr\u00e4nke."
+            },
+            {
+                id: 23,
+                text: "Bei welchem Fertigungsverfahren stehen Maschinen gleicher Art r\u00e4umlich zusammen?",
+                options: [
+                    "A) Flie\u00dffertigung",
+                    "B) Werkstattfertigung",
+                    "C) Baustellenfertigung",
+                    "D) Gruppenfertigung"
+                ],
+                correct: 1,
+                explanation: "Bei der Werkstattfertigung werden Maschinen gleicher Art r\u00e4umlich zusammengefasst (z. B. alle Drehmaschinen in einer Werkstatt). Das Werkst\u00fcck wird von Station zu Station transportiert."
+            },
+            {
+                id: 24,
+                text: "F\u00fcr welche Fertigungsart ist die Flie\u00dffertigung besonders geeignet?",
+                options: [
+                    "A) Einzelfertigung",
+                    "B) Massenfertigung",
+                    "C) Baustellenfertigung",
+                    "D) Chargenfertigung"
+                ],
+                correct: 1,
+                explanation: "Die Flie\u00dffertigung (Flie\u00dfband) ist f\u00fcr die Massenfertigung besonders geeignet, da sie einen hohen Durchsatz bei kurzen Durchlaufzeiten erm\u00f6glicht."
+            },
+            {
+                id: 25,
+                text: "Was versteht man unter der Make-or-Buy-Entscheidung?",
+                options: [
+                    "A) Die Entscheidung \u00fcber die Preisgestaltung",
+                    "B) Die Entscheidung, ob ein Produkt selbst gefertigt oder zugekauft wird",
+                    "C) Die Entscheidung \u00fcber den Vertriebskanal",
+                    "D) Die Entscheidung \u00fcber die Rechtsform"
+                ],
+                correct: 1,
+                explanation: "Die Make-or-Buy-Entscheidung betrifft die Frage, ob ein Unternehmen ein Bauteil oder eine Dienstleistung selbst erstellt (Make) oder von externen Lieferanten bezieht (Buy)."
+            },
+            {
+                id: 26,
+                text: "Wof\u00fcr steht PDCA im Qualit\u00e4tsmanagement?",
+                options: [
+                    "A) Product, Design, Control, Analysis",
+                    "B) Plan, Do, Check, Act",
+                    "C) Price, Distribution, Communication, Advertising",
+                    "D) Produce, Deliver, Certify, Audit"
+                ],
+                correct: 1,
+                explanation: "PDCA steht f\u00fcr Plan (Planen), Do (Umsetzen), Check (Pr\u00fcfen), Act (Handeln/Standardisieren). Es ist ein Zyklus der kontinuierlichen Verbesserung, auch Deming-Kreis genannt."
+            },
+            {
+                id: 27,
+                text: "Was bedeutet Total Quality Management (TQM)?",
+                options: [
+                    "A) Qualit\u00e4tskontrolle nur am Ende der Produktion",
+                    "B) Qualit\u00e4t als Aufgabe aller Mitarbeiter auf allen Ebenen",
+                    "C) Qualit\u00e4t wird nur vom Management verantwortet",
+                    "D) Qualit\u00e4t bezieht sich nur auf das Endprodukt"
+                ],
+                correct: 1,
+                explanation: "TQM (Total Quality Management) bedeutet, dass Qualit\u00e4t als Aufgabe aller Mitarbeiter auf allen Ebenen verstanden wird \u2013 vom Pf\u00f6rtner bis zum Gesch\u00e4ftsf\u00fchrer."
+            },
+            {
+                id: 28,
+                text: "Welche internationale Norm beschreibt Anforderungen an Qualit\u00e4tsmanagementsysteme?",
+                options: [
+                    "A) ISO 14001",
+                    "B) ISO 9001",
+                    "C) ISO 27001",
+                    "D) ISO 45001"
+                ],
+                correct: 1,
+                explanation: "Die ISO 9001 ist die international anerkannte Norm f\u00fcr Qualit\u00e4tsmanagementsysteme. ISO 14001 betrifft Umweltmanagement, ISO 27001 Informationssicherheit und ISO 45001 Arbeitsschutz."
+            },
+            {
+                id: 29,
+                text: "Was ist das Ziel von Lean Production?",
+                options: [
+                    "A) M\u00f6glichst viele Mitarbeiter einzusetzen",
+                    "B) Die Vermeidung jeder Form von Verschwendung (Muda)",
+                    "C) Die maximale Lagerbestandsh\u00f6he zu erreichen",
+                    "D) Die Produktion zu verlangsamen"
+                ],
+                correct: 1,
+                explanation: "Lean Production (schlanke Produktion) zielt auf die Vermeidung jeder Form von Verschwendung (japanisch: Muda). Es gibt sieben Arten der Verschwendung: \u00dcberproduktion, Wartezeiten, unn\u00f6tige Transporte, \u00dcberbearbeitung, Best\u00e4nde, Bewegung, Fehler."
+            },
+            {
+                id: 30,
+                text: "Was ist das Kanban-System?",
+                options: [
+                    "A) Ein System zur Mitarbeiterbewertung",
+                    "B) Ein Pull-System zur bedarfsgesteuerten Materialbereitstellung in der Produktion",
+                    "C) Ein System zur Berechnung von Geh\u00e4ltern",
+                    "D) Ein Buchhaltungssystem"
+                ],
+                correct: 1,
+                explanation: "Kanban ist ein Pull-basiertes Steuerungssystem: Material wird erst dann bereitgestellt, wenn es von der nachfolgenden Produktionsstufe angefordert wird. Es stammt aus dem Toyota-Produktionssystem."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Marketing-Mix (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Was versteht man unter Marketing im modernen Sinne?",
+                options: [
+                    "A) Ausschlie\u00dflich Werbung und Verkauf",
+                    "B) Die konsequente Ausrichtung aller Unternehmensaktivit\u00e4ten auf die Bed\u00fcrfnisse des Marktes",
+                    "C) Nur die Gestaltung von Verpackungen",
+                    "D) Die Preisgestaltung allein"
+                ],
+                correct: 1,
+                explanation: "Marketing im modernen Sinne ist die konsequente Ausrichtung aller Unternehmensaktivit\u00e4ten auf die Bed\u00fcrfnisse des Marktes (Meffert et al., 2019). Es umfasst weit mehr als nur Werbung."
+            },
+            {
+                id: 32,
+                text: "Welche vier Instrumente bilden den Marketing-Mix (4P)?",
+                options: [
+                    "A) Planning, Production, Pricing, Promotion",
+                    "B) Product, Price, Place, Promotion",
+                    "C) People, Process, Physical Evidence, Product",
+                    "D) Profit, Performance, Positioning, Pricing"
+                ],
+                correct: 1,
+                explanation: "Die 4P des Marketing-Mix sind: Product (Produktpolitik), Price (Preispolitik), Place (Distributionspolitik) und Promotion (Kommunikationspolitik)."
+            },
+            {
+                id: 33,
+                text: "Was geh\u00f6rt zur Produktpolitik (Product)?",
+                options: [
+                    "A) Rabattaktionen und Gewinnspiele",
+                    "B) Produktgestaltung, Sortimentspolitik, Produktlebenszyklus und Markenpolitik",
+                    "C) Auswahl der Vertriebskan\u00e4le",
+                    "D) Festlegung der Verkaufspreise"
+                ],
+                correct: 1,
+                explanation: "Die Produktpolitik umfasst alle Entscheidungen zur Gestaltung des Leistungsprogramms: Produktdesign, Qualit\u00e4t, Verpackung, Sortimentsbreite und -tiefe, Markenpolitik und Innovation."
+            },
+            {
+                id: 34,
+                text: "Was ist die Skimming-Preisstrategie?",
+                options: [
+                    "A) Dauerhaft niedriger Preis zur Marktdurchdringung",
+                    "B) Hoher Einf\u00fchrungspreis, der sp\u00e4ter schrittweise gesenkt wird",
+                    "C) Preis wird t\u00e4glich neu festgelegt",
+                    "D) Der Preis entspricht immer genau den Selbstkosten"
+                ],
+                correct: 1,
+                explanation: "Bei der Skimming-Strategie (Absch\u00f6pfungsstrategie) wird ein hoher Einf\u00fchrungspreis festgelegt, der sp\u00e4ter schrittweise gesenkt wird. Typisch f\u00fcr Technologieprodukte (z. B. neue Smartphones)."
+            },
+            {
+                id: 35,
+                text: "Was ist der Unterschied zwischen direktem und indirektem Absatz?",
+                options: [
+                    "A) Direkter Absatz erfolgt nur online, indirekter nur station\u00e4r",
+                    "B) Beim direkten Absatz verkauft der Hersteller direkt an den Endkunden, beim indirekten \u00fcber den Handel",
+                    "C) Es gibt keinen Unterschied",
+                    "D) Direkter Absatz ist immer teurer als indirekter"
+                ],
+                correct: 1,
+                explanation: "Beim direkten Absatz verkauft der Hersteller ohne Zwischenh\u00e4ndler direkt an den Endkunden (z. B. Onlineshop, eigene Filialen). Beim indirekten Absatz werden Gro\u00df- und/oder Einzelh\u00e4ndler zwischengeschaltet."
+            },
+            {
+                id: 36,
+                text: "Welche Ma\u00dfnahme geh\u00f6rt zur Kommunikationspolitik (Promotion)?",
+                options: [
+                    "A) Festlegung des Verkaufspreises",
+                    "B) \u00d6ffentlichkeitsarbeit (PR) und Werbung",
+                    "C) Gestaltung des Produktdesigns",
+                    "D) Auswahl des Transportwegs"
+                ],
+                correct: 1,
+                explanation: "Zur Kommunikationspolitik (Promotion) geh\u00f6ren: Werbung, Verkaufsf\u00f6rderung, \u00d6ffentlichkeitsarbeit (PR), pers\u00f6nlicher Verkauf und Online-Marketing."
+            },
+            {
+                id: 37,
+                text: "Wof\u00fcr steht das AIDA-Modell?",
+                options: [
+                    "A) Analyse, Innovation, Distribution, Absatz",
+                    "B) Attention, Interest, Desire, Action",
+                    "C) Angebot, Information, Durchf\u00fchrung, Abschluss",
+                    "D) Aufmerksamkeit, Investition, Design, Akquisition"
+                ],
+                correct: 1,
+                explanation: "AIDA steht f\u00fcr Attention (Aufmerksamkeit), Interest (Interesse), Desire (Wunsch) und Action (Kauf). Es beschreibt die Wirkungsstufen der Werbung."
+            },
+            {
+                id: 38,
+                text: "Was versteht man unter Prim\u00e4rforschung in der Marktforschung?",
+                options: [
+                    "A) Auswertung bereits vorhandener Daten",
+                    "B) Eigene Erhebung neuer Daten durch Befragung, Beobachtung oder Experiment",
+                    "C) Nutzung von Statistiken des Statistischen Bundesamts",
+                    "D) Analyse von Konkurrenzprodukten im Internet"
+                ],
+                correct: 1,
+                explanation: "Prim\u00e4rforschung (Feldforschung) bedeutet die eigene Erhebung neuer Daten, z. B. durch Befragungen, Beobachtungen oder Experimente. Im Gegensatz dazu nutzt die Sekund\u00e4rforschung bereits vorhandene Daten."
+            },
+            {
+                id: 39,
+                text: "In welcher Phase des Produktlebenszyklus ist der Umsatz am h\u00f6chsten?",
+                options: [
+                    "A) Einf\u00fchrungsphase",
+                    "B) Wachstumsphase",
+                    "C) Reifephase",
+                    "D) R\u00fcckgangsphase"
+                ],
+                correct: 2,
+                explanation: "In der Reifephase erreicht der Umsatz sein Maximum. Der Markt ist weitgehend ges\u00e4ttigt, die Gewinne sind maximal, aber das Wachstum verlangsamt sich."
+            },
+            {
+                id: 40,
+                text: "Was beschreibt Customer Relationship Management (CRM)?",
+                options: [
+                    "A) Die Buchhaltung des Unternehmens",
+                    "B) Die systematische Gestaltung der Kundenbeziehungen mithilfe von IT-Systemen",
+                    "C) Die Verwaltung von Mitarbeiterdaten",
+                    "D) Die Steuerung der Produktion"
+                ],
+                correct: 1,
+                explanation: "CRM (Customer Relationship Management) ist die systematische Gestaltung der Kundenbeziehungsprozesse mithilfe von IT-Systemen. Ziel ist die Optimierung von Kundengewinnung, -bindung und -r\u00fcckgewinnung."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Rechnungswesen (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Was ist der Unterschied zwischen externem und internem Rechnungswesen?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Externes RW ist gesetzlich vorgeschrieben und richtet sich an Au\u00dfenstehende; internes RW ist freiwillig und dient dem Management",
+                    "C) Internes RW ist gesetzlich vorgeschrieben",
+                    "D) Externes RW dient nur der Steuervermeidung"
+                ],
+                correct: 1,
+                explanation: "Das externe Rechnungswesen ist gesetzlich vorgeschrieben (\u00a7 238 HGB) und richtet sich an Finanzamt, Gl\u00e4ubiger etc. Das interne Rechnungswesen (Kostenrechnung) ist freiwillig und dient der Unternehmensleitung zur Planung und Steuerung."
+            },
+            {
+                id: 42,
+                text: "Wer ist nach \u00a7 238 HGB zur Buchf\u00fchrung verpflichtet?",
+                options: [
+                    "A) Nur Kapitalgesellschaften",
+                    "B) Jeder Kaufmann im Sinne des HGB",
+                    "C) Nur Aktiengesellschaften",
+                    "D) Nur Freiberufler"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 238 Abs. 1 HGB ist jeder Kaufmann verpflichtet, B\u00fccher zu f\u00fchren und in diesen seine Handelsgesch\u00e4fte und die Lage seines Verm\u00f6gens nach den Grunds\u00e4tzen ordnungsm\u00e4\u00dfiger Buchf\u00fchrung ersichtlich zu machen."
+            },
+            {
+                id: 43,
+                text: "Was zeigt die Aktivseite (Aktiva) der Bilanz?",
+                options: [
+                    "A) Die Schulden des Unternehmens",
+                    "B) Die Mittelverwendung \u2013 also das Verm\u00f6gen des Unternehmens",
+                    "C) Den Gewinn des Unternehmens",
+                    "D) Die Ums\u00e4tze des letzten Jahres"
+                ],
+                correct: 1,
+                explanation: "Die Aktivseite der Bilanz zeigt die Mittelverwendung: Was hat das Unternehmen mit dem zur Verf\u00fcgung stehenden Kapital angeschafft? Sie gliedert sich in Anlageverm\u00f6gen und Umlaufverm\u00f6gen."
+            },
+            {
+                id: 44,
+                text: "Was zeigt die Passivseite (Passiva) der Bilanz?",
+                options: [
+                    "A) Das Verm\u00f6gen des Unternehmens",
+                    "B) Die Mittelherkunft \u2013 also Eigenkapital und Fremdkapital",
+                    "C) Die Umsatzerl\u00f6se",
+                    "D) Die Produktionskosten"
+                ],
+                correct: 1,
+                explanation: "Die Passivseite der Bilanz zeigt die Mittelherkunft: Woher stammt das Kapital? Sie gliedert sich in Eigenkapital, R\u00fcckstellungen und Verbindlichkeiten (Fremdkapital)."
+            },
+            {
+                id: 45,
+                text: "Wie lautet die Bilanzgleichung?",
+                options: [
+                    "A) Aktiva = Eigenkapital",
+                    "B) Aktiva = Passiva",
+                    "C) Umsatz = Kosten + Gewinn",
+                    "D) Eigenkapital = Fremdkapital"
+                ],
+                correct: 1,
+                explanation: "Die Bilanzgleichung lautet: Aktiva = Passiva. Das bedeutet: Die Summe des Verm\u00f6gens (Mittelverwendung) entspricht immer der Summe des Kapitals (Mittelherkunft)."
+            },
+            {
+                id: 46,
+                text: "Was ist die Aufgabe der Gewinn- und Verlustrechnung (GuV)?",
+                options: [
+                    "A) Die Darstellung des Verm\u00f6gens zu einem Stichtag",
+                    "B) Die Gegen\u00fcberstellung aller Ertr\u00e4ge und Aufwendungen einer Periode zur Ermittlung des Jahresergebnisses",
+                    "C) Die Berechnung der Steuerlast",
+                    "D) Die Aufstellung aller Lieferantenverbindlichkeiten"
+                ],
+                correct: 1,
+                explanation: "Die GuV stellt alle Ertr\u00e4ge und Aufwendungen einer Periode (i. d. R. ein Gesch\u00e4ftsjahr) gegen\u00fcber und ermittelt den Jahres\u00fcberschuss oder -fehlbetrag."
+            },
+            {
+                id: 47,
+                text: "Was geh\u00f6rt zum Anlageverm\u00f6gen in der Bilanz?",
+                options: [
+                    "A) Vorr\u00e4te und Bankguthaben",
+                    "B) Immaterielle Verm\u00f6genswerte, Sachanlagen und Finanzanlagen",
+                    "C) Forderungen aus Lieferungen und Leistungen",
+                    "D) Kassenbestand"
+                ],
+                correct: 1,
+                explanation: "Das Anlageverm\u00f6gen umfasst langfristig im Unternehmen gebundene Verm\u00f6genswerte: I. Immaterielle Verm\u00f6genswerte (Patente, Lizenzen), II. Sachanlagen (Geb\u00e4ude, Maschinen), III. Finanzanlagen (Beteiligungen)."
+            },
+            {
+                id: 48,
+                text: "Was ist der Unterschied zwischen Ertrag und Leistung?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Ertrag ist ein Begriff des externen Rechnungswesens (GuV), Leistung ein Begriff des internen Rechnungswesens (Kostenrechnung)",
+                    "C) Leistung ist immer h\u00f6her als Ertrag",
+                    "D) Ertrag bezieht sich nur auf Zinsertr\u00e4ge"
+                ],
+                correct: 1,
+                explanation: "Ertrag ist ein Begriff des externen Rechnungswesens und erscheint in der GuV. Leistung ist der entsprechende Begriff im internen Rechnungswesen (Kostenrechnung) und bezieht sich auf den betriebszweckbezogenen Output."
+            },
+            {
+                id: 49,
+                text: "Woraus besteht der Jahresabschluss eines Kaufmanns nach HGB?",
+                options: [
+                    "A) Nur aus der Bilanz",
+                    "B) Aus Bilanz und Gewinn- und Verlustrechnung",
+                    "C) Nur aus der GuV",
+                    "D) Aus Bilanz, GuV und Steuerbescheid"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 242 HGB besteht der Jahresabschluss aus der Bilanz und der Gewinn- und Verlustrechnung. Kapitalgesellschaften m\u00fcssen zus\u00e4tzlich einen Anhang erstellen (\u00a7 264 HGB)."
+            },
+            {
+                id: 50,
+                text: "Was versteht man unter EBIT?",
+                options: [
+                    "A) Earnings Before Inflation and Taxation",
+                    "B) Earnings Before Interest and Taxes \u2013 das Betriebsergebnis vor Zinsen und Steuern",
+                    "C) European Business and Investment Treaty",
+                    "D) Eine Bilanzposition auf der Passivseite"
+                ],
+                correct: 1,
+                explanation: "EBIT steht f\u00fcr Earnings Before Interest and Taxes (Gewinn vor Zinsen und Steuern). Es zeigt, wie profitabel das operative Gesch\u00e4ft eines Unternehmens ist, unabh\u00e4ngig von der Finanzierung und Besteuerung."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Gesamtwiederholung BWL + Kurs (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "In welcher Reihenfolge durchl\u00e4uft der betriebliche Leistungsprozess?",
+                options: [
+                    "A) Absatz \u2192 Beschaffung \u2192 Produktion",
+                    "B) Produktion \u2192 Absatz \u2192 Beschaffung",
+                    "C) Beschaffung \u2192 Produktion \u2192 Absatz",
+                    "D) Absatz \u2192 Produktion \u2192 Beschaffung"
+                ],
+                correct: 2,
+                explanation: "Der betriebliche Leistungsprozess verl\u00e4uft: Beschaffung (Material einkaufen) \u2192 Produktion (Produkte herstellen) \u2192 Absatz (Produkte verkaufen)."
+            },
+            {
+                id: 52,
+                text: "Welche volkswirtschaftlichen Produktionsfaktoren gibt es nach Erich Gutenberg?",
+                options: [
+                    "A) Boden, Arbeit, Kapital",
+                    "B) Arbeit, Betriebsmittel, Werkstoffe",
+                    "C) Land, Labour, Capital, Entrepreneurship",
+                    "D) Material, Maschinen, Menschen, Management"
+                ],
+                correct: 1,
+                explanation: "Erich Gutenberg unterscheidet die betriebswirtschaftlichen Produktionsfaktoren: Arbeit (Elementarfaktor), Betriebsmittel (Elementarfaktor) und Werkstoffe (Elementarfaktor), erg\u00e4nzt durch den dispositiven Faktor (Gesch\u00e4ftsf\u00fchrung)."
+            },
+            {
+                id: 53,
+                text: "Was ist das \u00f6konomische Prinzip?",
+                options: [
+                    "A) Immer den h\u00f6chsten Preis zu verlangen",
+                    "B) Mit gegebenen Mitteln den gr\u00f6\u00dftm\u00f6glichen Ertrag zu erzielen (Maximalprinzip) oder ein gegebenes Ziel mit minimalem Mitteleinsatz zu erreichen (Minimalprinzip)",
+                    "C) Immer die billigsten Rohstoffe zu verwenden",
+                    "D) M\u00f6glichst viele Mitarbeiter einzustellen"
+                ],
+                correct: 1,
+                explanation: "Das \u00f6konomische Prinzip hat zwei Auspr\u00e4gungen: Maximalprinzip (gegebene Mittel \u2192 max. Ertrag) und Minimalprinzip (gegebenes Ziel \u2192 min. Mitteleinsatz). Es ist das Grundprinzip wirtschaftlichen Handelns."
+            },
+            {
+                id: 54,
+                text: "Welcher Themenblock wurde an den Tagen 1\u20136 des Kurses behandelt?",
+                options: [
+                    "A) BWL und Gesch\u00e4ftsprozesse",
+                    "B) Sicherheit, Gesundheit, Umwelt",
+                    "C) Berufsbildung und Arbeitsrecht",
+                    "D) Rechnungswesen und Steuerlehre"
+                ],
+                correct: 2,
+                explanation: "Die Tage 1\u20136 behandelten Berufsbildung und Arbeitsrecht: Duales System, Ausbildungsvertrag, Arbeitsrecht, Sozialrecht/Tarifrecht, Jugendarbeitsschutz und Mitbestimmung."
+            },
+            {
+                id: 55,
+                text: "Wie hei\u00dfen die f\u00fcnf S\u00e4ulen der Sozialversicherung?",
+                options: [
+                    "A) Renten-, Kranken-, Pflege-, Arbeitslosen- und Unfallversicherung",
+                    "B) Haftpflicht-, Hausrat-, Lebens-, Kfz- und Rechtsschutzversicherung",
+                    "C) Kranken-, Berufsunf\u00e4higkeits-, Lebens-, Reise- und Unfallversicherung",
+                    "D) Feuer-, Wasser-, Diebstahl-, Haftpflicht- und Krankenversicherung"
+                ],
+                correct: 0,
+                explanation: "Die f\u00fcnf S\u00e4ulen der gesetzlichen Sozialversicherung sind: Rentenversicherung, Krankenversicherung, Pflegeversicherung, Arbeitslosenversicherung und Unfallversicherung."
+            },
+            {
+                id: 56,
+                text: "Was regelt das Berufsbildungsgesetz (BBiG)?",
+                options: [
+                    "A) Nur die schulische Ausbildung",
+                    "B) Die Berufsausbildung, berufliche Fortbildung, Umschulung und Berufsausbildungsvorbereitung",
+                    "C) Nur die Hochschulausbildung",
+                    "D) Nur die Handwerksausbildung"
+                ],
+                correct: 1,
+                explanation: "Das BBiG regelt gem\u00e4\u00df \u00a7 1 die vier Bereiche der Berufsbildung: Berufsausbildungsvorbereitung, Berufsausbildung, berufliche Fortbildung und berufliche Umschulung."
+            },
+            {
+                id: 57,
+                text: "Welches Organ der Betriebsverfassung vertritt die Interessen der Arbeitnehmer im Betrieb?",
+                options: [
+                    "A) Der Vorstand",
+                    "B) Der Betriebsrat",
+                    "C) Die Gewerkschaft",
+                    "D) Der Aufsichtsrat"
+                ],
+                correct: 1,
+                explanation: "Der Betriebsrat ist das Organ der Betriebsverfassung, das die Interessen der Arbeitnehmer im Betrieb vertritt. Er wird nach dem Betriebsverfassungsgesetz (BetrVG) gew\u00e4hlt."
+            },
+            {
+                id: 58,
+                text: "Welche Aussage zum Arbeitsschutz ist korrekt?",
+                options: [
+                    "A) Arbeitsschutz ist freiwillig f\u00fcr den Arbeitgeber",
+                    "B) Der Arbeitgeber ist gesetzlich verpflichtet, die Sicherheit und Gesundheit der Besch\u00e4ftigten zu gew\u00e4hrleisten",
+                    "C) Arbeitsschutz betrifft nur Industriebetriebe",
+                    "D) Arbeitsschutz wird ausschlie\u00dflich von den Gewerkschaften organisiert"
+                ],
+                correct: 1,
+                explanation: "Nach dem Arbeitsschutzgesetz (ArbSchG) ist der Arbeitgeber verpflichtet, die erforderlichen Ma\u00dfnahmen des Arbeitsschutzes zu treffen und die Sicherheit und Gesundheit der Besch\u00e4ftigten bei der Arbeit zu gew\u00e4hrleisten."
+            },
+            {
+                id: 59,
+                text: "Was versteht man unter dem K\u00e4ufermarkt?",
+                options: [
+                    "A) Ein Markt, auf dem die Nachfrage das Angebot \u00fcbersteigt",
+                    "B) Ein Markt, auf dem das Angebot die Nachfrage \u00fcbersteigt und die K\u00e4ufer die st\u00e4rkere Position haben",
+                    "C) Ein Markt ohne Wettbewerb",
+                    "D) Ein Markt, auf dem nur ein K\u00e4ufer existiert"
+                ],
+                correct: 1,
+                explanation: "Auf einem K\u00e4ufermarkt \u00fcbersteigt das Angebot die Nachfrage. Die K\u00e4ufer haben die st\u00e4rkere Verhandlungsposition und k\u00f6nnen zwischen vielen Anbietern w\u00e4hlen. Deshalb ist Marketing so wichtig."
+            },
+            {
+                id: 60,
+                text: "Welcher Zusammenhang besteht zwischen Rationalisierung und Arbeitsrecht?",
+                options: [
+                    "A) Kein Zusammenhang",
+                    "B) Rationalisierung kann zu Personalabbau f\u00fchren, was K\u00fcndigungsschutz und Betriebsratsbeteiligung erfordert",
+                    "C) Rationalisierung erh\u00f6ht immer die Mitarbeiterzahl",
+                    "D) Rationalisierung betrifft nur Maschinen, nicht Menschen"
+                ],
+                correct: 1,
+                explanation: "Rationalisierungsma\u00dfnahmen (z. B. Automatisierung) k\u00f6nnen zu Personalabbau f\u00fchren. Dabei m\u00fcssen arbeitsrechtliche Vorschriften beachtet werden: K\u00fcndigungsschutz, Sozialauswahl, Anh\u00f6rung des Betriebsrats. Dies zeigt die Verkn\u00fcpfung von BWL und Arbeitsrecht."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 42;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

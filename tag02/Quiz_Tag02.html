@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 02 &ndash; Der Berufsausbildungsvertrag</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 02 &ndash; Der Berufsausbildungsvertrag</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (2005). <em>Berufsbildungsgesetz (BBiG)</em>. BGBl. I S. 931. https://www.gesetze-im-internet.de/bbig_2005/</p>
+    <p>Bundesministerium f&uuml;r Bildung und Forschung. (2024). <em>Berufsbildungsbericht 2024</em>. BMBF. https://www.bmbf.de/berufsbildungsbericht</p>
+    <p>Greinert, W.-D. (2015). <em>Das duale System der Berufsausbildung in der Bundesrepublik Deutschland</em> (3. Aufl.). Holland + Josenhans.</p>
+    <p>Herkert, J. (2020). <em>Arbeitsrecht f&uuml;r Ausbilder</em> (10. Aufl.). Kiehl.</p>
+    <p>Semler, S. &amp; Kolbe, C. (2021). <em>Wirtschafts- und Sozialkunde f&uuml;r kaufm&auml;nnische Berufe</em> (8. Aufl.). Westermann.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Zustandekommen und Inhalte (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welcher Paragraph des BBiG regelt den Abschluss des Berufsausbildungsvertrags?",
+                options: [
+                    "A) \u00a7 5 BBiG",
+                    "B) \u00a7 10 BBiG",
+                    "C) \u00a7 17 BBiG",
+                    "D) \u00a7 34 BBiG"
+                ],
+                correct: 1,
+                explanation: "\u00a7 10 BBiG regelt, dass vor Beginn der Berufsausbildung ein Berufsausbildungsvertrag zwischen dem Ausbildenden und dem Auszubildenden zu schlie\u00dfen ist."
+            },
+            {
+                id: 2,
+                text: "In welcher Form muss die Niederschrift des Berufsausbildungsvertrags erfolgen?",
+                options: [
+                    "A) M\u00fcndlich",
+                    "B) Elektronisch per E-Mail",
+                    "C) Schriftlich (elektronische Form ist ausgeschlossen)",
+                    "D) Formfrei"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 11 Abs. 2 BBiG ist die elektronische Form f\u00fcr die Vertragsniederschrift ausgeschlossen. Die Niederschrift muss schriftlich erfolgen und von beiden Parteien unterzeichnet werden."
+            },
+            {
+                id: 3,
+                text: "Wie viele Mindestinhalte muss die Vertragsniederschrift nach \u00a7 11 BBiG enthalten?",
+                options: [
+                    "A) 5",
+                    "B) 7",
+                    "C) 10",
+                    "D) 12"
+                ],
+                correct: 2,
+                explanation: "\u00a7 11 Abs. 1 BBiG z\u00e4hlt 10 Mindestinhalte auf, die in der Vertragsniederschrift enthalten sein m\u00fcssen."
+            },
+            {
+                id: 4,
+                text: "Welcher der folgenden Punkte ist KEIN Mindestinhalt nach \u00a7 11 BBiG?",
+                options: [
+                    "A) Dauer der Probezeit",
+                    "B) Zahlung und H\u00f6he der Verg\u00fctung",
+                    "C) Name des zust\u00e4ndigen Berufsschullehrers",
+                    "D) Form des Ausbildungsnachweises"
+                ],
+                correct: 2,
+                explanation: "Der Name des Berufsschullehrers ist kein Mindestinhalt des Ausbildungsvertrags. Die 10 Mindestinhalte nach \u00a7 11 BBiG umfassen u. a. Art und Ziel, Beginn und Dauer, Probezeit, Verg\u00fctung, Urlaub und Form des Berichtshefts."
+            },
+            {
+                id: 5,
+                text: "Welche Vereinbarung im Ausbildungsvertrag ist nach \u00a7 12 BBiG nichtig?",
+                options: [
+                    "A) Eine Probezeit von 3 Monaten",
+                    "B) Eine Klausel, die den Azubi zur R\u00fcckzahlung der Ausbildungskosten verpflichtet",
+                    "C) Eine j\u00e4hrlich steigende Verg\u00fctung",
+                    "D) Ein Hinweis auf den geltenden Tarifvertrag"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 12 BBiG sind Vereinbarungen \u00fcber eine Entsch\u00e4digung f\u00fcr die Ausbildung (R\u00fcckzahlungsklauseln) nichtig. Der Auszubildende muss keine Ausbildungskosten erstatten."
+            },
+            {
+                id: 6,
+                text: "Was ist der Unterschied zwischen \u00a7 10 und \u00a7 11 BBiG?",
+                options: [
+                    "A) \u00a7 10 regelt die K\u00fcndigung, \u00a7 11 die Probezeit",
+                    "B) \u00a7 10 regelt den Vertragsschluss, \u00a7 11 die schriftliche Niederschrift",
+                    "C) \u00a7 10 regelt die Verg\u00fctung, \u00a7 11 den Urlaub",
+                    "D) Beide Paragraphen regeln dasselbe"
+                ],
+                correct: 1,
+                explanation: "\u00a7 10 BBiG regelt den eigentlichen Vertragsschluss (Abschluss des Berufsausbildungsvertrags), w\u00e4hrend \u00a7 11 BBiG die Pflicht zur schriftlichen Niederschrift der wesentlichen Vertragsinhalte regelt."
+            },
+            {
+                id: 7,
+                text: "Ist ein Berufsausbildungsvertrag g\u00fcltig, wenn keine Niederschrift erstellt wurde?",
+                options: [
+                    "A) Nein, der Vertrag ist automatisch nichtig",
+                    "B) Ja, der Vertrag ist g\u00fcltig, aber der Ausbildende verst\u00f6\u00dft gegen seine Pflicht",
+                    "C) Nur wenn die IHK zustimmt",
+                    "D) Nein, es entsteht nur ein Arbeitsverh\u00e4ltnis"
+                ],
+                correct: 1,
+                explanation: "Der Berufsausbildungsvertrag ist auch ohne Niederschrift g\u00fcltig, da der Vertragsschluss (\u00a7 10) formfrei ist. Allerdings verst\u00f6\u00dft der Ausbildende gegen seine Pflicht zur Niederschrift nach \u00a7 11 BBiG."
+            },
+            {
+                id: 8,
+                text: "Wer muss den Ausbildungsvertrag bei einem minderj\u00e4hrigen Auszubildenden mitunterzeichen?",
+                options: [
+                    "A) Der Betriebsrat",
+                    "B) Die gesetzlichen Vertreter (i. d. R. die Eltern)",
+                    "C) Der Berufsschullehrer",
+                    "D) Die IHK"
+                ],
+                correct: 1,
+                explanation: "Bei minderj\u00e4hrigen Auszubildenden m\u00fcssen die gesetzlichen Vertreter (in der Regel die Eltern) den Vertrag mitunterschreiben. Ohne ihre Zustimmung ist der Vertrag schwebend unwirksam."
+            },
+            {
+                id: 9,
+                text: "Was regelt das AGG im Zusammenhang mit der Anbahnung eines Ausbildungsverh\u00e4ltnisses?",
+                options: [
+                    "A) Die H\u00f6he der Ausbildungsverg\u00fctung",
+                    "B) Das Verbot der Diskriminierung bei Stellenausschreibung und Bewerbungsverfahren",
+                    "C) Die Dauer der Probezeit",
+                    "D) Die Pflichten des Auszubildenden"
+                ],
+                correct: 1,
+                explanation: "Das Allgemeine Gleichbehandlungsgesetz (AGG) verbietet die Diskriminierung bei der Stellenausschreibung und im Bewerbungsverfahren wegen Rasse, Geschlecht, Religion, Behinderung, Alter oder sexueller Identit\u00e4t."
+            },
+            {
+                id: 10,
+                text: "Welche Vertragsklausel ist nach \u00a7 12 BBiG NICHT nichtig?",
+                options: [
+                    "A) Vertragsstrafe bei vorzeitigem Abbruch",
+                    "B) Wettbewerbsverbot nach der Ausbildung",
+                    "C) Vereinbarung einer Probezeit von 2 Monaten",
+                    "D) R\u00fcckzahlung der Pr\u00fcfungsgeb\u00fchren durch den Azubi"
+                ],
+                correct: 2,
+                explanation: "Eine Probezeit von 2 Monaten ist zul\u00e4ssig (1\u20134 Monate nach \u00a7 20 BBiG). Vertragsstrafen, Wettbewerbsverbote nach der Ausbildung und die Auferlegung der Pr\u00fcfungsgeb\u00fchren an den Azubi sind nach \u00a7 12 BBiG nichtig."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Pflichten des Ausbildenden (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Welcher Paragraph regelt die Pflichten des Ausbildenden?",
+                options: [
+                    "A) \u00a7 11 BBiG",
+                    "B) \u00a7 13 BBiG",
+                    "C) \u00a7 14 BBiG",
+                    "D) \u00a7 22 BBiG"
+                ],
+                correct: 2,
+                explanation: "\u00a7 14 BBiG regelt die Pflichten des Ausbildenden, darunter die Ausbildungspflicht, die Bestellung eines Ausbilders und die Bereitstellung von Ausbildungsmitteln."
+            },
+            {
+                id: 12,
+                text: "Wer tr\u00e4gt die Kosten f\u00fcr die Ausbildungsmittel?",
+                options: [
+                    "A) Der Auszubildende",
+                    "B) Die Berufsschule",
+                    "C) Der Ausbildende (kostenlose Bereitstellung)",
+                    "D) Die IHK"
+                ],
+                correct: 2,
+                explanation: "Nach \u00a7 14 Abs. 1 Nr. 3 BBiG hat der Ausbildende die Ausbildungsmittel kostenlos zur Verf\u00fcgung zu stellen. Dazu geh\u00f6ren Werkzeuge, Fachb\u00fccher, Berichtshefte und Pr\u00fcfungsmaterialien."
+            },
+            {
+                id: 13,
+                text: "F\u00fcr welche Anl\u00e4sse muss der Ausbildende den Auszubildenden nach \u00a7 15 BBiG freistellen?",
+                options: [
+                    "A) Nur f\u00fcr Pr\u00fcfungen",
+                    "B) F\u00fcr Berufsschulunterricht, Pr\u00fcfungen und au\u00dferbetriebliche Ma\u00dfnahmen",
+                    "C) Nur f\u00fcr den Berufsschulunterricht",
+                    "D) F\u00fcr private Arzttermine"
+                ],
+                correct: 1,
+                explanation: "\u00a7 15 BBiG verpflichtet den Ausbildenden zur Freistellung f\u00fcr den Berufsschulunterricht, f\u00fcr Pr\u00fcfungen und f\u00fcr au\u00dferbetriebliche Ausbildungsma\u00dfnahmen."
+            },
+            {
+                id: 14,
+                text: "Welche drei Eignungsvoraussetzungen muss ein Ausbilder erf\u00fcllen?",
+                options: [
+                    "A) Akademischer Abschluss, Berufserfahrung, Mindestalter 25",
+                    "B) Pers\u00f6nliche Eignung, fachliche Eignung, p\u00e4dagogische Eignung (AEVO)",
+                    "C) Meisterpr\u00fcfung, Mindestens 10 Jahre Berufserfahrung, F\u00fchrungszeugnis",
+                    "D) IHK-Mitgliedschaft, Erste-Hilfe-Kurs, Sprachkenntnisse"
+                ],
+                correct: 1,
+                explanation: "Ein Ausbilder muss pers\u00f6nlich geeignet (\u00a7 29 BBiG), fachlich geeignet (\u00a7 30 BBiG) und p\u00e4dagogisch geeignet (nachgewiesen durch die AEVO-Pr\u00fcfung) sein."
+            },
+            {
+                id: 15,
+                text: "Was unterscheidet ein einfaches von einem qualifizierten Zeugnis nach \u00a7 16 BBiG?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Das einfache enth\u00e4lt nur Art, Dauer und Ziel; das qualifizierte zus\u00e4tzlich Leistung und Verhalten",
+                    "C) Das qualifizierte Zeugnis wird nur vom Betriebsrat ausgestellt",
+                    "D) Das einfache Zeugnis ist f\u00fcr Jugendliche, das qualifizierte f\u00fcr Erwachsene"
+                ],
+                correct: 1,
+                explanation: "Das einfache Zeugnis enth\u00e4lt Angaben \u00fcber Art, Dauer und Ziel der Ausbildung. Das qualifizierte Zeugnis enth\u00e4lt zus\u00e4tzlich Angaben \u00fcber F\u00fchrung, Leistung und besondere fachliche F\u00e4higkeiten. Es wird auf Verlangen ausgestellt."
+            },
+            {
+                id: 16,
+                text: "Wer zahlt die Pr\u00fcfungsgeb\u00fchren f\u00fcr die IHK-Abschlusspr\u00fcfung?",
+                options: [
+                    "A) Der Auszubildende",
+                    "B) Die Berufsschule",
+                    "C) Der Ausbildende",
+                    "D) Die Bundesagentur f\u00fcr Arbeit"
+                ],
+                correct: 2,
+                explanation: "Die Pr\u00fcfungsgeb\u00fchren tr\u00e4gt der Ausbildende. Eine Vereinbarung, die dem Auszubildenden die Pr\u00fcfungsgeb\u00fchren auferlegt, ist nach \u00a7 12 BBiG nichtig."
+            },
+            {
+                id: 17,
+                text: "Was versteht man unter ausbildungsfremden T\u00e4tigkeiten?",
+                options: [
+                    "A) T\u00e4tigkeiten, die zur Pr\u00fcfungsvorbereitung dienen",
+                    "B) T\u00e4tigkeiten, die nicht dem Ausbildungszweck dienen (z. B. private Besorgungen f\u00fcr den Chef)",
+                    "C) T\u00e4tigkeiten in der Berufsschule",
+                    "D) T\u00e4tigkeiten in einer anderen Abteilung des Betriebs"
+                ],
+                correct: 1,
+                explanation: "Ausbildungsfremde T\u00e4tigkeiten sind Aufgaben, die nicht dem Ausbildungszweck dienen, z. B. private Besorgungen, dauerhaftes Putzen ohne Ausbildungsbezug. Der Ausbildende darf nur T\u00e4tigkeiten \u00fcbertragen, die dem Ausbildungsziel dienen."
+            },
+            {
+                id: 18,
+                text: "Muss der Ausbildende dem Auszubildenden w\u00e4hrend der Berufsschulzeit die Verg\u00fctung weiterzahlen?",
+                options: [
+                    "A) Nein, f\u00fcr Berufsschultage gibt es kein Geld",
+                    "B) Ja, die Verg\u00fctung wird auch w\u00e4hrend der Berufsschulzeit fortgezahlt",
+                    "C) Nur bei Blockunterricht",
+                    "D) Nur wenn der Tarifvertrag es vorsieht"
+                ],
+                correct: 1,
+                explanation: "Der Ausbildende muss die Verg\u00fctung auch w\u00e4hrend der Berufsschulzeit, bei Pr\u00fcfungen und bei au\u00dferbetrieblichen Ma\u00dfnahmen fortzahlen (\u00a7 19 BBiG)."
+            },
+            {
+                id: 19,
+                text: "Welche Pflicht hat der Ausbildende in Bezug auf das Berichtsheft?",
+                options: [
+                    "A) Er muss es f\u00fcr den Auszubildenden f\u00fchren",
+                    "B) Er muss dem Auszubildenden Gelegenheit geben, es w\u00e4hrend der Ausbildungszeit zu f\u00fchren",
+                    "C) Er hat keine Pflicht in Bezug auf das Berichtsheft",
+                    "D) Er muss es bei der IHK einreichen"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 14 Abs. 1 Nr. 4 BBiG hat der Ausbildende dem Auszubildenden Gelegenheit zu geben, den Ausbildungsnachweis (Berichtsheft) w\u00e4hrend der Ausbildungszeit zu f\u00fchren."
+            },
+            {
+                id: 20,
+                text: "Was geh\u00f6rt NICHT zu den Pflichten des Ausbildenden?",
+                options: [
+                    "A) Kostenlose Bereitstellung von Ausbildungsmitteln",
+                    "B) Freistellung f\u00fcr den Berufsschulunterricht",
+                    "C) Zahlung der Lehrmittel f\u00fcr den allgemeinen Schulunterricht (z. B. Hefte)",
+                    "D) Ausstellung eines Zeugnisses bei Ausbildungsende"
+                ],
+                correct: 2,
+                explanation: "Die Kosten f\u00fcr allgemeine Schulmaterialien (Hefte, Stifte f\u00fcr den allgemeinen Unterricht) tr\u00e4gt der Auszubildende selbst. Der Ausbildende muss nur die berufsspezifischen Ausbildungsmittel bereitstellen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Pflichten des Auszubildenden (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Welcher Paragraph regelt die Pflichten des Auszubildenden?",
+                options: [
+                    "A) \u00a7 11 BBiG",
+                    "B) \u00a7 13 BBiG",
+                    "C) \u00a7 14 BBiG",
+                    "D) \u00a7 20 BBiG"
+                ],
+                correct: 1,
+                explanation: "\u00a7 13 BBiG regelt die Pflichten des Auszubildenden, darunter die Lernpflicht, Sorgfaltspflicht, Weisungsgebundenheit, Berufsschulpflicht, Schweigepflicht und die Pflicht zum F\u00fchren des Berichtshefts."
+            },
+            {
+                id: 22,
+                text: "Was bedeutet die Lernpflicht des Auszubildenden nach \u00a7 13 Satz 1 BBiG?",
+                options: [
+                    "A) Der Auszubildende muss die Pr\u00fcfung beim ersten Versuch bestehen",
+                    "B) Der Auszubildende hat sich zu bem\u00fchen, die berufliche Handlungsf\u00e4higkeit zu erwerben",
+                    "C) Der Auszubildende muss zus\u00e4tzlich ein Studium absolvieren",
+                    "D) Der Auszubildende muss jeden Tag \u00dcberstunden machen"
+                ],
+                correct: 1,
+                explanation: "Die Lernpflicht nach \u00a7 13 Satz 1 BBiG verlangt, dass sich der Auszubildende \u201ebem\u00fcht\u201c, die berufliche Handlungsf\u00e4higkeit zu erwerben. Das Gesetz fordert den Lernprozess, nicht den Lernerfolg."
+            },
+            {
+                id: 23,
+                text: "Welche Pflicht hat der Auszubildende in Bezug auf Betriebs- und Gesch\u00e4ftsgeheimnisse?",
+                options: [
+                    "A) Er darf sie mit Familienangeh\u00f6rigen teilen",
+                    "B) Er muss sie wahren (Schweigepflicht), auch nach Ende der Ausbildung",
+                    "C) Er muss sie nur w\u00e4hrend der Arbeitszeit wahren",
+                    "D) Die Schweigepflicht endet mit dem Ausbildungsende"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 13 Satz 2 Nr. 6 BBiG muss der Auszubildende Betriebs- und Gesch\u00e4ftsgeheimnisse wahren. Diese Schweigepflicht gilt auch \u00fcber das Ende des Ausbildungsverh\u00e4ltnisses hinaus."
+            },
+            {
+                id: 24,
+                text: "Was ist die Konsequenz, wenn das Berichtsheft nicht ordnungsgem\u00e4\u00df gef\u00fchrt wurde?",
+                options: [
+                    "A) Keine Konsequenz",
+                    "B) Der Auszubildende wird nicht zur Abschlusspr\u00fcfung zugelassen",
+                    "C) Die Ausbildung wird automatisch um ein Jahr verl\u00e4ngert",
+                    "D) Der Ausbildende muss eine Strafe zahlen"
+                ],
+                correct: 1,
+                explanation: "Das ordnungsgem\u00e4\u00df gef\u00fchrte Berichtsheft (Ausbildungsnachweis) ist eine Zulassungsvoraussetzung f\u00fcr die Abschlusspr\u00fcfung (\u00a7 43 Abs. 1 Nr. 2 BBiG). Ohne Berichtsheft keine Pr\u00fcfungszulassung."
+            },
+            {
+                id: 25,
+                text: "Muss ein vollj\u00e4hriger Auszubildender die Berufsschule besuchen?",
+                options: [
+                    "A) Nein, nur Minderj\u00e4hrige m\u00fcssen die Berufsschule besuchen",
+                    "B) Ja, die Berufsschulpflicht gilt f\u00fcr die gesamte Ausbildungsdauer",
+                    "C) Nur wenn der Betrieb es verlangt",
+                    "D) Nur im ersten Ausbildungsjahr"
+                ],
+                correct: 1,
+                explanation: "Die Berufsschulpflicht nach \u00a7 13 Satz 2 Nr. 2 BBiG gilt f\u00fcr die gesamte Dauer der Ausbildung \u2013 unabh\u00e4ngig davon, ob der Auszubildende vollj\u00e4hrig ist oder nicht."
+            },
+            {
+                id: 26,
+                text: "Was bedeutet Weisungsgebundenheit des Auszubildenden?",
+                options: [
+                    "A) Der Azubi muss jede Anweisung befolgen, auch private",
+                    "B) Der Azubi muss ausbildungsbezogene Weisungen des Ausbildenden und weisungsbefugter Personen befolgen",
+                    "C) Der Azubi muss nur schriftliche Weisungen befolgen",
+                    "D) Weisungsgebundenheit gilt nur w\u00e4hrend der Probezeit"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 13 Satz 2 Nr. 3 BBiG muss der Auszubildende den Weisungen der weisungsbefugten Personen Folge leisten, soweit die Weisungen im Rahmen der Ausbildung erteilt werden. Rechtswidrige oder private Weisungen m\u00fcssen nicht befolgt werden."
+            },
+            {
+                id: 27,
+                text: "In welcher Form kann der Ausbildungsnachweis (Berichtsheft) gef\u00fchrt werden?",
+                options: [
+                    "A) Nur schriftlich (handschriftlich)",
+                    "B) Nur elektronisch",
+                    "C) Schriftlich oder elektronisch",
+                    "D) Nur in einem von der IHK bereitgestellten Formular"
+                ],
+                correct: 2,
+                explanation: "Der Ausbildungsnachweis kann schriftlich oder elektronisch gef\u00fchrt werden. Die Form muss im Ausbildungsvertrag festgelegt werden (\u00a7 11 Abs. 1 Nr. 10 BBiG)."
+            },
+            {
+                id: 28,
+                text: "Welche Pflicht verletzt ein Auszubildender, der Kundendaten an Dritte weitergibt?",
+                options: [
+                    "A) Lernpflicht",
+                    "B) Sorgfaltspflicht",
+                    "C) Schweigepflicht",
+                    "D) Berufsschulpflicht"
+                ],
+                correct: 2,
+                explanation: "Die Weitergabe von Kundendaten verst\u00f6\u00dft gegen die Schweigepflicht nach \u00a7 13 Satz 2 Nr. 6 BBiG. Betriebs- und Gesch\u00e4ftsgeheimnisse \u2013 einschlie\u00dflich Kundendaten \u2013 sind zu wahren."
+            },
+            {
+                id: 29,
+                text: "Ein Azubi besch\u00e4digt fahrl\u00e4ssig eine Maschine. Gegen welche Pflicht verst\u00f6\u00dft er?",
+                options: [
+                    "A) Schweigepflicht",
+                    "B) Pflicht zum sorgf\u00e4ltigen Umgang mit Werkzeugen und Einrichtungen",
+                    "C) Berufsschulpflicht",
+                    "D) Lernpflicht"
+                ],
+                correct: 1,
+                explanation: "Der Auszubildende verst\u00f6\u00dft gegen die Pflicht zum sorgf\u00e4ltigen Umgang mit Werkzeugen, Maschinen und sonstigen Einrichtungen (\u00a7 13 Satz 2 Nr. 5 BBiG)."
+            },
+            {
+                id: 30,
+                text: "Wie viele konkrete Einzelpflichten z\u00e4hlt \u00a7 13 Satz 2 BBiG auf?",
+                options: [
+                    "A) 4",
+                    "B) 5",
+                    "C) 7",
+                    "D) 10"
+                ],
+                correct: 2,
+                explanation: "\u00a7 13 Satz 2 BBiG z\u00e4hlt 7 konkrete Pflichten auf: Sorgfaltspflicht, Berufsschulpflicht, Weisungsgebundenheit, Betriebsordnung, sorgf\u00e4ltiger Umgang, Schweigepflicht und Berichtsheft."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Probezeit und Verg\u00fctung (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Wie lang muss die Probezeit im Berufsausbildungsverh\u00e4ltnis mindestens und h\u00f6chstens sein?",
+                options: [
+                    "A) Mindestens 2 Wochen, h\u00f6chstens 3 Monate",
+                    "B) Mindestens 1 Monat, h\u00f6chstens 4 Monate",
+                    "C) Mindestens 3 Monate, h\u00f6chstens 6 Monate",
+                    "D) Es gibt keine gesetzliche Vorgabe"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 20 BBiG muss die Probezeit mindestens einen Monat und darf h\u00f6chstens vier Monate betragen."
+            },
+            {
+                id: 32,
+                text: "Was passiert, wenn im Ausbildungsvertrag eine Probezeit von 6 Monaten vereinbart wird?",
+                options: [
+                    "A) Der gesamte Vertrag ist nichtig",
+                    "B) Die Vereinbarung ist nichtig; die Probezeit wird auf das gesetzliche Maximum von 4 Monaten reduziert",
+                    "C) Die 6 Monate gelten, wenn beide Seiten zugestimmt haben",
+                    "D) Die IHK muss die Verl\u00e4ngerung genehmigen"
+                ],
+                correct: 1,
+                explanation: "Eine Probezeit von mehr als 4 Monaten verst\u00f6\u00dft gegen \u00a7 20 BBiG. Die \u00fcberschie\u00dfende Vereinbarung ist nichtig; die Probezeit wird auf das gesetzliche Maximum von 4 Monaten reduziert. Der Rest des Vertrags bleibt g\u00fcltig."
+            },
+            {
+                id: 33,
+                text: "Kann die Probezeit bei l\u00e4ngerer Krankheit verl\u00e4ngert werden?",
+                options: [
+                    "A) Nein, unter keinen Umst\u00e4nden",
+                    "B) Ja, wenn die Unterbrechung mehr als ein Drittel der Probezeit betr\u00e4gt",
+                    "C) Nur bei Minderj\u00e4hrigen",
+                    "D) Nur wenn die IHK zustimmt"
+                ],
+                correct: 1,
+                explanation: "Bei l\u00e4ngerer Unterbrechung (z. B. Krankheit von mehr als einem Drittel der Probezeit) kann die Probezeit verl\u00e4ngert werden, da der Zweck des gegenseitigen Kennenlernens sonst nicht erf\u00fcllt werden kann."
+            },
+            {
+                id: 34,
+                text: "Welcher Paragraph regelt die Verg\u00fctung des Auszubildenden?",
+                options: [
+                    "A) \u00a7 11 BBiG",
+                    "B) \u00a7 14 BBiG",
+                    "C) \u00a7 17 BBiG",
+                    "D) \u00a7 22 BBiG"
+                ],
+                correct: 2,
+                explanation: "\u00a7 17 BBiG regelt den Verg\u00fctungsanspruch der Auszubildenden, einschlie\u00dflich der Angemessenheit, der j\u00e4hrlichen Steigerung und der Mindestausbildungsverg\u00fctung."
+            },
+            {
+                id: 35,
+                text: "Um wie viel Prozent erh\u00f6ht sich die Mindestausbildungsverg\u00fctung im zweiten Ausbildungsjahr gegen\u00fcber dem ersten?",
+                options: [
+                    "A) 10 %",
+                    "B) 18 %",
+                    "C) 25 %",
+                    "D) 35 %"
+                ],
+                correct: 1,
+                explanation: "Die Mindestausbildungsverg\u00fctung erh\u00f6ht sich im zweiten Ausbildungsjahr um 18 %, im dritten um 35 % und im vierten um 40 % gegen\u00fcber dem Grundbetrag des ersten Jahres."
+            },
+            {
+                id: 36,
+                text: "Was gilt, wenn ein tarifgebundener Betrieb eine niedrigere Verg\u00fctung als die Mindestausbildungsverg\u00fctung zahlt?",
+                options: [
+                    "A) Das ist nicht erlaubt, die Mindestausbildungsverg\u00fctung hat immer Vorrang",
+                    "B) Das ist zul\u00e4ssig, da bei Tarifbindung die tarifliche Verg\u00fctung Vorrang hat",
+                    "C) Der Azubi muss die Differenz einklagen",
+                    "D) Die IHK muss die Differenz ausgleichen"
+                ],
+                correct: 1,
+                explanation: "Bei Tarifbindung hat die tarifliche Verg\u00fctung Vorrang vor der Mindestausbildungsverg\u00fctung. Da Tarifvertr\u00e4ge zwischen gleichberechtigten Parteien ausgehandelt werden, k\u00f6nnen sie auch unter der Mindestausbildungsverg\u00fctung liegen."
+            },
+            {
+                id: 37,
+                text: "Bis zu welchem Anteil der Bruttoverg\u00fctung d\u00fcrfen Sachleistungen angerechnet werden?",
+                options: [
+                    "A) 25 %",
+                    "B) 50 %",
+                    "C) 75 %",
+                    "D) 100 %"
+                ],
+                correct: 2,
+                explanation: "Nach \u00a7 17 Abs. 6 BBiG k\u00f6nnen Sachleistungen (z. B. Unterkunft und Verpflegung) auf die Verg\u00fctung angerechnet werden, jedoch h\u00f6chstens 75 % der Bruttoverg\u00fctung."
+            },
+            {
+                id: 38,
+                text: "Wann ist die Ausbildungsverg\u00fctung sp\u00e4testens zu zahlen?",
+                options: [
+                    "A) Am 1. des Folgemonats",
+                    "B) Am 15. des Monats",
+                    "C) Am letzten Arbeitstag des Monats",
+                    "D) Vierteljährlich"
+                ],
+                correct: 2,
+                explanation: "Die Ausbildungsverg\u00fctung ist sp\u00e4testens am letzten Arbeitstag des Monats zu zahlen. Die Zahlung erfolgt als monatliche Bruttoverg\u00fctung."
+            },
+            {
+                id: 39,
+                text: "Hat der Auszubildende Anspruch auf Verg\u00fctung am Pr\u00fcfungstag?",
+                options: [
+                    "A) Nein, Pr\u00fcfungstage sind unbezahlt",
+                    "B) Ja, der Ausbildende muss die Verg\u00fctung auch an Pr\u00fcfungstagen fortzahlen",
+                    "C) Nur wenn der Azubi die Pr\u00fcfung besteht",
+                    "D) Nur bei der Abschlusspr\u00fcfung, nicht bei der Zwischenpr\u00fcfung"
+                ],
+                correct: 1,
+                explanation: "Der Auszubildende hat Anspruch auf Fortzahlung der Verg\u00fctung an Pr\u00fcfungstagen (\u00a7 19 BBiG). Dies gilt f\u00fcr alle Pr\u00fcfungen \u2013 Zwischen- und Abschlusspr\u00fcfung."
+            },
+            {
+                id: 40,
+                text: "Seit wann gibt es die gesetzliche Mindestausbildungsverg\u00fctung?",
+                options: [
+                    "A) Seit 2005",
+                    "B) Seit 2015",
+                    "C) Seit 2020 (BBiG-Novelle)",
+                    "D) Seit 2025"
+                ],
+                correct: 2,
+                explanation: "Die gesetzliche Mindestausbildungsverg\u00fctung wurde durch die BBiG-Novelle 2020 eingef\u00fchrt und gilt seit dem 1. Januar 2020 f\u00fcr alle nicht-tarifgebundenen Betriebe."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: K\u00fcndigung (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Wie kann das Ausbildungsverh\u00e4ltnis w\u00e4hrend der Probezeit gek\u00fcndigt werden?",
+                options: [
+                    "A) Nur aus wichtigem Grund mit 4 Wochen Frist",
+                    "B) Jederzeit ohne Frist und ohne Angabe von Gr\u00fcnden, in Schriftform",
+                    "C) Nur durch den Ausbildenden",
+                    "D) Nur nach Genehmigung durch die IHK"
+                ],
+                correct: 1,
+                explanation: "W\u00e4hrend der Probezeit kann das Berufsausbildungsverh\u00e4ltnis jederzeit ohne Einhaltung einer K\u00fcndigungsfrist und ohne Angabe von Gr\u00fcnden gek\u00fcndigt werden (\u00a7 22 Abs. 1 BBiG). Einzige Voraussetzung: Schriftform."
+            },
+            {
+                id: 42,
+                text: "Welche K\u00fcndigungsm\u00f6glichkeit hat der Ausbildende NACH der Probezeit?",
+                options: [
+                    "A) Ordentliche K\u00fcndigung mit 4 Wochen Frist",
+                    "B) Nur au\u00dferordentliche K\u00fcndigung aus wichtigem Grund",
+                    "C) K\u00fcndigung mit 2 Wochen Frist",
+                    "D) Jederzeit ohne Grund"
+                ],
+                correct: 1,
+                explanation: "Nach der Probezeit kann der Ausbildende das Ausbildungsverh\u00e4ltnis nur aus wichtigem Grund au\u00dferordentlich (fristlos) k\u00fcndigen (\u00a7 22 Abs. 2 Nr. 1 BBiG). Eine ordentliche K\u00fcndigung steht ihm nicht zu."
+            },
+            {
+                id: 43,
+                text: "Der Auszubildende m\u00f6chte nach der Probezeit den Ausbildungsberuf wechseln. Welche K\u00fcndigungsfrist gilt?",
+                options: [
+                    "A) 2 Wochen",
+                    "B) 4 Wochen",
+                    "C) 3 Monate",
+                    "D) Keine Frist, sofort m\u00f6glich"
+                ],
+                correct: 1,
+                explanation: "Der Auszubildende kann nach der Probezeit mit einer Frist von 4 Wochen ordentlich k\u00fcndigen, wenn er die Berufsausbildung aufgeben oder sich f\u00fcr einen anderen Beruf ausbilden lassen will (\u00a7 22 Abs. 2 Nr. 2 BBiG)."
+            },
+            {
+                id: 44,
+                text: "Innerhalb welcher Frist muss eine K\u00fcndigung aus wichtigem Grund ausgesprochen werden?",
+                options: [
+                    "A) Innerhalb von 1 Woche nach Kenntnis der Tatsachen",
+                    "B) Innerhalb von 2 Wochen nach Kenntnis der Tatsachen",
+                    "C) Innerhalb von 4 Wochen nach Kenntnis der Tatsachen",
+                    "D) Es gibt keine zeitliche Begrenzung"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 22 Abs. 3 BBiG ist die K\u00fcndigung aus wichtigem Grund unwirksam, wenn die zugrunde liegenden Tatsachen dem K\u00fcndigungsberechtigten l\u00e4nger als 2 Wochen bekannt sind."
+            },
+            {
+                id: 45,
+                text: "Welches der folgenden Beispiele ist ein wichtiger Grund f\u00fcr eine K\u00fcndigung nach der Probezeit?",
+                options: [
+                    "A) Der Azubi hat eine schlechte Note in der Berufsschule",
+                    "B) Der Azubi hat im Betrieb gestohlen",
+                    "C) Der Azubi ist einmal zu sp\u00e4t gekommen",
+                    "D) Der Azubi hat seinen Urlaub nicht rechtzeitig beantragt"
+                ],
+                correct: 1,
+                explanation: "Diebstahl im Betrieb ist ein wichtiger Grund f\u00fcr eine au\u00dferordentliche K\u00fcndigung, da er das Vertrauensverh\u00e4ltnis zerst\u00f6rt und eine Fortsetzung des Ausbildungsverh\u00e4ltnisses unzumutbar macht."
+            },
+            {
+                id: 46,
+                text: "Muss vor einer K\u00fcndigung aus wichtigem Grund eine Abmahnung erfolgen?",
+                options: [
+                    "A) Nein, niemals",
+                    "B) Ja, immer ohne Ausnahme",
+                    "C) In der Regel ja, au\u00dfer bei besonders schwerwiegenden Verst\u00f6\u00dfen",
+                    "D) Nur wenn der Betriebsrat es verlangt"
+                ],
+                correct: 2,
+                explanation: "In der Regel ist vor einer K\u00fcndigung aus wichtigem Grund eine Abmahnung erforderlich. Bei besonders schwerwiegenden Verst\u00f6\u00dfen (z. B. Diebstahl, k\u00f6rperliche Gewalt) kann die K\u00fcndigung auch ohne vorherige Abmahnung ausgesprochen werden."
+            },
+            {
+                id: 47,
+                text: "In welcher Form muss eine K\u00fcndigung nach der Probezeit erfolgen?",
+                options: [
+                    "A) M\u00fcndlich reicht aus",
+                    "B) Schriftlich und unter Angabe des K\u00fcndigungsgrundes",
+                    "C) Per E-Mail",
+                    "D) Durch den Betriebsrat"
+                ],
+                correct: 1,
+                explanation: "Nach der Probezeit muss die K\u00fcndigung schriftlich erfolgen und den K\u00fcndigungsgrund angeben (\u00a7 22 Abs. 2 BBiG). Eine m\u00fcndliche K\u00fcndigung oder eine K\u00fcndigung ohne Grundangabe ist unwirksam."
+            },
+            {
+                id: 48,
+                text: "Innerhalb welcher Frist verj\u00e4hrt ein Schadensersatzanspruch nach \u00a7 23 BBiG?",
+                options: [
+                    "A) 1 Monat",
+                    "B) 3 Monate",
+                    "C) 6 Monate",
+                    "D) 3 Jahre"
+                ],
+                correct: 1,
+                explanation: "Schadensersatzanspr\u00fcche nach \u00a7 23 BBiG erlischen, wenn sie nicht innerhalb von 3 Monaten nach Beendigung des Berufsausbildungsverh\u00e4ltnisses geltend gemacht werden."
+            },
+            {
+                id: 49,
+                text: "Wer kann nach der Probezeit ordentlich k\u00fcndigen?",
+                options: [
+                    "A) Nur der Ausbildende",
+                    "B) Nur der Auszubildende (4 Wochen Frist bei Berufswechsel/-aufgabe)",
+                    "C) Beide Seiten mit 4 Wochen Frist",
+                    "D) Keiner von beiden"
+                ],
+                correct: 1,
+                explanation: "Nach der Probezeit kann nur der Auszubildende ordentlich k\u00fcndigen \u2013 mit 4 Wochen Frist und dem Grund der Berufsaufgabe oder des Berufswechsels (\u00a7 22 Abs. 2 Nr. 2 BBiG). Der Ausbildende hat kein ordentliches K\u00fcndigungsrecht."
+            },
+            {
+                id: 50,
+                text: "Kann ein Ausbildungsverh\u00e4ltnis durch einen Aufhebungsvertrag beendet werden?",
+                options: [
+                    "A) Nein, das ist gesetzlich verboten",
+                    "B) Ja, durch einvernehmliche Vereinbarung beider Parteien",
+                    "C) Nur mit Genehmigung der IHK",
+                    "D) Nur w\u00e4hrend der Probezeit"
+                ],
+                correct: 1,
+                explanation: "Ein Ausbildungsverh\u00e4ltnis kann jederzeit durch einen Aufhebungsvertrag (einvernehmliche Vereinbarung beider Parteien) beendet werden. Dies ist kein K\u00fcndigung, sondern eine vertragliche Vereinbarung."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Eintragung, Berichtsheft, Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Welcher Paragraph regelt das Verzeichnis der Berufsausbildungsverh\u00e4ltnisse?",
+                options: [
+                    "A) \u00a7 11 BBiG",
+                    "B) \u00a7 22 BBiG",
+                    "C) \u00a7 34 BBiG",
+                    "D) \u00a7 43 BBiG"
+                ],
+                correct: 2,
+                explanation: "\u00a7 34 BBiG regelt das Verzeichnis der Berufsausbildungsverh\u00e4ltnisse, das von der zust\u00e4ndigen Stelle (z. B. IHK) gef\u00fchrt wird."
+            },
+            {
+                id: 52,
+                text: "Wof\u00fcr ist die Eintragung des Ausbildungsvertrags bei der IHK Voraussetzung?",
+                options: [
+                    "A) F\u00fcr die G\u00fcltigkeit des Vertrags",
+                    "B) F\u00fcr die Zulassung zur Abschlusspr\u00fcfung",
+                    "C) F\u00fcr die Zahlung der Verg\u00fctung",
+                    "D) F\u00fcr den Besuch der Berufsschule"
+                ],
+                correct: 1,
+                explanation: "Die Eintragung des Ausbildungsvertrags bei der IHK ist Voraussetzung f\u00fcr die Pr\u00fcfungszulassung. Der Vertrag selbst ist auch ohne Eintragung g\u00fcltig."
+            },
+            {
+                id: 53,
+                text: "Welche Voraussetzung muss f\u00fcr die Eintragung des Vertrags NICHT erf\u00fcllt sein?",
+                options: [
+                    "A) Eignung der Ausbildungsst\u00e4tte",
+                    "B) Eignung des Ausbilders",
+                    "C) Akademischer Abschluss des Auszubildenden",
+                    "D) Angemessenes Verh\u00e4ltnis von Azubis zu Fachkr\u00e4ften"
+                ],
+                correct: 2,
+                explanation: "F\u00fcr die Eintragung muss der Vertrag den gesetzlichen Anforderungen entsprechen, die Ausbildungsst\u00e4tte und der Ausbilder m\u00fcssen geeignet sein, und das Verh\u00e4ltnis Azubis/Fachkr\u00e4fte muss angemessen sein. Ein akademischer Abschluss des Azubis ist nicht erforderlich."
+            },
+            {
+                id: 54,
+                text: "Wann endet das Ausbildungsverh\u00e4ltnis, wenn der Azubi die Pr\u00fcfung VOR dem vertraglich vereinbarten Ende besteht?",
+                options: [
+                    "A) Am vertraglich vereinbarten Enddatum",
+                    "B) Mit der Bekanntgabe des Pr\u00fcfungsergebnisses",
+                    "C) 4 Wochen nach Bestehen der Pr\u00fcfung",
+                    "D) Am Ende des Monats, in dem die Pr\u00fcfung bestanden wurde"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 21 Abs. 2 BBiG endet das Berufsausbildungsverh\u00e4ltnis mit der Bekanntgabe des Pr\u00fcfungsergebnisses durch den Pr\u00fcfungsausschuss, wenn die Pr\u00fcfung vor Ablauf der Ausbildungszeit bestanden wird."
+            },
+            {
+                id: 55,
+                text: "Was passiert, wenn der Auszubildende die Abschlusspr\u00fcfung nicht besteht?",
+                options: [
+                    "A) Das Ausbildungsverh\u00e4ltnis endet automatisch",
+                    "B) Auf Verlangen des Azubis verl\u00e4ngert sich das Verh\u00e4ltnis bis zur Wiederholungspr\u00fcfung, max. 1 Jahr",
+                    "C) Der Betrieb muss den Azubi unbefristet weiterbeschäftigen",
+                    "D) Der Azubi muss die Ausbildung von vorne beginnen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 21 Abs. 3 BBiG verl\u00e4ngert sich das Ausbildungsverh\u00e4ltnis auf Verlangen des Auszubildenden bis zur n\u00e4chstm\u00f6glichen Wiederholungspr\u00fcfung, h\u00f6chstens um ein Jahr."
+            },
+            {
+                id: 56,
+                text: "Was gilt nach \u00a7 24 BBiG, wenn ein Azubi nach der Pr\u00fcfung im Betrieb weiterbesch\u00e4ftigt wird?",
+                options: [
+                    "A) Es entsteht ein befristetes Arbeitsverh\u00e4ltnis f\u00fcr 6 Monate",
+                    "B) Es gilt ein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet",
+                    "C) Das Ausbildungsverh\u00e4ltnis l\u00e4uft weiter",
+                    "D) Der Azubi muss einen neuen Vertrag unterschreiben"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 24 BBiG gilt ein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet, wenn der Auszubildende nach Beendigung des Ausbildungsverh\u00e4ltnisses im Betrieb weiterbesch\u00e4ftigt wird."
+            },
+            {
+                id: 57,
+                text: "Welche Aussage zum Berufsausbildungsvertrag ist richtig?",
+                options: [
+                    "A) Er ist ein normaler Arbeitsvertrag nach BGB",
+                    "B) Er ist ein besonderer privatrechtlicher Vertrag mit zus\u00e4tzlichen zwingenden Vorschriften des BBiG",
+                    "C) Er ist ein \u00f6ffentlich-rechtlicher Vertrag",
+                    "D) Er wird zwischen der IHK und dem Auszubildenden geschlossen"
+                ],
+                correct: 1,
+                explanation: "Der Berufsausbildungsvertrag ist ein besonderer privatrechtlicher Vertrag, der auf den Regelungen des BGB basiert, aber durch zahlreiche zwingende Vorschriften des BBiG erg\u00e4nzt und eingeschr\u00e4nkt wird."
+            },
+            {
+                id: 58,
+                text: "Wer ist der \u201eAusbildende\u201c im Sinne des BBiG?",
+                options: [
+                    "A) Der Berufsschullehrer",
+                    "B) Die Person, die den Auszubildenden tats\u00e4chlich im Betrieb anleitet",
+                    "C) Die nat\u00fcrliche oder juristische Person, die den Auszubildenden zur Berufsausbildung einstellt",
+                    "D) Der IHK-Pr\u00fcfer"
+                ],
+                correct: 2,
+                explanation: "Der \u201eAusbildende\u201c ist die nat\u00fcrliche oder juristische Person (z. B. das Unternehmen), die den Auszubildenden zur Berufsausbildung einstellt und die rechtliche Verantwortung tr\u00e4gt. Der \u201eAusbilder\u201c ist die Person, die die Ausbildung tats\u00e4chlich durchf\u00fchrt."
+            },
+            {
+                id: 59,
+                text: "Welche Frage im Vorstellungsgespr\u00e4ch ist nach dem AGG UNZUL\u00c4SSIG?",
+                options: [
+                    "A) \u201eWelchen Schulabschluss haben Sie?\u201c",
+                    "B) \u201eHaben Sie Erfahrung mit MS Office?\u201c",
+                    "C) \u201eSind Sie schwanger?\u201c",
+                    "D) \u201eWarum haben Sie sich f\u00fcr diesen Beruf entschieden?\u201c"
+                ],
+                correct: 2,
+                explanation: "Die Frage nach einer Schwangerschaft ist nach dem AGG unzul\u00e4ssig, da sie eine Diskriminierung wegen des Geschlechts darstellt. Der Bewerber hat bei unzul\u00e4ssigen Fragen ein Recht zur L\u00fcge."
+            },
+            {
+                id: 60,
+                text: "Welche drei Zulassungsvoraussetzungen zur Abschlusspr\u00fcfung nach \u00a7 43 BBiG stehen im direkten Zusammenhang mit dem Ausbildungsvertrag?",
+                options: [
+                    "A) Mindestalter 18 Jahre, Deutschkenntnisse, F\u00fchrungszeugnis",
+                    "B) Eintragung des Vertrags, ordnungsgem\u00e4\u00dfes Berichtsheft, Teilnahme an der Zwischenpr\u00fcfung",
+                    "C) Abitur, Sprachtest, Gesundheitszeugnis",
+                    "D) Betriebszugeh\u00f6rigkeit von mind. 5 Jahren, Empfehlung, Pr\u00fcfungsgeb\u00fchr"
+                ],
+                correct: 1,
+                explanation: "Die drei vertragsbezogenen Zulassungsvoraussetzungen nach \u00a7 43 BBiG sind: (1) Eintragung des Ausbildungsverh\u00e4ltnisses bei der zust\u00e4ndigen Stelle, (2) ordnungsgem\u00e4\u00df gef\u00fchrter Ausbildungsnachweis (Berichtsheft), (3) Teilnahme an der Zwischenpr\u00fcfung bzw. Teil 1 der gestreckten Abschlusspr\u00fcfung."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always in the same spot
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 73;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

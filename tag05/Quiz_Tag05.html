@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 05 &ndash; Jugendarbeitsschutzgesetz (JArbSchG)</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 05 &ndash; Jugendarbeitsschutzgesetz (JArbSchG)</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1976). <em>Jugendarbeitsschutzgesetz (JArbSchG)</em>. BGBl. I S. 965. https://www.gesetze-im-internet.de/jarbschg/</p>
+    <p>Bundesministerium der Justiz. (2005). <em>Berufsbildungsgesetz (BBiG)</em>. BGBl. I S. 931. https://www.gesetze-im-internet.de/bbig_2005/</p>
+    <p>Molitor, E. (2020). <em>Jugendarbeitsschutzgesetz: Kommentar</em>. C.H. Beck.</p>
+    <p>Zmarzlik, J. &amp; Anzinger, R. (2019). <em>Jugendarbeitsschutzgesetz: Kommentar</em> (8. Aufl.). C.H. Beck.</p>
+    <p>Semler, S. &amp; Kolbe, C. (2021). <em>Wirtschafts- und Sozialkunde</em>. Westermann.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Geltungsbereich und Definitionen (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welches Gesetz regelt den Schutz von Kindern und Jugendlichen im Arbeitsleben?",
+                options: [
+                    "A) Arbeitszeitgesetz (ArbZG)",
+                    "B) Jugendarbeitsschutzgesetz (JArbSchG)",
+                    "C) B\u00fcrgerliches Gesetzbuch (BGB)",
+                    "D) Berufsbildungsgesetz (BBiG)"
+                ],
+                correct: 1,
+                explanation: "Das Jugendarbeitsschutzgesetz (JArbSchG) von 1976 ist das zentrale Schutzgesetz f\u00fcr Kinder und Jugendliche im Arbeitsleben. Es erg\u00e4nzt das allgemeine Arbeitsschutzrecht um spezifische Vorschriften."
+            },
+            {
+                id: 2,
+                text: "Ab welchem Alter gilt eine Person gem\u00e4\u00df \u00a7 2 JArbSchG als Jugendlicher?",
+                options: [
+                    "A) Ab 13 Jahren",
+                    "B) Ab 14 Jahren",
+                    "C) Ab 15 Jahren",
+                    "D) Ab 16 Jahren"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 2 Abs. 2 JArbSchG ist Jugendlicher, wer 15, aber noch nicht 18 Jahre alt ist."
+            },
+            {
+                id: 3,
+                text: "Was gilt f\u00fcr einen 15-J\u00e4hrigen, der noch der Vollzeitschulpflicht unterliegt?",
+                options: [
+                    "A) Er gilt als Jugendlicher und darf voll arbeiten",
+                    "B) Er gilt als Kind im Sinne des JArbSchG",
+                    "C) Er unterliegt dem Arbeitszeitgesetz",
+                    "D) Er darf nur mit Genehmigung des Gewerbeaufsichtsamtes arbeiten"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 2 Abs. 3 JArbSchG gelten Jugendliche, die noch der Vollzeitschulpflicht unterliegen, als Kinder. F\u00fcr sie gilt das grunds\u00e4tzliche Besch\u00e4ftigungsverbot."
+            },
+            {
+                id: 4,
+                text: "Bis zu welchem Alter gilt eine Person als Kind im Sinne des JArbSchG?",
+                options: [
+                    "A) Bis zum 12. Lebensjahr",
+                    "B) Bis zum 14. Lebensjahr",
+                    "C) Bis zum vollendeten 14. Lebensjahr (also unter 15)",
+                    "D) Bis zum 16. Lebensjahr"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 2 Abs. 1 JArbSchG ist Kind, wer noch nicht 15 Jahre alt ist. Das bedeutet: bis zum vollendeten 14. Lebensjahr."
+            },
+            {
+                id: 5,
+                text: "Gilt das JArbSchG auch f\u00fcr Ferienjobs von Jugendlichen?",
+                options: [
+                    "A) Nein, Ferienjobs sind vom JArbSchG ausgenommen",
+                    "B) Ja, das JArbSchG gilt f\u00fcr alle Formen der Besch\u00e4ftigung",
+                    "C) Nur wenn der Ferienjob l\u00e4nger als 4 Wochen dauert",
+                    "D) Nur in bestimmten Branchen"
+                ],
+                correct: 1,
+                explanation: "Das JArbSchG gilt f\u00fcr alle Formen der Besch\u00e4ftigung von Kindern und Jugendlichen \u2013 unabh\u00e4ngig von Branche, Dauer oder Vertragsform. Das umfasst auch Ferienjobs, Praktika und Nebenjobs."
+            },
+            {
+                id: 6,
+                text: "Welche Beh\u00f6rde \u00fcberwacht die Einhaltung des JArbSchG?",
+                options: [
+                    "A) Das Jugendamt",
+                    "B) Die Industrie- und Handelskammer (IHK)",
+                    "C) Das Gewerbeaufsichtsamt",
+                    "D) Die Bundesagentur f\u00fcr Arbeit"
+                ],
+                correct: 2,
+                explanation: "Die Gewerbeaufsichts\u00e4mter der L\u00e4nder \u00fcberwachen die Einhaltung des JArbSchG. Sie k\u00f6nnen bei Verst\u00f6\u00dfen Bu\u00dfgelder verh\u00e4ngen."
+            },
+            {
+                id: 7,
+                text: "Seit wann ist das Jugendarbeitsschutzgesetz in Kraft?",
+                options: [
+                    "A) 1949",
+                    "B) 1960",
+                    "C) 1976",
+                    "D) 2005"
+                ],
+                correct: 2,
+                explanation: "Das JArbSchG wurde am 12. April 1976 erlassen (BGBl. I S. 965) und l\u00f6ste das fr\u00fchere Jugendschutzgesetz von 1960 ab."
+            },
+            {
+                id: 8,
+                text: "Ab welchem Alter d\u00fcrfen Kinder mit Einwilligung der Eltern leichte Arbeiten verrichten?",
+                options: [
+                    "A) Ab 10 Jahren",
+                    "B) Ab 12 Jahren",
+                    "C) Ab 13 Jahren",
+                    "D) Ab 14 Jahren"
+                ],
+                correct: 2,
+                explanation: "Kinder ab 13 Jahren d\u00fcrfen mit Einwilligung der Erziehungsberechtigten leichte und geeignete Arbeiten verrichten, z. B. Zeitungen austragen, maximal 2 Stunden t\u00e4glich."
+            },
+            {
+                id: 9,
+                text: "Was ist ein zentraler Zweck des JArbSchG?",
+                options: [
+                    "A) Die F\u00f6rderung der Berufsausbildung",
+                    "B) Der Schutz junger Menschen vor \u00dcberforderung und Ausbeutung im Arbeitsleben",
+                    "C) Die Regelung der Mindestausbildungsverg\u00fctung",
+                    "D) Die Festlegung von Ausbildungsinhalten"
+                ],
+                correct: 1,
+                explanation: "Das JArbSchG dient dem Schutz von Kindern und Jugendlichen vor \u00dcberforderung, Gesundheitsgefahren und Ausbeutung im Arbeitsleben."
+            },
+            {
+                id: 10,
+                text: "Kann das JArbSchG durch einen Arbeitsvertrag zu Ungunsten des Jugendlichen abge\u00e4ndert werden?",
+                options: [
+                    "A) Ja, wenn beide Seiten einverstanden sind",
+                    "B) Ja, wenn die Eltern zustimmen",
+                    "C) Nein, das JArbSchG ist zwingendes Recht",
+                    "D) Ja, durch Betriebsvereinbarung"
+                ],
+                correct: 2,
+                explanation: "Das JArbSchG ist \u00f6ffentlich-rechtliches Schutzgesetz und zwingendes Recht. Es kann weder durch Arbeitsvertrag noch durch Betriebsvereinbarung zu Ungunsten des Jugendlichen abge\u00e4ndert werden."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Arbeitszeiten (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Wie viele Stunden pro Tag darf ein Jugendlicher maximal arbeiten (\u00a7 8 JArbSchG)?",
+                options: [
+                    "A) 6 Stunden",
+                    "B) 8 Stunden",
+                    "C) 9 Stunden",
+                    "D) 10 Stunden"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 8 Abs. 1 JArbSchG d\u00fcrfen Jugendliche nicht mehr als 8 Stunden t\u00e4glich besch\u00e4ftigt werden."
+            },
+            {
+                id: 12,
+                text: "Wie viele Stunden pro Woche darf ein Jugendlicher maximal arbeiten?",
+                options: [
+                    "A) 35 Stunden",
+                    "B) 38,5 Stunden",
+                    "C) 40 Stunden",
+                    "D) 48 Stunden"
+                ],
+                correct: 2,
+                explanation: "Die w\u00f6chentliche H\u00f6chstarbeitszeit f\u00fcr Jugendliche betr\u00e4gt 40 Stunden (\u00a7 8 Abs. 1 JArbSchG). Erwachsene d\u00fcrfen bis zu 48 Stunden arbeiten."
+            },
+            {
+                id: 13,
+                text: "Unter welcher Bedingung darf ein Jugendlicher an einem Tag 8,5 Stunden arbeiten?",
+                options: [
+                    "A) Wenn der Arbeitgeber es anordnet",
+                    "B) Wenn an einem anderen Tag derselben Woche die Arbeitszeit entsprechend verk\u00fcrzt wird",
+                    "C) Wenn der Jugendliche \u00e4lter als 16 ist",
+                    "D) Wenn die Eltern zustimmen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 8 Abs. 2a JArbSchG d\u00fcrfen Jugendliche bis zu 8,5 Stunden an einem Tag arbeiten, wenn an einem anderen Tag der gleichen Woche entsprechend verk\u00fcrzt wird. Die 40-Stunden-Woche muss eingehalten werden."
+            },
+            {
+                id: 14,
+                text: "An wie vielen Tagen pro Woche d\u00fcrfen Jugendliche maximal besch\u00e4ftigt werden (\u00a7 15)?",
+                options: [
+                    "A) 4 Tage",
+                    "B) 5 Tage",
+                    "C) 5,5 Tage",
+                    "D) 6 Tage"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 15 JArbSchG d\u00fcrfen Jugendliche nur an 5 Tagen in der Woche besch\u00e4ftigt werden (F\u00fcnf-Tage-Woche)."
+            },
+            {
+                id: 15,
+                text: "Was ist die Schichtzeit gem\u00e4\u00df \u00a7 12 JArbSchG?",
+                options: [
+                    "A) Nur die reine Arbeitszeit",
+                    "B) Die Arbeitszeit zuz\u00fcglich der Ruhepausen",
+                    "C) Die Arbeitszeit zuz\u00fcglich der Wegezeit zum Betrieb",
+                    "D) Die Zeit zwischen Arbeitsbeginn und Feierabend abz\u00fcglich \u00dcberstunden"
+                ],
+                correct: 1,
+                explanation: "Die Schichtzeit ist die t\u00e4gliche Arbeitszeit unter Hinzurechnung der Ruhepausen (\u00a7 12 Abs. 1 JArbSchG)."
+            },
+            {
+                id: 16,
+                text: "Wie hoch darf die Schichtzeit f\u00fcr Jugendliche grunds\u00e4tzlich sein?",
+                options: [
+                    "A) 8 Stunden",
+                    "B) 9 Stunden",
+                    "C) 10 Stunden",
+                    "D) 12 Stunden"
+                ],
+                correct: 2,
+                explanation: "Die Schichtzeit darf grunds\u00e4tzlich 10 Stunden nicht \u00fcberschreiten (\u00a7 12 JArbSchG). In bestimmten Branchen (Landwirtschaft, Gastst\u00e4tten) sind bis zu 11 Stunden zul\u00e4ssig."
+            },
+            {
+                id: 17,
+                text: "Darf ein 16-j\u00e4hriger Azubi in der Gastronomie eine Schichtzeit von 11 Stunden haben?",
+                options: [
+                    "A) Nein, maximal 10 Stunden",
+                    "B) Ja, im Gastst\u00e4ttengewerbe sind bis zu 11 Stunden Schichtzeit zul\u00e4ssig",
+                    "C) Nur mit Genehmigung des Gewerbeaufsichtsamtes",
+                    "D) Nur wenn keine Nachtarbeit vorliegt"
+                ],
+                correct: 1,
+                explanation: "Im Gastst\u00e4ttengewerbe darf die Schichtzeit f\u00fcr Jugendliche bis zu 11 Stunden betragen (\u00a7 12 JArbSchG). Dies liegt an den branchetypischen l\u00e4ngeren Pausen."
+            },
+            {
+                id: 18,
+                text: "Ein Jugendlicher arbeitet montags bis donnerstags je 8,5 Stunden. Wie lange darf er am Freitag h\u00f6chstens arbeiten?",
+                options: [
+                    "A) 8 Stunden",
+                    "B) 7 Stunden",
+                    "C) 6 Stunden",
+                    "D) 5,5 Stunden"
+                ],
+                correct: 2,
+                explanation: "Mo\u2013Do: 4 \u00d7 8,5 h = 34 h. Die Wochenh\u00f6chstgrenze betr\u00e4gt 40 h, also darf am Freitag h\u00f6chstens 6 Stunden gearbeitet werden (40 \u2013 34 = 6)."
+            },
+            {
+                id: 19,
+                text: "Worauf bezieht sich die t\u00e4gliche Arbeitszeit von 8 Stunden?",
+                options: [
+                    "A) Auf den Zeitraum von Mitternacht bis Mitternacht",
+                    "B) Auf den Zeitraum von 24 Stunden ab Arbeitsbeginn",
+                    "C) Auf den Zeitraum von 6:00 bis 20:00 Uhr",
+                    "D) Auf den Kalendertag"
+                ],
+                correct: 1,
+                explanation: "Die t\u00e4gliche Arbeitszeit bezieht sich auf den Zeitraum von 24 Stunden ab Arbeitsbeginn, nicht auf den Kalendertag."
+            },
+            {
+                id: 20,
+                text: "Welche Aussage zur Arbeitszeit von Jugendlichen ist FALSCH?",
+                options: [
+                    "A) Die w\u00f6chentliche H\u00f6chstarbeitszeit betr\u00e4gt 40 Stunden",
+                    "B) Jugendliche d\u00fcrfen an einzelnen Tagen bis zu 10 Stunden arbeiten, wenn ein Ausgleich erfolgt",
+                    "C) Berufsschultage z\u00e4hlen als Arbeitstage",
+                    "D) Jugendliche d\u00fcrfen nur an 5 Tagen pro Woche arbeiten"
+                ],
+                correct: 1,
+                explanation: "Falsch ist Aussage B: Jugendliche d\u00fcrfen maximal 8,5 Stunden an einem Tag arbeiten (nicht 10 Stunden). Die M\u00f6glichkeit, auf 10 Stunden zu verl\u00e4ngern, gilt nur f\u00fcr Erwachsene nach dem ArbZG."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Pausen, Ruhezeiten, Samstags-/Sonntagsarbeit (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Wie lang muss die Ruhepause f\u00fcr einen Jugendlichen sein, der 7 Stunden arbeitet?",
+                options: [
+                    "A) 15 Minuten",
+                    "B) 30 Minuten",
+                    "C) 45 Minuten",
+                    "D) 60 Minuten"
+                ],
+                correct: 3,
+                explanation: "Bei einer Arbeitszeit von mehr als 6 Stunden stehen Jugendlichen gem\u00e4\u00df \u00a7 11 Abs. 1 Nr. 2 JArbSchG 60 Minuten Ruhepause zu."
+            },
+            {
+                id: 22,
+                text: "Ab welcher Arbeitszeit haben Jugendliche Anspruch auf 30 Minuten Pause?",
+                options: [
+                    "A) Ab 3 Stunden",
+                    "B) Ab 4 Stunden",
+                    "C) Ab 4,5 Stunden",
+                    "D) Ab 6 Stunden"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 11 Abs. 1 Nr. 1 JArbSchG haben Jugendliche ab einer Arbeitszeit von 4,5 Stunden Anspruch auf mindestens 30 Minuten Ruhepause."
+            },
+            {
+                id: 23,
+                text: "Wie lang muss die ununterbrochene Ruhezeit nach der t\u00e4glichen Arbeitszeit f\u00fcr Jugendliche mindestens sein?",
+                options: [
+                    "A) 8 Stunden",
+                    "B) 10 Stunden",
+                    "C) 11 Stunden",
+                    "D) 12 Stunden"
+                ],
+                correct: 3,
+                explanation: "Gem\u00e4\u00df \u00a7 13 JArbSchG m\u00fcssen Jugendliche nach der t\u00e4glichen Arbeitszeit eine ununterbrochene Freizeit von mindestens 12 Stunden haben. F\u00fcr Erwachsene gilt 11 Stunden."
+            },
+            {
+                id: 24,
+                text: "In welchem Zeitraum d\u00fcrfen Jugendliche grunds\u00e4tzlich besch\u00e4ftigt werden (\u00a7 14)?",
+                options: [
+                    "A) 5:00 bis 21:00 Uhr",
+                    "B) 6:00 bis 20:00 Uhr",
+                    "C) 7:00 bis 19:00 Uhr",
+                    "D) 6:00 bis 22:00 Uhr"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 14 Abs. 1 JArbSchG d\u00fcrfen Jugendliche grunds\u00e4tzlich nur in der Zeit von 6:00 bis 20:00 Uhr besch\u00e4ftigt werden (Nachtruhe)."
+            },
+            {
+                id: 25,
+                text: "Bis wann darf ein 16-j\u00e4hriger Azubi in einer Gastst\u00e4tte arbeiten?",
+                options: [
+                    "A) Bis 20:00 Uhr",
+                    "B) Bis 21:00 Uhr",
+                    "C) Bis 22:00 Uhr",
+                    "D) Bis 23:00 Uhr"
+                ],
+                correct: 2,
+                explanation: "Im Gastst\u00e4ttengewerbe d\u00fcrfen Jugendliche ab 16 Jahren gem\u00e4\u00df \u00a7 14 Abs. 2 Nr. 3 JArbSchG bis 22:00 Uhr besch\u00e4ftigt werden."
+            },
+            {
+                id: 26,
+                text: "Welche Mindestdauer muss eine einzelne Ruhepause f\u00fcr Jugendliche haben?",
+                options: [
+                    "A) 5 Minuten",
+                    "B) 10 Minuten",
+                    "C) 15 Minuten",
+                    "D) 20 Minuten"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 11 Abs. 2 JArbSchG muss jede einzelne Ruhepause mindestens 15 Minuten betragen."
+            },
+            {
+                id: 27,
+                text: "D\u00fcrfen Jugendliche grunds\u00e4tzlich an Samstagen arbeiten?",
+                options: [
+                    "A) Ja, ohne Einschr\u00e4nkungen",
+                    "B) Nein, grunds\u00e4tzlich nicht, aber mit Ausnahmen f\u00fcr bestimmte Branchen",
+                    "C) Nur mit Zustimmung der Eltern",
+                    "D) Nur in den Schulferien"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 16 JArbSchG d\u00fcrfen Jugendliche an Samstagen grunds\u00e4tzlich nicht besch\u00e4ftigt werden. Ausnahmen bestehen f\u00fcr einen abschlie\u00dfenden Katalog von Branchen."
+            },
+            {
+                id: 28,
+                text: "Wie viele Samstage im Monat m\u00fcssen f\u00fcr Jugendliche mindestens besch\u00e4ftigungsfrei bleiben?",
+                options: [
+                    "A) Einer",
+                    "B) Zwei",
+                    "C) Drei",
+                    "D) Alle"
+                ],
+                correct: 1,
+                explanation: "Mindestens zwei Samstage im Monat m\u00fcssen f\u00fcr Jugendliche besch\u00e4ftigungsfrei bleiben (\u00a7 16 Abs. 2 JArbSchG)."
+            },
+            {
+                id: 29,
+                text: "Was muss der Arbeitgeber gew\u00e4hren, wenn ein Jugendlicher am Sonntag arbeitet?",
+                options: [
+                    "A) Einen finanziellen Zuschlag",
+                    "B) Einen Ersatzruhetag in derselben Woche",
+                    "C) Einen zus\u00e4tzlichen Urlaubstag",
+                    "D) Nichts, Sonntagsarbeit ist f\u00fcr Jugendliche generell verboten"
+                ],
+                correct: 1,
+                explanation: "F\u00fcr Sonntagsarbeit muss dem Jugendlichen ein Ersatzruhetag in derselben Woche gew\u00e4hrt werden (\u00a7 17 Abs. 2 JArbSchG). Die 5-Tage-Woche muss eingehalten werden."
+            },
+            {
+                id: 30,
+                text: "Darf eine Ruhepause an den Anfang oder das Ende der Arbeitszeit gelegt werden?",
+                options: [
+                    "A) Ja, das ist dem Arbeitgeber freigestellt",
+                    "B) Ja, aber nur am Anfang",
+                    "C) Ja, aber nur am Ende",
+                    "D) Nein, Pausen d\u00fcrfen nicht am Anfang oder Ende der Arbeitszeit liegen"
+                ],
+                correct: 3,
+                explanation: "Ruhepausen d\u00fcrfen nicht an den Anfang oder das Ende der Arbeitszeit gelegt werden. Sie m\u00fcssen die Arbeitszeit unterbrechen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Urlaub und Berufsschulbesuch (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Wie viele Werktage Urlaub stehen einem Jugendlichen zu, der am 1. Januar noch nicht 16 Jahre alt ist?",
+                options: [
+                    "A) 24 Werktage",
+                    "B) 25 Werktage",
+                    "C) 27 Werktage",
+                    "D) 30 Werktage"
+                ],
+                correct: 3,
+                explanation: "Gem\u00e4\u00df \u00a7 19 Nr. 1 JArbSchG betr\u00e4gt der Mindesturlaub 30 Werktage, wenn der Jugendliche zu Beginn des Kalenderjahres noch nicht 16 Jahre alt ist."
+            },
+            {
+                id: 32,
+                text: "Welcher Zeitpunkt ist f\u00fcr die Bestimmung des Urlaubsanspruchs ma\u00dfgeblich?",
+                options: [
+                    "A) Der Beginn der Ausbildung",
+                    "B) Der 1. Januar des Kalenderjahres",
+                    "C) Der Zeitpunkt des Urlaubsantritts",
+                    "D) Der Geburtstag des Jugendlichen"
+                ],
+                correct: 1,
+                explanation: "Ma\u00dfgeblich f\u00fcr die Urlaubsstaffelung ist das Alter am 1. Januar des jeweiligen Kalenderjahres (\u00a7 19 JArbSchG)."
+            },
+            {
+                id: 33,
+                text: "Lisa ist am 1. Januar 17 Jahre alt. Wie viel Mindesturlaub steht ihr zu?",
+                options: [
+                    "A) 30 Werktage",
+                    "B) 27 Werktage",
+                    "C) 25 Werktage",
+                    "D) 24 Werktage"
+                ],
+                correct: 2,
+                explanation: "Lisa ist am 1. Januar 17, also \u201enoch nicht 18 Jahre\u201c alt. Gem\u00e4\u00df \u00a7 19 Nr. 3 JArbSchG stehen ihr 25 Werktage Mindesturlaub zu."
+            },
+            {
+                id: 34,
+                text: "Wann soll der Urlaub f\u00fcr Jugendliche m\u00f6glichst gew\u00e4hrt werden?",
+                options: [
+                    "A) Im Winter",
+                    "B) In den Berufsschulferien",
+                    "C) Immer im August",
+                    "D) Nur an Wochenenden"
+                ],
+                correct: 1,
+                explanation: "Der Urlaub soll zusammenh\u00e4ngend und m\u00f6glichst in den Berufsschulferien gew\u00e4hrt werden (\u00a7 19 JArbSchG)."
+            },
+            {
+                id: 35,
+                text: "D\u00fcrfen Berufsschultage als Urlaubstage angerechnet werden?",
+                options: [
+                    "A) Ja, das liegt im Ermessen des Arbeitgebers",
+                    "B) Ja, wenn der Jugendliche zustimmt",
+                    "C) Nein, Berufsschultage d\u00fcrfen nicht vom Urlaub abgezogen werden",
+                    "D) Nur bei Blockunterricht"
+                ],
+                correct: 2,
+                explanation: "Berufsschultage d\u00fcrfen nicht vom Urlaub abgezogen werden. Der Jugendliche hat Anspruch auf seinen vollen Urlaub zus\u00e4tzlich zur Berufsschulzeit."
+            },
+            {
+                id: 36,
+                text: "Wie wird ein Berufsschultag mit 5 oder mehr Unterrichtsstunden auf die Arbeitszeit angerechnet (\u00a7 9)?",
+                options: [
+                    "A) Mit der tats\u00e4chlichen Unterrichtszeit",
+                    "B) Mit 6 Stunden",
+                    "C) Als ein voller Arbeitstag (8 Stunden), einmal pro Woche",
+                    "D) \u00dcberhaupt nicht"
+                ],
+                correct: 2,
+                explanation: "Ein Berufsschultag mit 5 oder mehr Unterrichtsstunden (\u00e0 45 Min.) wird einmal pro Woche als ganzer Arbeitstag (8 Stunden) angerechnet (\u00a7 9 Abs. 1 Nr. 2 JArbSchG)."
+            },
+            {
+                id: 37,
+                text: "Wann darf ein Jugendlicher vor dem Berufsschulunterricht nicht im Betrieb besch\u00e4ftigt werden?",
+                options: [
+                    "A) Wenn der Unterricht vor 8:00 Uhr beginnt",
+                    "B) Wenn der Unterricht vor 9:00 Uhr beginnt",
+                    "C) Wenn der Unterricht vor 10:00 Uhr beginnt",
+                    "D) Generell nie am Berufsschultag"
+                ],
+                correct: 1,
+                explanation: "Vor einem vor 9:00 Uhr beginnenden Unterricht darf der Jugendliche nicht im Betrieb besch\u00e4ftigt werden (\u00a7 9 Abs. 1 Nr. 1 JArbSchG)."
+            },
+            {
+                id: 38,
+                text: "F\u00fcr welche Pr\u00fcfungen muss der Arbeitgeber den Jugendlichen freistellen (\u00a7 10)?",
+                options: [
+                    "A) Nur f\u00fcr die Abschlusspr\u00fcfung",
+                    "B) F\u00fcr Zwischen- und Abschlusspr\u00fcfungen sowie Au\u00dfenunterrichtsveranstaltungen",
+                    "C) Nur f\u00fcr Berufsschulklausuren",
+                    "D) F\u00fcr keine Pr\u00fcfungen"
+                ],
+                correct: 1,
+                explanation: "Der Arbeitgeber hat den Jugendlichen f\u00fcr Pr\u00fcfungen (Zwischen- und Abschlusspr\u00fcfungen) und Au\u00dfenunterrichtsveranstaltungen freizustellen (\u00a7 10 JArbSchG)."
+            },
+            {
+                id: 39,
+                text: "Muss der Arbeitgeber den Jugendlichen auch am Tag VOR der schriftlichen Abschlusspr\u00fcfung freistellen?",
+                options: [
+                    "A) Nein, nur am Pr\u00fcfungstag selbst",
+                    "B) Ja, der Arbeitstag vor der schriftlichen Abschlusspr\u00fcfung ist ebenfalls freizustellen",
+                    "C) Nur wenn der Jugendliche dies beantragt",
+                    "D) Nur bei Pr\u00fcfungen, die vor 9:00 Uhr beginnen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 10 Abs. 1 Nr. 2 JArbSchG hat der Arbeitgeber den Jugendlichen auch am Arbeitstag vor der schriftlichen Abschlusspr\u00fcfung freizustellen."
+            },
+            {
+                id: 40,
+                text: "Wie wird eine Berufsschulwoche mit mindestens 25 Unterrichtsstunden angerechnet?",
+                options: [
+                    "A) Als 3 Arbeitstage",
+                    "B) Als 4 Arbeitstage",
+                    "C) Als ganze Arbeitswoche (40 Stunden)",
+                    "D) Es erfolgt keine Anrechnung"
+                ],
+                correct: 2,
+                explanation: "Eine Berufsschulwoche mit mindestens 25 Unterrichtsstunden an 5 Tagen wird als ganze Arbeitswoche (40 Stunden) angerechnet (\u00a7 9 Abs. 1 Nr. 3 JArbSchG)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Besch\u00e4ftigungsverbote (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Welche Arbeiten sind f\u00fcr Jugendliche gem\u00e4\u00df \u00a7 22 JArbSchG verboten?",
+                options: [
+                    "A) B\u00fcroarbeiten",
+                    "B) Arbeiten, die ihre Leistungsf\u00e4higkeit \u00fcbersteigen oder mit besonderen Unfallgefahren verbunden sind",
+                    "C) Alle Arbeiten in der Industrie",
+                    "D) Arbeiten im Freien"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 22 Abs. 1 JArbSchG d\u00fcrfen Jugendliche nicht mit Arbeiten besch\u00e4ftigt werden, die ihre physische oder psychische Leistungsf\u00e4higkeit \u00fcbersteigen oder die mit besonderen Unfallgefahren verbunden sind."
+            },
+            {
+                id: 42,
+                text: "Unter welcher Voraussetzung d\u00fcrfen Jugendliche ausnahmsweise gef\u00e4hrliche Arbeiten verrichten?",
+                options: [
+                    "A) Wenn die Eltern zustimmen",
+                    "B) Wenn es zur Erreichung des Ausbildungszieles erforderlich ist und fachkundige Aufsicht besteht",
+                    "C) Wenn der Jugendliche \u00e4lter als 17 ist",
+                    "D) Gef\u00e4hrliche Arbeiten sind ausnahmslos verboten"
+                ],
+                correct: 1,
+                explanation: "Gef\u00e4hrliche Arbeiten d\u00fcrfen ausgef\u00fchrt werden, soweit dies zur Erreichung des Ausbildungszieles erforderlich ist und der Schutz durch die Aufsicht eines Fachkundigen gew\u00e4hrleistet ist (\u00a7 22 Abs. 2 JArbSchG)."
+            },
+            {
+                id: 43,
+                text: "Was versteht man unter Akkordarbeit?",
+                options: [
+                    "A) Arbeit im Team",
+                    "B) Arbeit, bei der das Tempo die H\u00f6he des Entgelts bestimmt",
+                    "C) Arbeit nach festen Arbeitszeiten",
+                    "D) Arbeit in Schichtbetrieben"
+                ],
+                correct: 1,
+                explanation: "Akkordarbeit ist Arbeit, bei der die H\u00f6he des Entgelts vom Arbeitstempo oder der St\u00fcckzahl abh\u00e4ngt (z. B. St\u00fccklohn, Leistungslohn). Sie ist f\u00fcr Jugendliche nach \u00a7 23 Abs. 1 JArbSchG verboten."
+            },
+            {
+                id: 44,
+                text: "Darf ein jugendlicher Azubi am Flie\u00dfband arbeiten?",
+                options: [
+                    "A) Ja, ohne Einschr\u00e4nkungen",
+                    "B) Nein, tempobezogene Flie\u00dfbandarbeit ist f\u00fcr Jugendliche grunds\u00e4tzlich verboten",
+                    "C) Nur mit Schutzausr\u00fcstung",
+                    "D) Nur in der Lebensmittelindustrie"
+                ],
+                correct: 1,
+                explanation: "Tempobezogene Flie\u00dfbandarbeit ist f\u00fcr Jugendliche gem\u00e4\u00df \u00a7 23 Abs. 2 JArbSchG grunds\u00e4tzlich verboten. Eine Ausnahme besteht, wenn es f\u00fcr das Ausbildungsziel erforderlich ist."
+            },
+            {
+                id: 45,
+                text: "D\u00fcrfen Jugendliche im Bergbau unter Tage arbeiten?",
+                options: [
+                    "A) Ja, wenn fachkundige Aufsicht besteht",
+                    "B) Ja, aber nur ab 17 Jahren",
+                    "C) Nein, das ist ohne jede Ausnahme verboten",
+                    "D) Nur f\u00fcr Ausbildungszwecke"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 24 JArbSchG ist die Besch\u00e4ftigung von Jugendlichen im Bergbau unter Tage ohne jede Ausnahme verboten \u2013 auch nicht f\u00fcr Ausbildungszwecke."
+            },
+            {
+                id: 46,
+                text: "Welches Besch\u00e4ftigungsverbot kennt KEINE Ausnahme f\u00fcr Ausbildungszwecke?",
+                options: [
+                    "A) Gef\u00e4hrliche Arbeiten (\u00a7 22)",
+                    "B) Akkordarbeit (\u00a7 23)",
+                    "C) Arbeiten unter Tage (\u00a7 24)",
+                    "D) Flie\u00dfbandarbeit (\u00a7 23)"
+                ],
+                correct: 2,
+                explanation: "Das Verbot der Arbeit unter Tage (\u00a7 24 JArbSchG) kennt keine Ausnahme \u2013 auch nicht f\u00fcr Ausbildungszwecke. Bei \u00a7 22, \u00a7 23 gibt es jeweils Ausnahmen f\u00fcr das Ausbildungsziel."
+            },
+            {
+                id: 47,
+                text: "Darf eine Person, die wegen Straftaten gegen die sexuelle Selbstbestimmung verurteilt wurde, Jugendliche besch\u00e4ftigen?",
+                options: [
+                    "A) Ja, wenn die Strafe verb\u00fc\u00dft ist",
+                    "B) Ja, mit Genehmigung des Jugendamtes",
+                    "C) Nein, gem\u00e4\u00df \u00a7 25 JArbSchG besteht ein Besch\u00e4ftigungsverbot",
+                    "D) Nur unter Aufsicht"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 25 Abs. 2 JArbSchG d\u00fcrfen Personen, die wegen bestimmter Straftaten (z. B. gegen die sexuelle Selbstbestimmung) verurteilt wurden, Jugendliche nicht besch\u00e4ftigen, beaufsichtigen oder ausbilden."
+            },
+            {
+                id: 48,
+                text: "Welche der folgenden Arbeiten ist f\u00fcr einen 16-j\u00e4hrigen Azubi verboten?",
+                options: [
+                    "A) B\u00fcroarbeiten am Computer",
+                    "B) Leistungslohnarbeit (St\u00fccklohn)",
+                    "C) Archivierungsarbeiten",
+                    "D) Kundenberatung"
+                ],
+                correct: 1,
+                explanation: "Leistungslohnarbeit (St\u00fccklohn) f\u00e4llt unter das Akkordarbeitsverbot des \u00a7 23 Abs. 1 JArbSchG und ist f\u00fcr Jugendliche verboten."
+            },
+            {
+                id: 49,
+                text: "Wer darf gem\u00e4\u00df \u00a7 25 JArbSchG keine Jugendlichen besch\u00e4ftigen?",
+                options: [
+                    "A) Nur Einzelunternehmer",
+                    "B) Personen, die wiederholt oder schwer gegen das JArbSchG versto\u00dfen haben",
+                    "C) Personen ohne Ausbildereignungspr\u00fcfung",
+                    "D) Betriebe mit weniger als 5 Mitarbeitern"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 25 JArbSchG d\u00fcrfen Personen, die wiederholt oder schwer gegen das JArbSchG versto\u00dfen haben, keine Jugendlichen besch\u00e4ftigen oder beaufsichtigen."
+            },
+            {
+                id: 50,
+                text: "An welchen drei Feiertagen ist die Besch\u00e4ftigung von Jugendlichen ausnahmslos verboten?",
+                options: [
+                    "A) Karfreitag, Ostermontag, Pfingstmontag",
+                    "B) 1. Januar, 1. Mai, 25. Dezember",
+                    "C) 3. Oktober, 1. November, 26. Dezember",
+                    "D) Heiligabend, Silvester, 1. Mai"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 18 Abs. 2 JArbSchG ist an drei Feiertagen die Besch\u00e4ftigung Jugendlicher ausnahmslos verboten: 1. Januar (Neujahr), 1. Mai (Tag der Arbeit) und 25. Dezember (1. Weihnachtsfeiertag)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: \u00c4rztliche Untersuchungen und Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Welche Untersuchung muss vor Beginn der Besch\u00e4ftigung eines Jugendlichen vorliegen?",
+                options: [
+                    "A) Eine Nachuntersuchung",
+                    "B) Eine Erstuntersuchung gem\u00e4\u00df \u00a7 32 JArbSchG",
+                    "C) Ein Drogentest",
+                    "D) Eine arbeitsmedizinische Vorsorgeuntersuchung"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 32 JArbSchG darf ein Jugendlicher nur besch\u00e4ftigt werden, wenn eine Erstuntersuchung innerhalb der letzten 14 Monate stattgefunden hat und dem Arbeitgeber eine Bescheinigung vorliegt."
+            },
+            {
+                id: 52,
+                text: "Wie lange ist die Bescheinigung der Erstuntersuchung g\u00fcltig?",
+                options: [
+                    "A) 6 Monate",
+                    "B) 12 Monate",
+                    "C) 14 Monate",
+                    "D) 24 Monate"
+                ],
+                correct: 2,
+                explanation: "Die Bescheinigung der Erstuntersuchung ist 14 Monate g\u00fcltig (\u00a7 32 JArbSchG)."
+            },
+            {
+                id: 53,
+                text: "Wer tr\u00e4gt die Kosten f\u00fcr die \u00e4rztliche Untersuchung nach dem JArbSchG?",
+                options: [
+                    "A) Der Arbeitgeber",
+                    "B) Der Jugendliche bzw. seine Eltern",
+                    "C) Das Land",
+                    "D) Die Krankenkasse"
+                ],
+                correct: 2,
+                explanation: "Die Kosten der \u00e4rztlichen Untersuchungen nach dem JArbSchG tr\u00e4gt das Land (\u00a7 44 JArbSchG) \u2013 nicht der Arbeitgeber und nicht der Jugendliche."
+            },
+            {
+                id: 54,
+                text: "Wann muss die erste Nachuntersuchung stattfinden?",
+                options: [
+                    "A) 6 Monate nach Besch\u00e4ftigungsbeginn",
+                    "B) 1 Jahr nach Aufnahme der Besch\u00e4ftigung",
+                    "C) 2 Jahre nach Besch\u00e4ftigungsbeginn",
+                    "D) Vor dem 18. Geburtstag"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 33 Abs. 1 JArbSchG muss ein Jahr nach Aufnahme der Besch\u00e4ftigung eine Nachuntersuchung stattfinden."
+            },
+            {
+                id: 55,
+                text: "Was passiert, wenn die Bescheinigung der Nachuntersuchung nicht innerhalb von 14 Monaten vorgelegt wird?",
+                options: [
+                    "A) Der Arbeitgeber muss eine Abmahnung aussprechen",
+                    "B) Es passiert nichts",
+                    "C) Es tritt ein Besch\u00e4ftigungsverbot ein",
+                    "D) Der Ausbildungsvertrag wird automatisch aufgel\u00f6st"
+                ],
+                correct: 2,
+                explanation: "Liegt die Bescheinigung der Nachuntersuchung nicht innerhalb von 14 Monaten nach der Erstuntersuchung vor, darf der Jugendliche nicht weiterbesch\u00e4ftigt werden (\u00a7 33 Abs. 3 JArbSchG)."
+            },
+            {
+                id: 56,
+                text: "Ein 17-j\u00e4hriger Azubi arbeitet im Einzelhandel samstags. Welche Aussage ist richtig?",
+                options: [
+                    "A) Das ist generell verboten",
+                    "B) Das ist zul\u00e4ssig, da offene Verkaufsstellen eine Ausnahme bilden, aber ein Ersatzruhetag und mind. 2 freie Samstage/Monat sind erforderlich",
+                    "C) Das ist nur mit Genehmigung des Gewerbeaufsichtsamtes erlaubt",
+                    "D) Samstagsarbeit ist im Einzelhandel erst ab 18 erlaubt"
+                ],
+                correct: 1,
+                explanation: "Offene Verkaufsstellen (Einzelhandel) geh\u00f6ren zu den Ausnahmen nach \u00a7 16 JArbSchG. Die Besch\u00e4ftigung am Samstag ist zul\u00e4ssig, aber es muss ein Ersatzruhetag gew\u00e4hrt werden und mindestens 2 Samstage/Monat m\u00fcssen frei bleiben."
+            },
+            {
+                id: 57,
+                text: "Welche Pause steht einem Erwachsenen bei 7 Stunden Arbeitszeit zu (zum Vergleich mit Jugendlichen)?",
+                options: [
+                    "A) 15 Minuten",
+                    "B) 30 Minuten",
+                    "C) 45 Minuten",
+                    "D) 60 Minuten"
+                ],
+                correct: 1,
+                explanation: "Erwachsene haben nach dem ArbZG bei einer Arbeitszeit von mehr als 6 Stunden Anspruch auf 30 Minuten Pause. Jugendliche hingegen haben bei der gleichen Arbeitszeit Anspruch auf 60 Minuten \u2013 doppelt so viel."
+            },
+            {
+                id: 58,
+                text: "Welche Aussage zu den Besch\u00e4ftigungsverboten ist richtig?",
+                options: [
+                    "A) Alle Verbote gelten ausnahmslos",
+                    "B) F\u00fcr gef\u00e4hrliche Arbeiten, Akkord- und Flie\u00dfbandarbeit gibt es Ausnahmen f\u00fcr Ausbildungszwecke, f\u00fcr Bergbau unter Tage nicht",
+                    "C) Nur das Verbot der Akkordarbeit kennt Ausnahmen",
+                    "D) Ausnahmen gibt es nur mit Genehmigung der IHK"
+                ],
+                correct: 1,
+                explanation: "F\u00fcr \u00a7 22 (gef\u00e4hrliche Arbeiten), \u00a7 23 Abs. 1 (Akkordarbeit) und \u00a7 23 Abs. 2 (Flie\u00dfbandarbeit) gibt es Ausnahmen f\u00fcr Ausbildungszwecke. Das Verbot nach \u00a7 24 (Bergbau unter Tage) und \u00a7 25 (personenbezogene Verbote) kennt keine Ausnahmen."
+            },
+            {
+                id: 59,
+                text: "Wie viel Mindesturlaub hat ein Jugendlicher, der am 1. Januar 16 Jahre alt ist?",
+                options: [
+                    "A) 30 Werktage",
+                    "B) 27 Werktage",
+                    "C) 25 Werktage",
+                    "D) 24 Werktage"
+                ],
+                correct: 1,
+                explanation: "Ein Jugendlicher, der am 1. Januar 16 ist (\u201enoch nicht 17\u201c), hat gem\u00e4\u00df \u00a7 19 Nr. 2 JArbSchG Anspruch auf 27 Werktage Mindesturlaub."
+            },
+            {
+                id: 60,
+                text: "Welche der folgenden Aussagen fasst das JArbSchG korrekt zusammen?",
+                options: [
+                    "A) Das JArbSchG gilt nur f\u00fcr Kinder unter 14 Jahren",
+                    "B) Das JArbSchG ist dispositives Recht und kann durch Arbeitsvertrag abge\u00e4ndert werden",
+                    "C) Das JArbSchG sch\u00fctzt Kinder und Jugendliche durch strengere Regeln zu Arbeitszeit, Pausen, Urlaub, Besch\u00e4ftigungsverbote und \u00e4rztliche Untersuchungen",
+                    "D) Das JArbSchG gilt nur f\u00fcr Ausbildungsverh\u00e4ltnisse, nicht f\u00fcr Ferienjobs"
+                ],
+                correct: 2,
+                explanation: "Das JArbSchG ist ein umfassendes Schutzgesetz f\u00fcr Kinder und Jugendliche. Es regelt Arbeitszeit, Pausen, Ruhezeiten, Urlaub, Besch\u00e4ftigungsverbote und \u00e4rztliche Untersuchungen \u2013 und ist zwingendes Recht, das nicht zu Ungunsten des Jugendlichen abge\u00e4ndert werden kann."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 55;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

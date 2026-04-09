@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 01 – Berufliche Bildung im dualen System</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 01 &ndash; Berufliche Bildung im dualen System</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (2005). <em>Berufsbildungsgesetz (BBiG)</em>. BGBl. I S. 931. https://www.gesetze-im-internet.de/bbig_2005/</p>
+    <p>Bundesministerium f&uuml;r Bildung und Forschung. (2024). <em>Berufsbildungsbericht 2024</em>. BMBF. https://www.bmbf.de/berufsbildungsbericht</p>
+    <p>Euler, D. (2013). <em>Das duale System in Deutschland &ndash; Vorbild f&uuml;r einen Transfer ins Ausland?</em> Bertelsmann Stiftung.</p>
+    <p>Greinert, W.-D. (2015). <em>Das duale System der Berufsausbildung in der Bundesrepublik Deutschland</em> (3. Aufl.). Holland + Josenhans.</p>
+    <p>Kultusministerkonferenz. (2021). <em>Handreichung f&uuml;r die Erarbeitung von Rahmenl ehrpl&auml;nen der Kultusministerkonferenz f&uuml;r den berufsbezogenen Unterricht in der Berufsschule</em>. KMK.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Grundlagen der Berufsbildung (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welches Gesetz bildet die zentrale Rechtsgrundlage f\u00fcr die Berufsbildung in Deutschland?",
+                options: [
+                    "A) Handelsgesetzbuch (HGB)",
+                    "B) Berufsbildungsgesetz (BBiG)",
+                    "C) B\u00fcrgerliches Gesetzbuch (BGB)",
+                    "D) Arbeitsschutzgesetz (ArbSchG)"
+                ],
+                correct: 1,
+                explanation: "Das Berufsbildungsgesetz (BBiG) von 2005 ist die zentrale Rechtsgrundlage f\u00fcr die Berufsbildung in Deutschland. Es regelt die Berufsausbildung, die berufliche Fortbildung und die berufliche Umschulung (\u00a7 1 BBiG)."
+            },
+            {
+                id: 2,
+                text: "Welche vier Bereiche umfasst die Berufsbildung gem\u00e4\u00df \u00a7 1 BBiG?",
+                options: [
+                    "A) Ausbildung, Fortbildung, Umschulung, Berufsausbildungsvorbereitung",
+                    "B) Schulbildung, Hochschulbildung, Weiterbildung, Forschung",
+                    "C) Grundbildung, Aufbaubildung, Spezialisierung, Promotion",
+                    "D) Einf\u00fchrung, Vertiefung, Spezialisierung, Pr\u00fcfung"
+                ],
+                correct: 0,
+                explanation: "Gem\u00e4\u00df \u00a7 1 Abs. 1 BBiG umfasst die Berufsbildung die Berufsausbildungsvorbereitung, die Berufsausbildung, die berufliche Fortbildung und die berufliche Umschulung."
+            },
+            {
+                id: 3,
+                text: "Was ist das Hauptziel der Berufsausbildung gem\u00e4\u00df \u00a7 1 Abs. 3 BBiG?",
+                options: [
+                    "A) Die Vermittlung rein theoretischer Kenntnisse",
+                    "B) Die Vermittlung der beruflichen Handlungsf\u00e4higkeit in einem geordneten Ausbildungsgang",
+                    "C) Die ausschlie\u00dfliche Vorbereitung auf ein Hochschulstudium",
+                    "D) Die Erteilung eines akademischen Grades"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 1 Abs. 3 BBiG hat die Berufsausbildung die f\u00fcr die Aus\u00fcbung einer qualifizierten beruflichen T\u00e4tigkeit in einer sich wandelnden Arbeitswelt notwendigen beruflichen Fertigkeiten, Kenntnisse und F\u00e4higkeiten (berufliche Handlungsf\u00e4higkeit) in einem geordneten Ausbildungsgang zu vermitteln."
+            },
+            {
+                id: 4,
+                text: "Worin unterscheidet sich die berufliche Fortbildung von der Berufsausbildung?",
+                options: [
+                    "A) Fortbildung findet nur in der Berufsschule statt",
+                    "B) Fortbildung dient der Erhaltung, Anpassung oder Erweiterung bereits vorhandener beruflicher Handlungsf\u00e4higkeit",
+                    "C) Fortbildung ist gesetzlich nicht geregelt",
+                    "D) Fortbildung dauert immer genau drei Jahre"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 1 Abs. 4 BBiG soll die berufliche Fortbildung es erm\u00f6glichen, die berufliche Handlungsf\u00e4higkeit zu erhalten und anzupassen oder zu erweitern und beruflich aufzusteigen. Sie baut auf einer bereits abgeschlossenen Ausbildung auf."
+            },
+            {
+                id: 5,
+                text: "Was versteht man unter einer beruflichen Umschulung?",
+                options: [
+                    "A) Eine Wiederholung der urspr\u00fcnglichen Ausbildung",
+                    "B) Eine Ausbildung in einem anderen als dem erlernten Beruf, die zu einer anderen beruflichen T\u00e4tigkeit bef\u00e4higt",
+                    "C) Ein Praktikum in einem anderen Unternehmen",
+                    "D) Eine freiwillige Weiterbildung ohne Abschluss"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 1 Abs. 5 BBiG soll die berufliche Umschulung zu einer anderen beruflichen T\u00e4tigkeit bef\u00e4higen. Sie richtet sich an Personen, die aus verschiedenen Gr\u00fcnden ihren erlernten Beruf nicht mehr aus\u00fcben k\u00f6nnen oder wollen."
+            },
+            {
+                id: 6,
+                text: "Was ist das Ziel der Berufsausbildungsvorbereitung gem\u00e4\u00df \u00a7 1 Abs. 2 BBiG?",
+                options: [
+                    "A) Den direkten Einstieg in eine F\u00fchrungsposition",
+                    "B) Die Vermittlung von Grundlagen f\u00fcr den Erwerb beruflicher Handlungsf\u00e4higkeit an lernbeeintr\u00e4chtigte oder sozial benachteiligte Personen",
+                    "C) Die Vorbereitung auf ein Hochschulstudium",
+                    "D) Die Vermittlung von Fremdsprachenkenntnissen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 1 Abs. 2 BBiG dient die Berufsausbildungsvorbereitung dem Ziel, durch die Vermittlung von Grundlagen f\u00fcr den Erwerb beruflicher Handlungsf\u00e4higkeit an eine Berufsausbildung heranzuf\u00fchren. Sie richtet sich insbesondere an lernbeeintr\u00e4chtigte oder sozial benachteiligte Personen."
+            },
+            {
+                id: 7,
+                text: "Welche Aussage zur Berufsbildung in Deutschland ist korrekt?",
+                options: [
+                    "A) Berufsbildung findet ausschlie\u00dflich an Hochschulen statt",
+                    "B) Berufsbildung umfasst nur die Erstausbildung",
+                    "C) Berufsbildung ist ein lebenslanger Prozess, der verschiedene Phasen umfasst",
+                    "D) Berufsbildung wird nur vom Bund geregelt, die L\u00e4nder haben keine Zust\u00e4ndigkeit"
+                ],
+                correct: 2,
+                explanation: "Berufsbildung ist ein umfassender, lebenslanger Prozess. Sie beginnt mit der Berufsausbildungsvorbereitung, geht \u00fcber die Erstausbildung bis hin zur Fortbildung und ggf. Umschulung. Bund und L\u00e4nder teilen sich die Zust\u00e4ndigkeiten."
+            },
+            {
+                id: 8,
+                text: "Welche Qualifikationsstufe wird nach dem Deutschen Qualifikationsrahmen (DQR) einer dreij\u00e4hrigen dualen Berufsausbildung zugeordnet?",
+                options: [
+                    "A) DQR-Niveau 2",
+                    "B) DQR-Niveau 3",
+                    "C) DQR-Niveau 4",
+                    "D) DQR-Niveau 6"
+                ],
+                correct: 2,
+                explanation: "Eine dreij\u00e4hrige oder dreieinhalbj\u00e4hrige duale Berufsausbildung wird dem DQR-Niveau 4 zugeordnet. Dies entspricht der gleichen Stufe wie die allgemeine Hochschulreife (Abitur)."
+            },
+            {
+                id: 9,
+                text: "Welche Ma\u00dfnahme geh\u00f6rt NICHT zu den vier Bereichen der Berufsbildung nach dem BBiG?",
+                options: [
+                    "A) Berufliche Fortbildung",
+                    "B) Berufliche Umschulung",
+                    "C) Hochschulstudium",
+                    "D) Berufsausbildungsvorbereitung"
+                ],
+                correct: 2,
+                explanation: "Das Hochschulstudium geh\u00f6rt nicht zu den vier Bereichen der Berufsbildung nach dem BBiG. Die vier Bereiche sind: Berufsausbildungsvorbereitung, Berufsausbildung, berufliche Fortbildung und berufliche Umschulung."
+            },
+            {
+                id: 10,
+                text: "Welches Prinzip liegt der beruflichen Bildung in Deutschland zugrunde?",
+                options: [
+                    "A) Das Prinzip der rein schulischen Ausbildung",
+                    "B) Das Subsidiarit\u00e4tsprinzip \u2013 der Staat greift nur ein, wenn private Tr\u00e4ger nicht ausreichend ausbilden",
+                    "C) Das Prinzip der reinen Marktsteuerung ohne staatliche Regulierung",
+                    "D) Das Prinzip der ausschlie\u00dflich staatlichen Berufsausbildung"
+                ],
+                correct: 1,
+                explanation: "Der beruflichen Bildung in Deutschland liegt das Subsidiarit\u00e4tsprinzip zugrunde. Der Staat schafft den Rechtsrahmen, die Ausbildung wird prim\u00e4r von der Wirtschaft getragen. Nur wenn die Wirtschaft nicht ausreichend Ausbildungspl\u00e4tze bereitstellt, greift der Staat unterst\u00fctzend ein."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Das duale System (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Was versteht man unter dem \u201edualen System\u201c der Berufsausbildung?",
+                options: [
+                    "A) Eine Ausbildung, die ausschlie\u00dflich im Betrieb stattfindet",
+                    "B) Eine Ausbildung an zwei Lernorten: Betrieb und Berufsschule",
+                    "C) Eine Kombination aus Studium und Berufst\u00e4tigkeit",
+                    "D) Eine Ausbildung, die nur an Berufsschulen stattfindet"
+                ],
+                correct: 1,
+                explanation: "Das duale System bezeichnet die Berufsausbildung an zwei Lernorten: dem Ausbildungsbetrieb (praktische Ausbildung) und der Berufsschule (theoretische Ausbildung). Diese Kombination ist ein Kernelement des deutschen Berufsbildungssystems."
+            },
+            {
+                id: 12,
+                text: "Wie ist das Verh\u00e4ltnis der Ausbildungszeit zwischen Betrieb und Berufsschule in der Regel aufgeteilt?",
+                options: [
+                    "A) 50 % Betrieb, 50 % Berufsschule",
+                    "B) Ca. 70 % Betrieb, ca. 30 % Berufsschule",
+                    "C) 90 % Betrieb, 10 % Berufsschule",
+                    "D) 30 % Betrieb, 70 % Berufsschule"
+                ],
+                correct: 1,
+                explanation: "In der Regel verbringen Auszubildende ca. 3\u20134 Tage pro Woche im Betrieb und 1\u20132 Tage in der Berufsschule. Das entspricht einem Verh\u00e4ltnis von etwa 70 % betrieblicher zu 30 % schulischer Ausbildung."
+            },
+            {
+                id: 13,
+                text: "Welche Rechtsgrundlage gilt f\u00fcr die betriebliche Ausbildung im dualen System?",
+                options: [
+                    "A) Schulgesetze der L\u00e4nder",
+                    "B) Berufsbildungsgesetz (BBiG) bzw. Handwerksordnung (HwO)",
+                    "C) Hochschulrahmengesetz",
+                    "D) Jugendarbeitsschutzgesetz ausschlie\u00dflich"
+                ],
+                correct: 1,
+                explanation: "Die betriebliche Seite der Ausbildung wird durch das Berufsbildungsgesetz (BBiG) und f\u00fcr Handwerksberufe durch die Handwerksordnung (HwO) geregelt. Diese sind Bundesrecht. Die Berufsschule unterliegt den Schulgesetzen der L\u00e4nder."
+            },
+            {
+                id: 14,
+                text: "Welcher der folgenden Punkte ist ein wesentlicher Vorteil des dualen Systems?",
+                options: [
+                    "A) Auszubildende haben keine Pr\u00fcfungspflicht",
+                    "B) Enge Verbindung von Theorie und Praxis, was die Besch\u00e4ftigungsf\u00e4higkeit erh\u00f6ht",
+                    "C) Es gibt keine staatliche Kontrolle der Ausbildung",
+                    "D) Die Ausbildung dauert maximal ein Jahr"
+                ],
+                correct: 1,
+                explanation: "Ein wesentlicher Vorteil des dualen Systems ist die enge Verzahnung von Theorie (Berufsschule) und Praxis (Betrieb). Dies f\u00fchrt zu einer hohen Besch\u00e4ftigungsf\u00e4higkeit der Absolventen und einer vergleichsweise niedrigen Jugendarbeitslosigkeit."
+            },
+            {
+                id: 15,
+                text: "Wie lang dauert eine Berufsausbildung im dualen System in der Regel?",
+                options: [
+                    "A) 1 Jahr",
+                    "B) 2 bis 3,5 Jahre",
+                    "C) 5 Jahre",
+                    "D) 6 Monate"
+                ],
+                correct: 1,
+                explanation: "Die Ausbildungsdauer im dualen System betr\u00e4gt in der Regel 2 bis 3,5 Jahre, je nach Ausbildungsberuf. Sie kann unter bestimmten Voraussetzungen verk\u00fcrzt oder verl\u00e4ngert werden (\u00a7 8 BBiG)."
+            },
+            {
+                id: 16,
+                text: "Wer tr\u00e4gt die Kosten der betrieblichen Ausbildung im dualen System?",
+                options: [
+                    "A) Ausschlie\u00dflich der Staat",
+                    "B) Ausschlie\u00dflich die Auszubildenden",
+                    "C) Der Ausbildungsbetrieb",
+                    "D) Die Berufsschule"
+                ],
+                correct: 2,
+                explanation: "Die Kosten der betrieblichen Ausbildung (Ausbildungsverg\u00fctung, Materialien, Ausbilderpersonal etc.) tr\u00e4gt der Ausbildungsbetrieb. Die Kosten der Berufsschule werden von den L\u00e4ndern und Kommunen getragen."
+            },
+            {
+                id: 17,
+                text: "Welche Organisation ist auf Bundesebene f\u00fcr die Forschung und Entwicklung in der Berufsbildung zust\u00e4ndig?",
+                options: [
+                    "A) Die Kultusministerkonferenz (KMK)",
+                    "B) Das Bundesinstitut f\u00fcr Berufsbildung (BIBB)",
+                    "C) Die Bundesagentur f\u00fcr Arbeit",
+                    "D) Das Statistische Bundesamt"
+                ],
+                correct: 1,
+                explanation: "Das Bundesinstitut f\u00fcr Berufsbildung (BIBB) ist die zentrale Forschungseinrichtung des Bundes f\u00fcr die Berufsbildung. Es hat seinen Sitz in Bonn und ber\u00e4t die Bundesregierung in Fragen der beruflichen Bildung."
+            },
+            {
+                id: 18,
+                text: "Warum wird das deutsche duale System international hoch gesch\u00e4tzt?",
+                options: [
+                    "A) Weil es besonders kosteng\u00fcnstig f\u00fcr den Staat ist",
+                    "B) Weil es zu einer niedrigen Jugendarbeitslosigkeit und hohen Fachkr\u00e4ftequalifikation beitr\u00e4gt",
+                    "C) Weil es keine Pr\u00fcfungen vorsieht",
+                    "D) Weil es ausschlie\u00dflich theoretisch ausgerichtet ist"
+                ],
+                correct: 1,
+                explanation: "Das duale System wird international hoch gesch\u00e4tzt, weil es nachweislich zu einer niedrigen Jugendarbeitslosigkeit, einer hohen Fachkr\u00e4ftequalifikation und einem reibungslosen \u00dcbergang von der Ausbildung in den Beruf beitr\u00e4gt (vgl. Euler, 2013)."
+            },
+            {
+                id: 19,
+                text: "Welche Aussage beschreibt das Konsensprinzip im dualen System korrekt?",
+                options: [
+                    "A) Nur der Staat entscheidet \u00fcber Ausbildungsinhalte",
+                    "B) Arbeitgeber, Gewerkschaften und Staat wirken gemeinsam an der Gestaltung der Berufsbildung mit",
+                    "C) Nur die Berufsschulen bestimmen die Ausbildungsinhalte",
+                    "D) Die Auszubildenden entscheiden allein \u00fcber ihre Ausbildungsinhalte"
+                ],
+                correct: 1,
+                explanation: "Das Konsensprinzip bedeutet, dass Arbeitgeber (Arbeitgeberverb\u00e4nde), Arbeitnehmer (Gewerkschaften) und der Staat gemeinsam an der Gestaltung der Berufsbildung mitwirken. Dieses korporatistische Prinzip ist ein Wesensmerkmal des dualen Systems."
+            },
+            {
+                id: 20,
+                text: "In welcher Form wird Berufsschulunterricht typischerweise erteilt?",
+                options: [
+                    "A) Ausschlie\u00dflich als Fernunterricht",
+                    "B) Als Teilzeitunterricht (1\u20132 Tage pro Woche) oder als Blockunterricht",
+                    "C) Nur in den Abendstunden",
+                    "D) Nur als Online-Kurs"
+                ],
+                correct: 1,
+                explanation: "Berufsschulunterricht findet typischerweise als Teilzeitunterricht (1\u20132 Tage pro Woche) oder als Blockunterricht (mehrere Wochen am St\u00fcck) statt. Die genaue Form h\u00e4ngt vom Bundesland und vom Ausbildungsberuf ab."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Beteiligte im dualen System (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Welche Aufgabe hat der Ausbildungsbetrieb im dualen System?",
+                options: [
+                    "A) Ausschlie\u00dflich die theoretische Wissensvermittlung",
+                    "B) Die Vermittlung praktischer beruflicher Fertigkeiten, Kenntnisse und F\u00e4higkeiten gem\u00e4\u00df Ausbildungsrahmenplan",
+                    "C) Die Durchf\u00fchrung der Abschlusspr\u00fcfung",
+                    "D) Die Erstellung der Rahmenlehrpl\u00e4ne"
+                ],
+                correct: 1,
+                explanation: "Der Ausbildungsbetrieb ist f\u00fcr die praktische Ausbildung verantwortlich. Er vermittelt die beruflichen Fertigkeiten, Kenntnisse und F\u00e4higkeiten gem\u00e4\u00df dem Ausbildungsrahmenplan der jeweiligen Ausbildungsordnung."
+            },
+            {
+                id: 22,
+                text: "Welche Rolle \u00fcbernimmt die Berufsschule im dualen System?",
+                options: [
+                    "A) Sie ersetzt die betriebliche Ausbildung vollst\u00e4ndig",
+                    "B) Sie vermittelt berufsbezogene und allgemeinbildende Inhalte und erg\u00e4nzt die betriebliche Ausbildung",
+                    "C) Sie ist nur f\u00fcr Sport- und Freizeitangebote zust\u00e4ndig",
+                    "D) Sie zahlt die Ausbildungsverg\u00fctung"
+                ],
+                correct: 1,
+                explanation: "Die Berufsschule hat die Aufgabe, berufsbezogene und allgemeinbildende Inhalte zu vermitteln und damit die betriebliche Ausbildung zu erg\u00e4nzen. Sie f\u00f6rdert sowohl fachliche als auch allgemeine Kompetenzen."
+            },
+            {
+                id: 23,
+                text: "Welche zentrale Aufgabe hat die Industrie- und Handelskammer (IHK) in der Berufsausbildung?",
+                options: [
+                    "A) Sie f\u00fchrt die Berufsausbildung selbst durch",
+                    "B) Sie \u00fcberwacht die Ausbildung, berät Betriebe, nimmt Pr\u00fcfungen ab und tr\u00e4gt das Verzeichnis der Berufsausbildungsverh\u00e4ltnisse",
+                    "C) Sie ist ausschlie\u00dflich f\u00fcr die schulische Ausbildung zust\u00e4ndig",
+                    "D) Sie erstellt die Rahmenlehrpl\u00e4ne"
+                ],
+                correct: 1,
+                explanation: "Die IHK ist als zust\u00e4ndige Stelle f\u00fcr die \u00dcberwachung der Ausbildung, die Beratung der Ausbildungsbetriebe, die Abnahme von Zwischen- und Abschlusspr\u00fcfungen und die F\u00fchrung des Verzeichnisses der Berufsausbildungsverh\u00e4ltnisse verantwortlich."
+            },
+            {
+                id: 24,
+                text: "F\u00fcr welchen Bereich ist die Handwerkskammer (HWK) als zust\u00e4ndige Stelle t\u00e4tig?",
+                options: [
+                    "A) F\u00fcr alle kaufm\u00e4nnischen Berufe",
+                    "B) F\u00fcr Handwerksberufe gem\u00e4\u00df der Handwerksordnung (HwO)",
+                    "C) F\u00fcr alle akademischen Berufe",
+                    "D) F\u00fcr die Landwirtschaft ausschlie\u00dflich"
+                ],
+                correct: 1,
+                explanation: "Die Handwerkskammer (HWK) ist die zust\u00e4ndige Stelle f\u00fcr die Ausbildung in Handwerksberufen gem\u00e4\u00df der Handwerksordnung (HwO). Sie \u00fcbernimmt dort \u00e4hnliche Aufgaben wie die IHK f\u00fcr die kaufm\u00e4nnischen und gewerblichen Berufe."
+            },
+            {
+                id: 25,
+                text: "Was regelt die Ausbilder-Eignungsverordnung (AEVO)?",
+                options: [
+                    "A) Die H\u00f6he der Ausbildungsverg\u00fctung",
+                    "B) Die berufs- und arbeitsp\u00e4dagogische Eignung der Ausbilder",
+                    "C) Die Dauer der Berufsausbildung",
+                    "D) Die Inhalte der Berufsschule"
+                ],
+                correct: 1,
+                explanation: "Die AEVO regelt die berufs- und arbeitsp\u00e4dagogische Eignung der Ausbilder. Wer ausbilden will, muss in der Regel die AEVO-Pr\u00fcfung (umgangssprachlich \u201eAusbilderschein\u201c oder \u201eAda-Schein\u201c) bestehen."
+            },
+            {
+                id: 26,
+                text: "Welche Pflicht hat der Auszubildende w\u00e4hrend der Berufsausbildung?",
+                options: [
+                    "A) Er muss keine Berufsschule besuchen",
+                    "B) Er muss die ihm \u00fcbertragenen Aufgaben sorgf\u00e4ltig ausf\u00fchren, die Berufsschule besuchen und das Berichtsheft f\u00fchren",
+                    "C) Er muss ausschlie\u00dflich im Betrieb arbeiten",
+                    "D) Er muss seine eigenen Arbeitsmittel beschaffen"
+                ],
+                correct: 1,
+                explanation: "Zu den Pflichten des Auszubildenden geh\u00f6ren u. a. die sorgf\u00e4ltige Ausf\u00fchrung der Aufgaben, der Berufsschulbesuch, das F\u00fchren des Berichtshefts (schriftlicher Ausbildungsnachweis), die Befolgung von Weisungen und die Einhaltung der Betriebsordnung (\u00a7 13 BBiG)."
+            },
+            {
+                id: 27,
+                text: "Wer bildet den Pr\u00fcfungsausschuss f\u00fcr Abschlusspr\u00fcfungen bei der IHK?",
+                options: [
+                    "A) Nur Vertreter der Arbeitgeber",
+                    "B) Jeweils mindestens ein Beauftragter der Arbeitgeber, der Arbeitnehmer und der Berufsschullehrer",
+                    "C) Nur Berufsschullehrer",
+                    "D) Nur das Bundesministerium f\u00fcr Bildung und Forschung"
+                ],
+                correct: 1,
+                explanation: "Der Pr\u00fcfungsausschuss besteht aus mindestens drei Mitgliedern: Beauftragte der Arbeitgeber, der Arbeitnehmer und mindestens einem Lehrer einer berufsbildenden Schule (\u00a7 40 BBiG). Die Mitglieder m\u00fcssen f\u00fcr die Pr\u00fcfungsgebiete sachkundig und geeignet sein."
+            },
+            {
+                id: 28,
+                text: "Welche Voraussetzung muss ein Betrieb erf\u00fcllen, um ausbilden zu d\u00fcrfen?",
+                options: [
+                    "A) Er muss mindestens 50 Mitarbeiter besch\u00e4ftigen",
+                    "B) Er muss \u00fcber die notwendige Ausstattung verf\u00fcgen und einen pers\u00f6nlich und fachlich geeigneten Ausbilder haben",
+                    "C) Er muss eine staatliche Schule betreiben",
+                    "D) Er muss b\u00f6rsennotiert sein"
+                ],
+                correct: 1,
+                explanation: "Ein Ausbildungsbetrieb muss \u00fcber die sachliche Ausstattung (R\u00e4ume, Maschinen, Werkzeuge) und einen pers\u00f6nlich und fachlich geeigneten Ausbilder verf\u00fcgen. Die Eignung wird von der zust\u00e4ndigen Stelle (z. B. IHK) \u00fcberpr\u00fcft (\u00a7\u00a7 27\u201330 BBiG)."
+            },
+            {
+                id: 29,
+                text: "Was versteht man unter der \u201epers\u00f6nlichen Eignung\u201c eines Ausbildenden gem\u00e4\u00df \u00a7 29 BBiG?",
+                options: [
+                    "A) Der Ausbilder muss mindestens 30 Jahre alt sein",
+                    "B) Der Ausbilder darf nicht gegen bestimmte gesetzliche Vorschriften versto\u00dfen haben (z. B. Besch\u00e4ftigungsverbot, schwere Vergehen)",
+                    "C) Der Ausbilder muss einen Hochschulabschluss haben",
+                    "D) Der Ausbilder muss im selben Betrieb ausgebildet worden sein"
+                ],
+                correct: 1,
+                explanation: "Pers\u00f6nlich nicht geeignet ist insbesondere, wer Kinder und Jugendliche nicht besch\u00e4ftigen darf oder wiederholt oder schwer gegen das BBiG oder das Jugendarbeitsschutzgesetz versto\u00dfen hat (\u00a7 29 BBiG f\u00fcr den Ausbildenden; \u00a7 30 BBiG f\u00fcr den Ausbilder). Ein Hochschulabschluss oder ein Mindestalter von 30 Jahren ist nicht erforderlich."
+            },
+            {
+                id: 30,
+                text: "Welche Aufgabe hat der Berufsbildungsausschuss bei der zust\u00e4ndigen Stelle?",
+                options: [
+                    "A) Er f\u00fchrt die praktische Ausbildung durch",
+                    "B) Er besch\u00e4ftigt sich mit allen wichtigen Angelegenheiten der Berufsbildung und beschlie\u00dft Rechtsvorschriften",
+                    "C) Er ist nur f\u00fcr die Verwaltung der Pr\u00fcfungsgeb\u00fchren zust\u00e4ndig",
+                    "D) Er bestimmt die H\u00f6he der Ausbildungsverg\u00fctung"
+                ],
+                correct: 1,
+                explanation: "Der Berufsbildungsausschuss ist ein wichtiges Gremium bei der zust\u00e4ndigen Stelle (z. B. IHK). Er ist f\u00fcr alle wichtigen Angelegenheiten der Berufsbildung zust\u00e4ndig und kann im Rahmen seiner Befugnisse Rechtsvorschriften beschlie\u00dfen (\u00a7\u00a7 77\u201380 BBiG)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Berufsbildungsgesetz (BBiG) (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Wann wurde das aktuelle Berufsbildungsgesetz (BBiG) grundlegend reformiert und trat in Kraft?",
+                options: [
+                    "A) 1969",
+                    "B) 2005",
+                    "C) 2015",
+                    "D) 2020"
+                ],
+                correct: 1,
+                explanation: "Das aktuelle BBiG trat am 1. April 2005 in Kraft und l\u00f6ste das urspr\u00fcngliche Berufsbildungsgesetz von 1969 ab. Es wurde zuletzt durch das Berufsbildungsmodernisierungsgesetz 2020 novelliert."
+            },
+            {
+                id: 32,
+                text: "Was regelt \u00a7 5 BBiG?",
+                options: [
+                    "A) Die Pflichten des Auszubildenden",
+                    "B) Die Ausbildungsordnung und deren Mindestbestandteile",
+                    "C) Die H\u00f6he der Pr\u00fcfungsgeb\u00fchren",
+                    "D) Die Dauer der Probezeit"
+                ],
+                correct: 1,
+                explanation: "\u00a7 5 BBiG regelt die Ausbildungsordnung. Er legt fest, dass das zust\u00e4ndige Bundesministerium durch Rechtsverordnung Ausbildungsordnungen erlassen kann und welche Mindestbestandteile diese enthalten m\u00fcssen."
+            },
+            {
+                id: 33,
+                text: "Was bestimmt \u00a7 10 BBiG hinsichtlich des Ausbildungsverh\u00e4ltnisses?",
+                options: [
+                    "A) Die Dauer des Berufsschulunterrichts",
+                    "B) Den Abschluss eines schriftlichen Berufsausbildungsvertrags vor Beginn der Ausbildung",
+                    "C) Die Zust\u00e4ndigkeit der Berufsschule",
+                    "D) Die H\u00f6he der Ausbildungsverg\u00fctung"
+                ],
+                correct: 1,
+                explanation: "\u00a7 10 BBiG bestimmt, dass vor Beginn der Berufsausbildung ein Berufsausbildungsvertrag zwischen dem Ausbildenden und dem Auszubildenden geschlossen werden muss. Der Vertrag muss schriftlich niedergelegt werden (\u00a7 11 BBiG)."
+            },
+            {
+                id: 34,
+                text: "Wie lang ist die Probezeit in der Berufsausbildung gem\u00e4\u00df \u00a7 20 BBiG?",
+                options: [
+                    "A) Genau 2 Wochen",
+                    "B) Mindestens 1 Monat und h\u00f6chstens 4 Monate",
+                    "C) 6 Monate",
+                    "D) Es gibt keine Probezeit"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 20 BBiG muss die Probezeit mindestens einen Monat und darf h\u00f6chstens vier Monate betragen. W\u00e4hrend der Probezeit kann das Berufsausbildungsverh\u00e4ltnis von beiden Seiten ohne Angabe von Gr\u00fcnden gek\u00fcndigt werden."
+            },
+            {
+                id: 35,
+                text: "Was regelt \u00a7 17 BBiG?",
+                options: [
+                    "A) Die Pflichten des Ausbilders",
+                    "B) Die Verg\u00fctungsanspr\u00fcche des Auszubildenden einschlie\u00dflich der angemessenen Verg\u00fctung",
+                    "C) Die Inhalte der Zwischenpr\u00fcfung",
+                    "D) Die Zulassungsvoraussetzungen zur Abschlusspr\u00fcfung"
+                ],
+                correct: 1,
+                explanation: "\u00a7 17 BBiG regelt die Verg\u00fctungsanspr\u00fcche. Seit der Novelle 2020 gibt es eine Mindestausbildungsverg\u00fctung. Die Verg\u00fctung muss angemessen sein und j\u00e4hrlich ansteigen."
+            },
+            {
+                id: 36,
+                text: "Auf welchen Personenkreis erstreckt sich der Geltungsbereich des BBiG?",
+                options: [
+                    "A) Nur auf Jugendliche unter 18 Jahren",
+                    "B) Auf alle Personen, die in einem Berufsausbildungsverh\u00e4ltnis stehen oder an Ma\u00dfnahmen der Berufsbildung teilnehmen",
+                    "C) Nur auf Handwerker",
+                    "D) Nur auf Besch\u00e4ftigte im \u00f6ffentlichen Dienst"
+                ],
+                correct: 1,
+                explanation: "Das BBiG gilt grunds\u00e4tzlich f\u00fcr alle Berufsausbildungsverh\u00e4ltnisse in der Wirtschaft (\u00a7 3 BBiG). Es gilt nicht f\u00fcr Ausbildungen, die in berufsqualifizierenden Studieng\u00e4ngen an Hochschulen stattfinden, und hat Einschr\u00e4nkungen f\u00fcr den \u00f6ffentlichen Dienst."
+            },
+            {
+                id: 37,
+                text: "Welches Verh\u00e4ltnis besteht zwischen dem BBiG und der Handwerksordnung (HwO)?",
+                options: [
+                    "A) Die HwO hat das BBiG vollst\u00e4ndig abgel\u00f6st",
+                    "B) Die HwO enth\u00e4lt spezielle Regelungen f\u00fcr Handwerksberufe; das BBiG gilt erg\u00e4nzend",
+                    "C) BBiG und HwO haben keinen Zusammenhang",
+                    "D) Das BBiG gilt nur f\u00fcr den Handel, die HwO nur f\u00fcr die Industrie"
+                ],
+                correct: 1,
+                explanation: "Die HwO enth\u00e4lt spezielle Regelungen f\u00fcr die Ausbildung in Handwerksberufen. Wo die HwO keine eigenen Regelungen trifft, gilt das BBiG erg\u00e4nzend. Beide Gesetze stehen in einem Verh\u00e4ltnis von Spezialgesetz (HwO) und allgemeinem Gesetz (BBiG)."
+            },
+            {
+                id: 38,
+                text: "Was muss der Ausbildungsvertrag gem\u00e4\u00df \u00a7 11 BBiG mindestens enthalten?",
+                options: [
+                    "A) Nur den Namen des Auszubildenden",
+                    "B) Art, sachliche und zeitliche Gliederung der Ausbildung, Beginn und Dauer, Ausbildungsma\u00dfnahmen au\u00dferhalb, Dauer der Arbeitszeit, Verg\u00fctung, Urlaub, K\u00fcndigungsvoraussetzungen",
+                    "C) Nur die H\u00f6he der Verg\u00fctung",
+                    "D) Nur Beginn und Ende der Ausbildung"
+                ],
+                correct: 1,
+                explanation: "\u00a7 11 BBiG legt die Mindestinhalte des Ausbildungsvertrags fest: u. a. Art und Ziel der Ausbildung, Beginn und Dauer, Ausbildungsma\u00dfnahmen, t\u00e4gliche Ausbildungszeit, Probezeit, Verg\u00fctung, Urlaub und K\u00fcndigungsvoraussetzungen."
+            },
+            {
+                id: 39,
+                text: "Was geschieht, wenn der Auszubildende nach der Abschlusspr\u00fcfung im Betrieb weiterbesch\u00e4ftigt wird (\u00a7 24 BBiG)?",
+                options: [
+                    "A) Das Ausbildungsverh\u00e4ltnis wird automatisch um ein Jahr verl\u00e4ngert",
+                    "B) Es gilt ein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet, wenn der Auszubildende nach Bestehen weiterbeschäftigt wird",
+                    "C) Der Auszubildende muss sofort den Betrieb verlassen",
+                    "D) Es entsteht automatisch ein befristeter Arbeitsvertrag f\u00fcr 6 Monate"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 24 BBiG gilt ein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet, wenn der Auszubildende nach Beendigung des Berufsausbildungsverh\u00e4ltnisses (z. B. nach bestandener Pr\u00fcfung) im Betrieb weiterbesch\u00e4ftigt wird."
+            },
+            {
+                id: 40,
+                text: "Welche neue Regelung wurde durch die BBiG-Novelle 2020 eingef\u00fchrt?",
+                options: [
+                    "A) Abschaffung aller Pr\u00fcfungen",
+                    "B) Mindestausbildungsverg\u00fctung und drei neue Fortbildungsstufen (Gepr\u00fcfter Berufsspezialist, Bachelor Professional, Master Professional)",
+                    "C) Verk\u00fcrzung aller Ausbildungen auf ein Jahr",
+                    "D) Abschaffung des dualen Systems"
+                ],
+                correct: 1,
+                explanation: "Die BBiG-Novelle 2020 f\u00fchrte u. a. eine Mindestausbildungsverg\u00fctung ein und schuf drei aufeinander aufbauende Fortbildungsstufen: Gepr\u00fcfter Berufsspezialist (DQR 5), Bachelor Professional (DQR 6) und Master Professional (DQR 7)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Ausbildungsordnung und Rahmenlehrplan (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Welche f\u00fcnf Mindestbestandteile muss eine Ausbildungsordnung gem\u00e4\u00df \u00a7 5 BBiG enthalten?",
+                options: [
+                    "A) Bezeichnung, Dauer, Ausbildungsberufsbild, Ausbildungsrahmenplan, Pr\u00fcfungsanforderungen",
+                    "B) Betriebsname, Vergütung, Urlaubstage, Arbeitszeiten, Probezeit",
+                    "C) Lernfelder, Schulf\u00e4cher, Stundentafel, Klassenarbeiten, Zeugnisse",
+                    "D) Name des Auszubildenden, Gehalt, Betrieb, Dauer, Berufsschule"
+                ],
+                correct: 0,
+                explanation: "Die f\u00fcnf Mindestbestandteile einer Ausbildungsordnung nach \u00a7 5 Abs. 1 BBiG sind: 1) Bezeichnung des Ausbildungsberufs, 2) Ausbildungsdauer, 3) Ausbildungsberufsbild, 4) Ausbildungsrahmenplan (sachliche und zeitliche Gliederung), 5) Pr\u00fcfungsanforderungen."
+            },
+            {
+                id: 42,
+                text: "Wer erlässt die Ausbildungsordnungen?",
+                options: [
+                    "A) Die einzelnen Betriebe",
+                    "B) Das zust\u00e4ndige Bundesministerium (z. B. BMWK) im Einvernehmen mit dem BMBF durch Rechtsverordnung",
+                    "C) Die Berufsschulen",
+                    "D) Die Landesregierungen"
+                ],
+                correct: 1,
+                explanation: "Ausbildungsordnungen werden vom zust\u00e4ndigen Fachministerium (z. B. Bundesministerium f\u00fcr Wirtschaft und Klimaschutz) im Einvernehmen mit dem Bundesministerium f\u00fcr Bildung und Forschung durch Rechtsverordnung erlassen (\u00a7 4 Abs. 1 BBiG)."
+            },
+            {
+                id: 43,
+                text: "Was ist der Rahmenlehrplan?",
+                options: [
+                    "A) Ein Lehrplan f\u00fcr Hochschulen",
+                    "B) Der Lehrplan f\u00fcr den Berufsschulunterricht, der von der Kultusministerkonferenz (KMK) erarbeitet wird",
+                    "C) Ein Plan f\u00fcr die Einrichtung neuer Betriebe",
+                    "D) Ein Finanzierungsplan f\u00fcr die Berufsausbildung"
+                ],
+                correct: 1,
+                explanation: "Der Rahmenlehrplan ist der Lehrplan f\u00fcr den berufsbezogenen Unterricht in der Berufsschule. Er wird von der Kultusministerkonferenz (KMK) erarbeitet und von den einzelnen Bundesl\u00e4ndern in Landeslehrpl\u00e4ne umgesetzt."
+            },
+            {
+                id: 44,
+                text: "Was versteht man unter dem Lernfeldkonzept?",
+                options: [
+                    "A) Ein Konzept, bei dem jeder Auszubildende individuell lernt",
+                    "B) Die Strukturierung des Berufsschulunterrichts nach beruflichen Handlungsfeldern statt nach F\u00e4chern",
+                    "C) Ein Konzept f\u00fcr reinen Frontalunterricht",
+                    "D) Die Einteilung der Ausbildung in Semester"
+                ],
+                correct: 1,
+                explanation: "Das Lernfeldkonzept strukturiert den Berufsschulunterricht nach beruflichen Handlungsfeldern (Lernfeldern) statt nach traditionellen Unterrichtsf\u00e4chern. Es f\u00f6rdert handlungsorientiertes Lernen und die Verkn\u00fcpfung von Theorie und Praxis (vgl. KMK, 2021)."
+            },
+            {
+                id: 45,
+                text: "Worin unterscheidet sich der Ausbildungsrahmenplan vom betrieblichen Ausbildungsplan?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Der Ausbildungsrahmenplan ist bundesweit g\u00fcltig und allgemein; der betriebliche Ausbildungsplan ist die betriebsspezifische Umsetzung",
+                    "C) Der Ausbildungsrahmenplan gilt nur f\u00fcr die Berufsschule",
+                    "D) Der betriebliche Ausbildungsplan wird von der IHK erstellt"
+                ],
+                correct: 1,
+                explanation: "Der Ausbildungsrahmenplan ist Teil der Ausbildungsordnung und legt bundesweit g\u00fcltig die sachliche und zeitliche Gliederung der Ausbildung fest. Der betriebliche Ausbildungsplan wird vom Betrieb auf Grundlage des Ausbildungsrahmenplans erstellt und an die betrieblichen Gegebenheiten angepasst."
+            },
+            {
+                id: 46,
+                text: "Was ist das Ausbildungsberufsbild?",
+                options: [
+                    "A) Ein Foto des Auszubildenden",
+                    "B) Die Zusammenfassung der zu vermittelnden Fertigkeiten, Kenntnisse und F\u00e4higkeiten (Mindestqualifikationen)",
+                    "C) Die Beschreibung des Ausbildungsbetriebs",
+                    "D) Die Stellenbeschreibung f\u00fcr den Ausbilder"
+                ],
+                correct: 1,
+                explanation: "Das Ausbildungsberufsbild ist die Zusammenfassung aller beruflichen Fertigkeiten, Kenntnisse und F\u00e4higkeiten (Mindestqualifikationen), die w\u00e4hrend der Ausbildung vermittelt werden m\u00fcssen. Es ist ein Mindestbestandteil der Ausbildungsordnung."
+            },
+            {
+                id: 47,
+                text: "Wof\u00fcr steht die Abk\u00fcrzung KMK im Kontext der Berufsbildung?",
+                options: [
+                    "A) Kaufm\u00e4nnische Mittelstandskammer",
+                    "B) Kultusministerkonferenz \u2013 St\u00e4ndige Konferenz der Kultusminister der L\u00e4nder",
+                    "C) Kommunale Medienkammer",
+                    "D) Kammer f\u00fcr Medizinische Karriere"
+                ],
+                correct: 1,
+                explanation: "KMK steht f\u00fcr Kultusministerkonferenz, die St\u00e4ndige Konferenz der Kultusminister der L\u00e4nder in der Bundesrepublik Deutschland. Sie erarbeitet u. a. die Rahmenlehrpl\u00e4ne f\u00fcr den Berufsschulunterricht."
+            },
+            {
+                id: 48,
+                text: "Was ist der Abstimmungsprozess zwischen Ausbildungsordnung und Rahmenlehrplan?",
+                options: [
+                    "A) Es gibt keine Abstimmung zwischen beiden",
+                    "B) Ausbildungsordnung und Rahmenlehrplan werden im sogenannten Gemeinsamen Ergebnisprotokoll zeitlich und inhaltlich aufeinander abgestimmt",
+                    "C) Die Berufsschule erstellt beide Dokumente allein",
+                    "D) Der Betrieb bestimmt auch die Inhalte der Berufsschule"
+                ],
+                correct: 1,
+                explanation: "Ausbildungsordnung (Bund) und Rahmenlehrplan (L\u00e4nder/KMK) werden im sogenannten Gemeinsamen Ergebnisprotokoll zeitlich und inhaltlich aufeinander abgestimmt. So wird sichergestellt, dass betriebliche und schulische Ausbildungsinhalte zusammenpassen."
+            },
+            {
+                id: 49,
+                text: "Was versteht man unter einer \u201ezeitlichen Gliederung\u201c im Ausbildungsrahmenplan?",
+                options: [
+                    "A) Die genauen Uhrzeiten der Ausbildung",
+                    "B) Die zeitliche Zuordnung der Ausbildungsinhalte zu den einzelnen Ausbildungsjahren (in Richtwerten)",
+                    "C) Die Dauer der Pausenzeiten",
+                    "D) Die Ferienzeiten der Berufsschule"
+                ],
+                correct: 1,
+                explanation: "Die zeitliche Gliederung im Ausbildungsrahmenplan ordnet die Ausbildungsinhalte den einzelnen Ausbildungsjahren zu und gibt Richtwerte (in Wochen) an, wie viel Zeit f\u00fcr die einzelnen Lernbereiche vorgesehen ist."
+            },
+            {
+                id: 50,
+                text: "Welche Aussage zum Verh\u00e4ltnis von Ausbildungsordnung und Rahmenlehrplan ist korrekt?",
+                options: [
+                    "A) Die Ausbildungsordnung ist Landesrecht, der Rahmenlehrplan ist Bundesrecht",
+                    "B) Die Ausbildungsordnung ist Bundesrecht und regelt die betriebliche Ausbildung; der Rahmenlehrplan ist L\u00e4nderrecht und regelt den Berufsschulunterricht",
+                    "C) Beide sind von der EU erlassen",
+                    "D) Beide werden ausschlie\u00dflich von der IHK erstellt"
+                ],
+                correct: 1,
+                explanation: "Die Ausbildungsordnung wird als Bundesrecht vom zust\u00e4ndigen Ministerium erlassen und regelt die betriebliche Ausbildung. Der Rahmenlehrplan wird von der KMK erarbeitet und von den L\u00e4ndern als Landesrecht umgesetzt. Er regelt den Berufsschulunterricht."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Pr\u00fcfungswesen und kaufm\u00e4nnische Berufe (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Was ist der Zweck der Zwischenpr\u00fcfung in der Berufsausbildung?",
+                options: [
+                    "A) Sie ist die Abschlusspr\u00fcfung",
+                    "B) Sie dient der Ermittlung des Ausbildungsstandes und hat keine eigenst\u00e4ndige Bestehensregelung",
+                    "C) Sie ersetzt das Berufsschulzeugnis",
+                    "D) Sie ist freiwillig und kann \u00fcbersprungen werden"
+                ],
+                correct: 1,
+                explanation: "Die Zwischenpr\u00fcfung dient gem\u00e4\u00df \u00a7 48 BBiG der Ermittlung des Ausbildungsstandes. Sie ist Pflicht, hat aber keine eigenst\u00e4ndige Bestehensregelung \u2013 man kann sie also nicht \u201enicht bestehen\u201c. Ihr Ergebnis soll zur Standortbestimmung genutzt werden."
+            },
+            {
+                id: 52,
+                text: "Was versteht man unter der \u201egestreckten Abschlusspr\u00fcfung\u201c?",
+                options: [
+                    "A) Eine Pr\u00fcfung, die besonders lange dauert",
+                    "B) Eine Abschlusspr\u00fcfung, die in zwei zeitlich auseinanderliegende Teile gegliedert ist und die Zwischenpr\u00fcfung ersetzt",
+                    "C) Eine m\u00fcndliche Pr\u00fcfung ohne schriftlichen Teil",
+                    "D) Eine Pr\u00fcfung, die nur in der Berufsschule stattfindet"
+                ],
+                correct: 1,
+                explanation: "Die gestreckte Abschlusspr\u00fcfung (GAP) besteht aus Teil 1 (ca. zur Mitte der Ausbildung) und Teil 2 (am Ende der Ausbildung). Sie ersetzt die Zwischenpr\u00fcfung. Beide Teile flie\u00dfen in die Gesamtnote ein (Rechtsgrundlage: \u00a7 5 Abs. 2 Satz 1 Nr. 2 BBiG i.V.m. der jeweiligen Ausbildungsordnung). Sie wird bei immer mehr Ausbildungsberufen eingef\u00fchrt."
+            },
+            {
+                id: 53,
+                text: "Wer nimmt die Abschlusspr\u00fcfung in kaufm\u00e4nnischen Ausbildungsberufen ab?",
+                options: [
+                    "A) Der Ausbildungsbetrieb",
+                    "B) Die zust\u00e4ndige Stelle, in der Regel die IHK, durch einen Pr\u00fcfungsausschuss",
+                    "C) Die Berufsschule",
+                    "D) Das Bundesministerium f\u00fcr Bildung und Forschung"
+                ],
+                correct: 1,
+                explanation: "Die Abschlusspr\u00fcfung wird von der zust\u00e4ndigen Stelle (bei kaufm\u00e4nnischen Berufen in der Regel die IHK) durch einen Pr\u00fcfungsausschuss abgenommen (\u00a7 39 BBiG). Der Pr\u00fcfungsausschuss besteht aus Arbeitgeber- und Arbeitnehmervertretern sowie Berufsschullehrern."
+            },
+            {
+                id: 54,
+                text: "Welcher der folgenden Berufe ist ein anerkannter kaufm\u00e4nnischer Ausbildungsberuf?",
+                options: [
+                    "A) Kfz-Mechatroniker/in",
+                    "B) Kaufmann/Kauffrau f\u00fcr B\u00fcromanagement",
+                    "C) Zahntechniker/in",
+                    "D) Elektroniker/in f\u00fcr Betriebstechnik"
+                ],
+                correct: 1,
+                explanation: "Kaufmann/Kauffrau f\u00fcr B\u00fcromanagement ist ein anerkannter kaufm\u00e4nnischer Ausbildungsberuf. Die anderen genannten Berufe geh\u00f6ren zu den gewerblich-technischen bzw. handwerklichen Berufen."
+            },
+            {
+                id: 55,
+                text: "Wie oft kann eine nicht bestandene Abschlusspr\u00fcfung wiederholt werden?",
+                options: [
+                    "A) Gar nicht",
+                    "B) H\u00f6chstens zweimal",
+                    "C) Unbegrenzt",
+                    "D) Einmal"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 37 Abs. 1 BBiG kann eine nicht bestandene Abschlusspr\u00fcfung h\u00f6chstens zweimal wiederholt werden. Der Auszubildende hat also insgesamt drei Versuche, die Pr\u00fcfung zu bestehen."
+            },
+            {
+                id: 56,
+                text: "Welche Zulassungsvoraussetzungen m\u00fcssen f\u00fcr die Abschlusspr\u00fcfung erf\u00fcllt sein (\u00a7 43 BBiG)?",
+                options: [
+                    "A) Nur die Anmeldung durch den Betrieb",
+                    "B) Zur\u00fccklegen der Ausbildungszeit, gef\u00fchrter Ausbildungsnachweis (Berichtsheft), Eintragung im Verzeichnis der Berufsausbildungsverh\u00e4ltnisse und Teilnahme an der Zwischenpr\u00fcfung",
+                    "C) Nur ein Mindestalter von 18 Jahren",
+                    "D) Nur der Nachweis von Fremdsprachenkenntnissen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 43 BBiG muss der Auszubildende die Ausbildungszeit zur\u00fcckgelegt, den Ausbildungsnachweis (Berichtsheft) gef\u00fchrt, im Verzeichnis der Berufsausbildungsverh\u00e4ltnisse eingetragen sein und an der Zwischenpr\u00fcfung teilgenommen haben."
+            },
+            {
+                id: 57,
+                text: "Welcher kaufm\u00e4nnische Ausbildungsberuf hat in Deutschland die meisten Auszubildenden?",
+                options: [
+                    "A) Bankkaufmann/Bankkauffrau",
+                    "B) Kaufmann/Kauffrau f\u00fcr B\u00fcromanagement",
+                    "C) Steuerfachangestellte/r",
+                    "D) Immobilienkaufmann/Immobilienkauffrau"
+                ],
+                correct: 1,
+                explanation: "Kaufmann/Kauffrau f\u00fcr B\u00fcromanagement ist seit Jahren der Ausbildungsberuf mit den meisten Neuvertr\u00e4gen in Deutschland. Der Beruf entstand 2014 aus der Zusammenlegung von B\u00fcrokaufmann, Kaufmann f\u00fcr B\u00fcrokommunikation und Fachangestelltem f\u00fcr B\u00fcrokommunikation."
+            },
+            {
+                id: 58,
+                text: "Was geschieht, wenn der Auszubildende die Abschlusspr\u00fcfung nicht besteht (\u00a7 21 Abs. 3 BBiG)?",
+                options: [
+                    "A) Das Ausbildungsverh\u00e4ltnis endet sofort",
+                    "B) Das Ausbildungsverh\u00e4ltnis verl\u00e4ngert sich auf Verlangen des Auszubildenden bis zur n\u00e4chstm\u00f6glichen Wiederholungspr\u00fcfung, h\u00f6chstens um ein Jahr",
+                    "C) Der Auszubildende muss die gesamte Ausbildung wiederholen",
+                    "D) Der Betrieb muss eine Abfindung zahlen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 21 Abs. 3 BBiG verl\u00e4ngert sich das Berufsausbildungsverh\u00e4ltnis auf Verlangen des Auszubildenden bis zur n\u00e4chstm\u00f6glichen Wiederholungspr\u00fcfung, h\u00f6chstens um ein Jahr."
+            },
+            {
+                id: 59,
+                text: "Welche Pr\u00fcfungsbereiche sind typisch f\u00fcr die IHK-Abschlusspr\u00fcfung in kaufm\u00e4nnischen Berufen?",
+                options: [
+                    "A) Nur Sport und Kunst",
+                    "B) Schriftliche Pr\u00fcfung (fachbezogene Aufgaben) und m\u00fcndliche/praktische Pr\u00fcfung (Fachgespr\u00e4ch, fallbezogene Aufgabe)",
+                    "C) Nur m\u00fcndliche Pr\u00fcfung",
+                    "D) Nur eine Hausarbeit"
+                ],
+                correct: 1,
+                explanation: "IHK-Abschlusspr\u00fcfungen in kaufm\u00e4nnischen Berufen umfassen typischerweise schriftliche Pr\u00fcfungsbereiche (z. B. fachbezogene Aufgaben, Wirtschafts- und Sozialkunde) und einen m\u00fcndlichen/praktischen Teil (z. B. Fachgespr\u00e4ch oder fallbezogene Aufgabe)."
+            },
+            {
+                id: 60,
+                text: "Welche Besonderheit gilt f\u00fcr den Pr\u00fcfungsbereich \u201eWirtschafts- und Sozialkunde\u201c (WiSo)?",
+                options: [
+                    "A) Er wird nicht gepr\u00fcft",
+                    "B) Er ist in nahezu allen kaufm\u00e4nnischen Ausbildungsberufen ein verpflichtender Pr\u00fcfungsbereich und deckt allgemeine wirtschaftliche und gesellschaftliche Zusammenh\u00e4nge ab",
+                    "C) Er wird nur m\u00fcndlich gepr\u00fcft",
+                    "D) Er ist nur in Handwerksberufen relevant"
+                ],
+                correct: 1,
+                explanation: "Wirtschafts- und Sozialkunde (WiSo) ist in nahezu allen kaufm\u00e4nnischen Ausbildungsberufen ein verpflichtender Pr\u00fcfungsbereich der IHK-Abschlusspr\u00fcfung. Er pr\u00fcft allgemeine wirtschaftliche und gesellschaftliche Zusammenh\u00e4nge und ist daher besonders pr\u00fcfungsrelevant."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 42;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

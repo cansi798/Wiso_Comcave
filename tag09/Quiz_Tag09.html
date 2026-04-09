@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 09 &ndash; Brandschutz</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 09 &ndash; Brandschutz</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1996). <em>Arbeitsschutzgesetz (ArbSchG)</em>. BGBl. I S. 1246. https://www.gesetze-im-internet.de/arbschg/</p>
+    <p>Bundesministerium der Justiz. (2004). <em>Arbeitsst&auml;ttenverordnung (ArbSt&auml;ttV)</em>. BGBl. I S. 2179. https://www.gesetze-im-internet.de/arbst_ttv_2004/</p>
+    <p>Ausschuss f&uuml;r Arbeitsst&auml;tten. (2019). <em>ASR A2.2 &ndash; Ma&szlig;nahmen gegen Br&auml;nde</em>. https://www.baua.de/DE/Angebote/Regelwerk/ASR/ASR-A2-2.html</p>
+    <p>Ausschuss f&uuml;r Arbeitsst&auml;tten. (2018). <em>ASR A2.3 &ndash; Fluchtwege und Notausg&auml;nge</em>. https://www.baua.de/DE/Angebote/Regelwerk/ASR/ASR-A2-3.html</p>
+    <p>DGUV. (2018). <em>DGUV Information 205-023 &ndash; Brandschutzhelfer</em>. https://publikationen.dguv.de/regelwerk/dguv-informationen/</p>
+    <p>Mayr, J. &amp; Battran, L. (2021). <em>Brandschutzatlas</em> (6. Aufl.). FeuerTrutz.</p>
+    <p>Brill, H. (2020). <em>Vorbeugender und abwehrender Brandschutz</em>. Kohlhammer.</p>
+    <p>Semler, S. &amp; Kolbe, C. (2021). <em>Wirtschafts- und Sozialkunde</em>. Westermann.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Grundlagen Brandschutz (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welche drei Voraussetzungen m\u00fcssen gleichzeitig erf\u00fcllt sein, damit ein Brand entsteht (Verbrennungsdreieck)?",
+                options: [
+                    "A) Brennbarer Stoff, Sauerstoff und Z\u00fcndenergie/W\u00e4rme",
+                    "B) Brennbarer Stoff, Wasser und Hitze",
+                    "C) Sauerstoff, Stickstoff und Brennstoff",
+                    "D) W\u00e4rme, Druck und Brennstoff"
+                ],
+                correct: 0,
+                explanation: "Das Verbrennungsdreieck besteht aus: Brennbarer Stoff, Sauerstoff und Z\u00fcndenergie/W\u00e4rme. Alle drei m\u00fcssen gleichzeitig vorhanden sein."
+            },
+            {
+                id: 2,
+                text: "Wie kann ein Brand prinzipiell gel\u00f6scht werden?",
+                options: [
+                    "A) Nur durch Abk\u00fchlen mit Wasser",
+                    "B) Indem man mindestens eine Seite des Verbrennungsdreiecks beseitigt",
+                    "C) Nur durch Sauerstoffentzug",
+                    "D) Ausschlie\u00dflich durch die Feuerwehr"
+                ],
+                correct: 1,
+                explanation: "Ein Brand wird gel\u00f6scht, indem man mindestens eine der drei Voraussetzungen beseitigt: Brennstoff entfernen, Sauerstoff entziehen oder Temperatur senken."
+            },
+            {
+                id: 3,
+                text: "Was ist die h\u00e4ufigste Brandursache in Betrieben?",
+                options: [
+                    "A) Brandstiftung",
+                    "B) Rauchen",
+                    "C) Defekte Elektroinstallationen",
+                    "D) Selbstentz\u00fcndung"
+                ],
+                correct: 2,
+                explanation: "Defekte Elektroinstallationen sind mit ca. 30 % die h\u00e4ufigste Brandursache in Betrieben (Kurzschl\u00fcsse, \u00dcberlastung, defekte Kabel)."
+            },
+            {
+                id: 4,
+                text: "Was ist die h\u00e4ufigste Todesursache bei Br\u00e4nden?",
+                options: [
+                    "A) Verbrennungen",
+                    "B) Rauchgasvergiftung",
+                    "C) Einsturzgefahr",
+                    "D) Panik und Gedr\u00e4nge"
+                ],
+                correct: 1,
+                explanation: "Die meisten Brandopfer sterben an einer Rauchgasvergiftung (Kohlenmonoxid, Blaus\u00e4ure), nicht an Verbrennungen. Brandrauch ist die Todesursache Nr. 1."
+            },
+            {
+                id: 5,
+                text: "Welches Gesetz verpflichtet den Arbeitgeber zu Brandschutzma\u00dfnahmen?",
+                options: [
+                    "A) Nur das B\u00fcrgerliche Gesetzbuch (BGB)",
+                    "B) Arbeitsschutzgesetz (ArbSchG) und Arbeitsst\u00e4ttenverordnung (ArbSt\u00e4ttV)",
+                    "C) Nur das Strafgesetzbuch (StGB)",
+                    "D) Nur die Landesbauordnung"
+                ],
+                correct: 1,
+                explanation: "Das ArbSchG (\u00a7 10) und die ArbSt\u00e4ttV verpflichten den Arbeitgeber, Ma\u00dfnahmen f\u00fcr den Brandschutz zu treffen."
+            },
+            {
+                id: 6,
+                text: "Welcher Anteil der Betriebsbr\u00e4nde wird durch menschliches Fehlverhalten verursacht?",
+                options: [
+                    "A) Ca. 5 %",
+                    "B) Ca. 10 %",
+                    "C) Ca. 25 %",
+                    "D) Ca. 50 %"
+                ],
+                correct: 2,
+                explanation: "Ca. 25 % aller Betriebsbr\u00e4nde entstehen durch menschliches Fehlverhalten (Rauchen, Nachl\u00e4ssigkeit, unsachgem\u00e4\u00dfer Umgang mit Feuer)."
+            },
+            {
+                id: 7,
+                text: "Welches giftige Gas entsteht bei fast jedem Brand und ist farb- und geruchlos?",
+                options: [
+                    "A) Kohlendioxid (CO\u2082)",
+                    "B) Stickstoff (N\u2082)",
+                    "C) Kohlenmonoxid (CO)",
+                    "D) Sauerstoff (O\u2082)"
+                ],
+                correct: 2,
+                explanation: "Kohlenmonoxid (CO) ist farb- und geruchlos und entsteht bei fast jedem Brand. Es bindet 300-mal st\u00e4rker an H\u00e4moglobin als Sauerstoff und ist daher extrem gef\u00e4hrlich."
+            },
+            {
+                id: 8,
+                text: "Warum ist die Sichtbehinderung durch Brandrauch so gef\u00e4hrlich?",
+                options: [
+                    "A) Weil die Augen brennen",
+                    "B) Weil Menschen die Orientierung verlieren und den Ausgang nicht finden",
+                    "C) Weil der Rauch die Kleidung besch\u00e4digt",
+                    "D) Weil der Rauch den Brand verst\u00e4rkt"
+                ],
+                correct: 1,
+                explanation: "In verrauchten R\u00e4umen ist die Sicht oft auf unter 1 Meter reduziert. Menschen verlieren die Orientierung und k\u00f6nnen den Fluchtweg nicht mehr finden."
+            },
+            {
+                id: 9,
+                text: "Welche der folgenden Aussagen zum Verbrennungsdreieck ist richtig?",
+                options: [
+                    "A) Wenn alle drei Bedingungen erf\u00fcllt sind, entsteht immer sofort ein Brand",
+                    "B) Sauerstoff muss in reiner Form vorliegen",
+                    "C) Fehlt eine der drei Voraussetzungen, kann kein Brand entstehen",
+                    "D) Das Verbrennungsdreieck gilt nur f\u00fcr feste Stoffe"
+                ],
+                correct: 2,
+                explanation: "Fehlt eine der drei Voraussetzungen (Brennstoff, Sauerstoff, W\u00e4rme), kann kein Brand entstehen oder er erlischt. Das ist das Grundprinzip der Brandbek\u00e4mpfung."
+            },
+            {
+                id: 10,
+                text: "Welche Ma\u00dfnahme nutzt das Prinzip der K\u00fchlwirkung?",
+                options: [
+                    "A) Deckel auf einen brennenden Topf legen",
+                    "B) L\u00f6schen mit Wasser",
+                    "C) L\u00f6schen mit CO\u2082",
+                    "D) Brennbare Stoffe wegr\u00e4umen"
+                ],
+                correct: 1,
+                explanation: "Wasser entzieht dem Brand W\u00e4rme (K\u00fchlwirkung) und senkt die Temperatur unter die Z\u00fcndtemperatur. Das Auflegen eines Deckels nutzt die Erstickwirkung (Sauerstoffentzug)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Vorbeugender Brandschutz (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Welche drei S\u00e4ulen hat der vorbeugende Brandschutz?",
+                options: [
+                    "A) Baulich, anlagentechnisch, organisatorisch",
+                    "B) Pr\u00e4ventiv, reaktiv, administrativ",
+                    "C) Technisch, personell, finanziell",
+                    "D) Intern, extern, staatlich"
+                ],
+                correct: 0,
+                explanation: "Der vorbeugende Brandschutz gliedert sich in drei S\u00e4ulen: baulicher, anlagentechnischer und organisatorischer Brandschutz."
+            },
+            {
+                id: 12,
+                text: "Was geh\u00f6rt zum baulichen Brandschutz?",
+                options: [
+                    "A) Brandschutzordnung und Unterweisungen",
+                    "B) Brandmeldeanlagen und Sprinkler",
+                    "C) Brandw\u00e4nde, feuerbest\u00e4ndige Baustoffe und Fluchtwegegestaltung",
+                    "D) Feuerl\u00f6scher und Wandhydranten"
+                ],
+                correct: 2,
+                explanation: "Zum baulichen Brandschutz geh\u00f6ren: Brandw\u00e4nde und Brandabschnitte, feuerbest\u00e4ndige Baustoffe, Flucht- und Rettungswege, Rauchabzugsanlagen und Feuerschutzabschl\u00fcsse."
+            },
+            {
+                id: 13,
+                text: "Welche Funktion hat eine Sprinkleranlage?",
+                options: [
+                    "A) Sie meldet den Brand an die Feuerwehr",
+                    "B) Sie l\u00f6scht Br\u00e4nde automatisch in der Entstehungsphase durch W\u00e4rmeausl\u00f6sung",
+                    "C) Sie leitet Rauch aus dem Geb\u00e4ude ab",
+                    "D) Sie verschlie\u00dft automatisch die Brandschutzt\u00fcren"
+                ],
+                correct: 1,
+                explanation: "Sprinkleranlagen sind automatische L\u00f6schanlagen. Jeder Sprinklerkopf hat eine Glasampulle, die bei einer bestimmten Temperatur platzt und Wasser freisetzt."
+            },
+            {
+                id: 14,
+                text: "Wie viel Prozent der Besch\u00e4ftigten m\u00fcssen mindestens als Brandschutzhelfer ausgebildet sein?",
+                options: [
+                    "A) 1 %",
+                    "B) 3 %",
+                    "C) 5 %",
+                    "D) 10 %"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df ASR A2.2 m\u00fcssen mindestens 5 % der Besch\u00e4ftigten als Brandschutzhelfer ausgebildet sein."
+            },
+            {
+                id: 15,
+                text: "Wie oft muss eine Brandschutzunterweisung mindestens stattfinden?",
+                options: [
+                    "A) Alle 6 Monate",
+                    "B) Einmal j\u00e4hrlich",
+                    "C) Alle 2 Jahre",
+                    "D) Nur bei Neueinstellung"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 12 ArbSchG m\u00fcssen Unterweisungen mindestens einmal j\u00e4hrlich durchgef\u00fchrt werden."
+            },
+            {
+                id: 16,
+                text: "Was darf mit Brand- und Rauchschutzt\u00fcren NICHT gemacht werden?",
+                options: [
+                    "A) Sie d\u00fcrfen geschlossen gehalten werden",
+                    "B) Sie d\u00fcrfen mit zugelassenen Feststellanlagen offengehalten werden",
+                    "C) Sie d\u00fcrfen mit Keilen oder anderen Hilfsmitteln offengehalten werden",
+                    "D) Sie d\u00fcrfen regelm\u00e4\u00dfig gepr\u00fcft werden"
+                ],
+                correct: 2,
+                explanation: "Brand- und Rauchschutzt\u00fcren d\u00fcrfen niemals mit Keilen oder anderen Hilfsmitteln offengehalten werden. Nur zugelassene Feststellanlagen, die im Brandfall automatisch schlie\u00dfen, sind erlaubt."
+            },
+            {
+                id: 17,
+                text: "An wen richtet sich Teil A der Brandschutzordnung?",
+                options: [
+                    "A) Nur an den Brandschutzbeauftragten",
+                    "B) Nur an die Besch\u00e4ftigten",
+                    "C) An alle Personen, einschlie\u00dflich Besucher",
+                    "D) Nur an die Feuerwehr"
+                ],
+                correct: 2,
+                explanation: "Teil A der Brandschutzordnung ist ein Aushang, der sich an alle Personen richtet \u2013 auch an Besucher, Kunden und Lieferanten."
+            },
+            {
+                id: 18,
+                text: "Welchen Inhalt hat Teil B der Brandschutzordnung?",
+                options: [
+                    "A) Nur die Notrufnummer",
+                    "B) Aufgaben des Brandschutzbeauftragten",
+                    "C) Verhalten im Brandfall, Fluchtwegeplan, Meldekette, Feuerl\u00f6scherbedienung",
+                    "D) Bauliche Brandschutzma\u00dfnahmen"
+                ],
+                correct: 2,
+                explanation: "Teil B richtet sich an alle Besch\u00e4ftigten und enth\u00e4lt: Verhalten im Brandfall, Fluchtwegeplan, Meldekette und Hinweise zur Bedienung von Feuerl\u00f6schern."
+            },
+            {
+                id: 19,
+                text: "Welche Aufgabe hat der Brandschutzbeauftragte im Betrieb?",
+                options: [
+                    "A) Er muss selbst Br\u00e4nde l\u00f6schen",
+                    "B) Er koordiniert den betrieblichen Brandschutz und ist zentrale Ansprechperson",
+                    "C) Er ersetzt die Feuerwehr im Betrieb",
+                    "D) Er ist nur f\u00fcr die Feuerl\u00f6scherpr\u00fcfung zust\u00e4ndig"
+                ],
+                correct: 1,
+                explanation: "Der Brandschutzbeauftragte koordiniert den betrieblichen Brandschutz, \u00fcberwacht die Einhaltung der Brandschutzordnung und ist zentrale Ansprechperson f\u00fcr Brandschutzfragen."
+            },
+            {
+                id: 20,
+                text: "Was versteht man unter anlagentechnischem Brandschutz?",
+                options: [
+                    "A) Schulungen und Unterweisungen",
+                    "B) Technische Systeme zur Branderkennung, -meldung und -bek\u00e4mpfung",
+                    "C) Bauliche Ma\u00dfnahmen wie Brandw\u00e4nde",
+                    "D) Organisatorische Regelungen"
+                ],
+                correct: 1,
+                explanation: "Anlagentechnischer Brandschutz umfasst technische Systeme: Brandmeldeanlagen, Sprinkleranlagen, Rauch- und W\u00e4rmeabzugsanlagen, Wandhydranten und Feuerl\u00f6scher."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Brandklassen und L\u00f6schmittel (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Welche Brandklasse umfasst feste, glutbildende Stoffe wie Holz und Papier?",
+                options: [
+                    "A) Brandklasse A",
+                    "B) Brandklasse B",
+                    "C) Brandklasse C",
+                    "D) Brandklasse D"
+                ],
+                correct: 0,
+                explanation: "Brandklasse A umfasst feste, glutbildende Stoffe wie Holz, Papier, Textilien und Kohle."
+            },
+            {
+                id: 22,
+                text: "Zu welcher Brandklasse geh\u00f6ren fl\u00fcssige oder fl\u00fcssig werdende Stoffe?",
+                options: [
+                    "A) Brandklasse A",
+                    "B) Brandklasse B",
+                    "C) Brandklasse C",
+                    "D) Brandklasse F"
+                ],
+                correct: 1,
+                explanation: "Brandklasse B umfasst fl\u00fcssige oder fl\u00fcssig werdende Stoffe wie Benzin, \u00d6le, Lacke, Wachs und Teer."
+            },
+            {
+                id: 23,
+                text: "Welche Brandklasse gilt f\u00fcr gasf\u00f6rmige Stoffe?",
+                options: [
+                    "A) Brandklasse B",
+                    "B) Brandklasse C",
+                    "C) Brandklasse D",
+                    "D) Brandklasse F"
+                ],
+                correct: 1,
+                explanation: "Brandklasse C umfasst gasf\u00f6rmige Stoffe wie Erdgas, Propan, Methan, Wasserstoff und Acetylen."
+            },
+            {
+                id: 24,
+                text: "Warum gibt es keine Brandklasse E?",
+                options: [
+                    "A) Es gibt sie, sie wurde nur umbenannt",
+                    "B) Fr\u00fcher stand E f\u00fcr Elektrobr\u00e4nde; heute werden diese den anderen Klassen zugeordnet",
+                    "C) Die Klasse wurde nie definiert",
+                    "D) Klasse E ist f\u00fcr Explosionen reserviert"
+                ],
+                correct: 1,
+                explanation: "Fr\u00fcher stand Brandklasse E f\u00fcr Br\u00e4nde in elektrischen Anlagen. Heute werden Elektrobr\u00e4nde den normalen Brandklassen zugeordnet, da es auf den brennenden Stoff ankommt."
+            },
+            {
+                id: 25,
+                text: "Was passiert, wenn man Wasser auf einen Fettbrand (Klasse F) sch\u00fcttet?",
+                options: [
+                    "A) Das Feuer wird sofort gel\u00f6scht",
+                    "B) Es kommt zu einer Fettexplosion",
+                    "C) Das Wasser verdampft harmlos",
+                    "D) Das Fett wird abgek\u00fchlt"
+                ],
+                correct: 1,
+                explanation: "Wasser verdampft schlagartig im hei\u00dfen Fett (\u00fcber 300\u00b0C), das Volumen vergr\u00f6\u00dfert sich um das 1700-fache. Das brennende Fett wird zerst\u00e4ubt \u2013 es kommt zur Fettexplosion."
+            },
+            {
+                id: 26,
+                text: "Welches L\u00f6schmittel ist r\u00fcckstandsfrei und daher ideal f\u00fcr B\u00fcros und EDV-R\u00e4ume?",
+                options: [
+                    "A) Wasser",
+                    "B) Schaum",
+                    "C) ABC-Pulver",
+                    "D) CO\u2082 (Kohlendioxid)"
+                ],
+                correct: 3,
+                explanation: "CO\u2082-L\u00f6scher sind r\u00fcckstandsfrei und besch\u00e4digen keine empfindliche Elektronik. Sie sind daher ideal f\u00fcr B\u00fcros, EDV-R\u00e4ume und Labore."
+            },
+            {
+                id: 27,
+                text: "Welcher Feuerl\u00f6schertyp ist am vielseitigsten einsetzbar?",
+                options: [
+                    "A) Wasserl\u00f6scher (nur Klasse A)",
+                    "B) Schauml\u00f6scher (Klasse A, B)",
+                    "C) Pulverl\u00f6scher ABC (Klasse A, B, C)",
+                    "D) CO\u2082-L\u00f6scher (Klasse B, C)"
+                ],
+                correct: 2,
+                explanation: "Der ABC-Pulverl\u00f6scher deckt drei Brandklassen ab und ist damit am vielseitigsten. Sein Nachteil ist die starke Verschmutzung durch das Pulver."
+            },
+            {
+                id: 28,
+                text: "Welches L\u00f6schmittel wirkt durch Erstickung (Sauerstoffentzug)?",
+                options: [
+                    "A) Wasser",
+                    "B) CO\u2082 (Kohlendioxid)",
+                    "C) ABC-Pulver",
+                    "D) Alle genannten"
+                ],
+                correct: 1,
+                explanation: "CO\u2082 verdr\u00e4ngt den Sauerstoff am Brandherd und wirkt durch Erstickung. Der Sauerstoffgehalt wird unter 15 % gesenkt, wodurch die Flamme erlischt."
+            },
+            {
+                id: 29,
+                text: "Welcher Feuerl\u00f6scher muss in einer Betriebsk\u00fcche vorhanden sein?",
+                options: [
+                    "A) Wasserl\u00f6scher",
+                    "B) CO\u2082-L\u00f6scher",
+                    "C) Fettbrandl\u00f6scher (Klasse F)",
+                    "D) Pulverl\u00f6scher"
+                ],
+                correct: 2,
+                explanation: "In K\u00fcchen und Kantinen muss ein Fettbrandl\u00f6scher (Klasse F) vorhanden sein, da Speise\u00f6le und -fette nur mit diesem Spezial-L\u00f6schertyp sicher gel\u00f6scht werden k\u00f6nnen."
+            },
+            {
+                id: 30,
+                text: "Was ist die wichtigste Regel bei der Bek\u00e4mpfung von Gasbr\u00e4nden (Klasse C)?",
+                options: [
+                    "A) Sofort mit Wasser l\u00f6schen",
+                    "B) Erst die Gaszufuhr abstellen, dann l\u00f6schen",
+                    "C) Den Raum sofort abdichten",
+                    "D) Nur mit Schaum l\u00f6schen"
+                ],
+                correct: 1,
+                explanation: "Bei Gasbr\u00e4nden muss zuerst die Gaszufuhr abgestellt werden. L\u00f6scht man die Flamme, ohne die Gaszufuhr zu stoppen, bildet sich ein explosives Gas-Luft-Gemisch."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Verhalten bei Br\u00e4nden (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Was ist die allererste Handlung bei Entdeckung eines Brandes?",
+                options: [
+                    "A) Sofort selbst l\u00f6schen",
+                    "B) Pers\u00f6nliche Gegenst\u00e4nde sichern",
+                    "C) Ruhe bewahren und Brand melden (Notruf 112)",
+                    "D) Fenster \u00f6ffnen"
+                ],
+                correct: 2,
+                explanation: "Die erste Handlung ist: Ruhe bewahren und den Brand melden (Notruf 112 oder Handfeuermelder). Panik ist der gr\u00f6\u00dfte Feind bei einem Brand."
+            },
+            {
+                id: 32,
+                text: "Welche Notrufnummer gilt europaweit f\u00fcr Feuerwehr und Rettungsdienst?",
+                options: [
+                    "A) 110",
+                    "B) 112",
+                    "C) 115",
+                    "D) 118"
+                ],
+                correct: 1,
+                explanation: "Die Notrufnummer 112 gilt europaweit, ist kostenlos und rund um die Uhr erreichbar. Sie funktioniert auch mit gesperrtem Handy."
+            },
+            {
+                id: 33,
+                text: "Was bedeuten die \u201e5 W\u201c des Notrufs?",
+                options: [
+                    "A) Wer, Wo, Was, Wie viele, Warten",
+                    "B) Wer, Warum, Was, Wohin, Wann",
+                    "C) Wo, Was, Warum, Wer, Wessen",
+                    "D) Wer, Wo, Wann, Warum, Wie"
+                ],
+                correct: 0,
+                explanation: "Die 5 W des Notrufs: Wer ruft an? Wo brennt es? Was brennt? Wie viele Verletzte? Warten auf R\u00fcckfragen!"
+            },
+            {
+                id: 34,
+                text: "Was hat im Brandfall absolute Priorit\u00e4t?",
+                options: [
+                    "A) Sachwerte sch\u00fctzen",
+                    "B) Menschenrettung",
+                    "C) Brand l\u00f6schen",
+                    "D) Dokumente sichern"
+                ],
+                correct: 1,
+                explanation: "Menschenrettung geht immer vor Brandl\u00f6schung und Sachwerterettung. Kein Sachwert ist ein Menschenleben wert."
+            },
+            {
+                id: 35,
+                text: "Warum d\u00fcrfen Aufz\u00fcge im Brandfall NICHT benutzt werden?",
+                options: [
+                    "A) Weil sie zu langsam sind",
+                    "B) Weil Erstickungsgefahr und Einschlussrisiko bestehen",
+                    "C) Weil sie zu viel Strom verbrauchen",
+                    "D) Weil sie nur f\u00fcr Feuerwehrleute reserviert sind"
+                ],
+                correct: 1,
+                explanation: "Aufz\u00fcge k\u00f6nnen stecken bleiben, sich mit Rauch f\u00fcllen oder in den Brandbereich fahren. Es besteht Erstickungsgefahr und Einschlussrisiko."
+            },
+            {
+                id: 36,
+                text: "Was sollte man beim Verlassen eines Raumes im Brandfall unbedingt tun?",
+                options: [
+                    "A) Fenster \u00f6ffnen, damit der Rauch abzieht",
+                    "B) T\u00fcren schlie\u00dfen (aber nicht abschlie\u00dfen)",
+                    "C) Pers\u00f6nliche Gegenst\u00e4nde mitnehmen",
+                    "D) T\u00fcren weit offen lassen"
+                ],
+                correct: 1,
+                explanation: "T\u00fcren schlie\u00dfen verlangsamt die Rauch- und Feuerausbreitung erheblich. Eine geschlossene T\u00fcr kann einen Brand 30\u201360 Minuten aufhalten. Nicht abschlie\u00dfen, damit Rettungskr\u00e4fte hereinkommen."
+            },
+            {
+                id: 37,
+                text: "Wann darf ein Besch\u00e4ftigter einen L\u00f6schversuch unternehmen?",
+                options: [
+                    "A) Immer, auch bei Gro\u00dfbr\u00e4nden",
+                    "B) Nur bei Entstehungsbr\u00e4nden und ohne Eigengef\u00e4hrdung",
+                    "C) Nur nach Genehmigung durch den Vorgesetzten",
+                    "D) Niemals \u2013 das ist ausschlie\u00dflich Aufgabe der Feuerwehr"
+                ],
+                correct: 1,
+                explanation: "L\u00f6schversuche d\u00fcrfen nur bei kleinen Entstehungsbr\u00e4nden unternommen werden, wenn keine Eigengef\u00e4hrdung besteht. Bei gr\u00f6\u00dferen Br\u00e4nden: Sofort fliehen!"
+            },
+            {
+                id: 38,
+                text: "Was muss am Sammelplatz geschehen?",
+                options: [
+                    "A) Jeder kann nach Hause gehen",
+                    "B) Vollst\u00e4ndigkeitspr\u00fcfung durchf\u00fchren und fehlende Personen der Feuerwehr melden",
+                    "C) Sofort zur\u00fcck ins Geb\u00e4ude gehen, um Gegenst\u00e4nde zu holen",
+                    "D) Nur warten, bis der Vorgesetzte kommt"
+                ],
+                correct: 1,
+                explanation: "Am Sammelplatz wird die Vollst\u00e4ndigkeit gepr\u00fcft. Fehlende Personen werden sofort der Feuerwehr gemeldet. Den Sammelplatz nicht verlassen!"
+            },
+            {
+                id: 39,
+                text: "Wie sollte man sich in einem verrauchten Raum fortbewegen?",
+                options: [
+                    "A) Aufrecht und schnell laufen",
+                    "B) Gebeugt gehen oder kriechen \u2013 am Boden ist die Luft am l\u00e4ngsten atembar",
+                    "C) R\u00fcckw\u00e4rts gehen",
+                    "D) Ganz still stehen bleiben"
+                ],
+                correct: 1,
+                explanation: "Hei\u00dfer Rauch steigt nach oben. Am Boden ist die Luft am l\u00e4ngsten atembar und die Sicht besser. Deshalb: gebeugt gehen oder kriechen."
+            },
+            {
+                id: 40,
+                text: "Was tun, wenn der Fluchtweg durch Rauch versperrt ist?",
+                options: [
+                    "A) Trotzdem durchlaufen",
+                    "B) Durch den Rauch kriechen, egal wie dicht er ist",
+                    "C) Im Raum bleiben, T\u00fcrspalte abdichten, am Fenster bemerkbar machen",
+                    "D) Aus dem Fenster springen"
+                ],
+                correct: 2,
+                explanation: "Wenn der Fluchtweg verraucht ist, ist es sicherer im Raum zu bleiben: T\u00fcrspalte mit nassen T\u00fcchern abdichten, Fenster \u00f6ffnen und sich bemerkbar machen. Die Feuerwehr wird kommen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Flucht- und Rettungswege (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Welche maximale Fluchtwegl\u00e4nge gilt in der Regel gem\u00e4\u00df ASR A2.3?",
+                options: [
+                    "A) 20 Meter",
+                    "B) 35 Meter",
+                    "C) 50 Meter",
+                    "D) 100 Meter"
+                ],
+                correct: 1,
+                explanation: "Die maximale Fluchtwegl\u00e4nge betr\u00e4gt gem\u00e4\u00df ASR A2.3 in der Regel 35 Meter (Laufl\u00e4nge, nicht Luftlinie)."
+            },
+            {
+                id: 42,
+                text: "Wie viele voneinander unabh\u00e4ngige Fluchtwege sind mindestens erforderlich?",
+                options: [
+                    "A) Einer",
+                    "B) Zwei",
+                    "C) Drei",
+                    "D) Abh\u00e4ngig von der Geb\u00e4udegr\u00f6\u00dfe"
+                ],
+                correct: 1,
+                explanation: "Es sind mindestens zwei voneinander unabh\u00e4ngige Fluchtwege erforderlich, falls ein Fluchtweg durch den Brand blockiert ist."
+            },
+            {
+                id: 43,
+                text: "In welche Richtung m\u00fcssen Fluchtt\u00fcren \u00f6ffnen?",
+                options: [
+                    "A) Nach innen",
+                    "B) In Fluchtrichtung (nach au\u00dfen)",
+                    "C) In beide Richtungen",
+                    "D) Es gibt keine Vorgabe"
+                ],
+                correct: 1,
+                explanation: "Fluchtt\u00fcren m\u00fcssen sich in Fluchtrichtung \u00f6ffnen lassen, ohne Hilfsmittel und ohne besondere Kenntnisse."
+            },
+            {
+                id: 44,
+                text: "Welche Farbe haben Rettungszeichen (Fluchtwegbeschilderung)?",
+                options: [
+                    "A) Rot mit wei\u00dfem Piktogramm",
+                    "B) Blau mit wei\u00dfem Piktogramm",
+                    "C) Gr\u00fcn mit wei\u00dfem Piktogramm",
+                    "D) Gelb mit schwarzem Piktogramm"
+                ],
+                correct: 2,
+                explanation: "Rettungszeichen (Fluchtwege, Notausg\u00e4nge, Sammelpl\u00e4tze) sind gr\u00fcn mit wei\u00dfem Piktogramm. Rote Schilder kennzeichnen Brandschutzeinrichtungen."
+            },
+            {
+                id: 45,
+                text: "Was muss ein Flucht- und Rettungsplan enthalten?",
+                options: [
+                    "A) Nur die Notrufnummer",
+                    "B) Grundriss mit Fluchtwegen, Notausg\u00e4ngen, Feuerl\u00f6scherstandorten und Sammelplatz",
+                    "C) Nur den Standort des n\u00e4chsten Krankenhauses",
+                    "D) Nur die Brandschutzordnung Teil A"
+                ],
+                correct: 1,
+                explanation: "Der Flucht- und Rettungsplan enth\u00e4lt: Geb\u00e4udegrundriss, Fluchtwege, Notausg\u00e4nge, Standorte von Feuerl\u00f6schern und Handfeuermeldern, Erste-Hilfe-Einrichtungen, Sammelplatz und \u201eSie sind hier\u201c-Markierung."
+            },
+            {
+                id: 46,
+                text: "D\u00fcrfen Gegenst\u00e4nde in Fluchtwegen abgestellt werden?",
+                options: [
+                    "A) Ja, wenn sie nicht brennbar sind",
+                    "B) Ja, wenn gen\u00fcgend Platz bleibt",
+                    "C) Nein, Fluchtwege m\u00fcssen jederzeit frei und begehbar sein",
+                    "D) Nur vor\u00fcbergehend"
+                ],
+                correct: 2,
+                explanation: "Fluchtwege d\u00fcrfen niemals verstellt, zugestellt oder eingeengt werden. Sie m\u00fcssen jederzeit frei und begehbar sein \u2013 das ist eine Anforderung der ArbSt\u00e4ttV."
+            },
+            {
+                id: 47,
+                text: "Was kennzeichnet ein rotes Schild mit Feuerl\u00f6scher-Symbol?",
+                options: [
+                    "A) Den Notausgang",
+                    "B) Den Sammelplatz",
+                    "C) Den Standort eines Feuerl\u00f6schers",
+                    "D) Das Rauchverbot"
+                ],
+                correct: 2,
+                explanation: "Rote Schilder kennzeichnen Brandschutzeinrichtungen. Ein rotes Schild mit Feuerl\u00f6scher-Symbol zeigt den Standort eines Feuerl\u00f6schers an."
+            },
+            {
+                id: 48,
+                text: "Welche Mindestbeleuchtungsst\u00e4rke muss die Sicherheitsbeleuchtung in Fluchtwegen haben?",
+                options: [
+                    "A) 0,5 Lux",
+                    "B) 1 Lux",
+                    "C) 5 Lux",
+                    "D) 10 Lux"
+                ],
+                correct: 1,
+                explanation: "Die Sicherheitsbeleuchtung in Fluchtwegen muss mindestens 1 Lux Beleuchtungsst\u00e4rke bieten und bei Stromausfall automatisch einschalten."
+            },
+            {
+                id: 49,
+                text: "Was muss ein Besch\u00e4ftigter tun, wenn er einen zugestellten Fluchtweg bemerkt?",
+                options: [
+                    "A) Nichts \u2013 das ist nicht seine Aufgabe",
+                    "B) Den Mangel dem Vorgesetzten oder Brandschutzbeauftragten melden",
+                    "C) Selbst die Gegenst\u00e4nde umr\u00e4umen",
+                    "D) Einen neuen Fluchtweg suchen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 16 ArbSchG sind Besch\u00e4ftigte verpflichtet, M\u00e4ngel, die den Brandschutz betreffen, dem Vorgesetzten oder dem Brandschutzbeauftragten zu melden."
+            },
+            {
+                id: 50,
+                text: "Was bedeutet \u201eSie sind hier\u201c auf einem Flucht- und Rettungsplan?",
+                options: [
+                    "A) Der Standort des Feuerl\u00f6schers",
+                    "B) Der Standort des Betrachters, damit er den Fluchtweg findet",
+                    "C) Der Standort des Sammelplatzes",
+                    "D) Der Standort der Brandmeldeanlage"
+                ],
+                correct: 1,
+                explanation: "Die \u201eSie sind hier\u201c-Markierung zeigt den aktuellen Standort des Betrachters. Ohne diese Markierung kann der Plan nicht richtig gelesen werden."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Brandschutz\u00fcbungen und Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Wie oft sollten Evakuierungs\u00fcbungen mindestens durchgef\u00fchrt werden?",
+                options: [
+                    "A) Alle 5 Jahre",
+                    "B) Alle 3 Jahre",
+                    "C) Mindestens einmal j\u00e4hrlich",
+                    "D) Nur bei Neubauten"
+                ],
+                correct: 2,
+                explanation: "Evakuierungs\u00fcbungen sollten mindestens einmal j\u00e4hrlich durchgef\u00fchrt werden, um die Reaktionsf\u00e4higkeit der Besch\u00e4ftigten zu testen."
+            },
+            {
+                id: 52,
+                text: "In welchem Rhythmus muss die Brandschutzhelfer-Ausbildung wiederholt werden?",
+                options: [
+                    "A) J\u00e4hrlich",
+                    "B) Alle 2 Jahre",
+                    "C) Alle 3\u20135 Jahre",
+                    "D) Nur einmalig"
+                ],
+                correct: 2,
+                explanation: "Die Brandschutzhelfer-Ausbildung sollte alle 3\u20135 Jahre aufgefrischt werden. Bei wesentlichen \u00c4nderungen im Betrieb fr\u00fcher."
+            },
+            {
+                id: 53,
+                text: "Wie oft m\u00fcssen Feuerl\u00f6scher durch eine sachkundige Person gepr\u00fcft werden?",
+                options: [
+                    "A) J\u00e4hrlich",
+                    "B) Alle 2 Jahre",
+                    "C) Alle 5 Jahre",
+                    "D) Nur bei Besch\u00e4digung"
+                ],
+                correct: 1,
+                explanation: "Feuerl\u00f6scher m\u00fcssen alle 2 Jahre durch eine sachkundige Person gepr\u00fcft werden. Das Pr\u00fcfdatum steht auf der roten Pr\u00fcfplakette."
+            },
+            {
+                id: 54,
+                text: "Welche Aufgaben hat ein Brandschutzhelfer?",
+                options: [
+                    "A) Nur die Fluchtwegepl\u00e4ne aufh\u00e4ngen",
+                    "B) Entstehungsbr\u00e4nde bek\u00e4mpfen, Feuerl\u00f6scher bedienen, R\u00e4umung unterst\u00fctzen, Feuerwehr einweisen",
+                    "C) Nur die j\u00e4hrliche Unterweisung durchf\u00fchren",
+                    "D) Nur die Brandschutzordnung erstellen"
+                ],
+                correct: 1,
+                explanation: "Brandschutzhelfer bek\u00e4mpfen Entstehungsbr\u00e4nde, bedienen Feuerl\u00f6scher, unterst\u00fctzen bei der R\u00e4umung und weisen die Feuerwehr ein."
+            },
+            {
+                id: 55,
+                text: "Welche Dokumentation ist gem\u00e4\u00df \u00a7 6 ArbSchG im Brandschutz erforderlich?",
+                options: [
+                    "A) Nur die Brandschutzordnung",
+                    "B) Gef\u00e4hrdungsbeurteilung, Unterweisungsnachweise, Pr\u00fcfprotokolle, \u00dcbungsprotokolle",
+                    "C) Nur die Feuerl\u00f6scherpr\u00fcfung",
+                    "D) Keine besondere Dokumentation erforderlich"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 6 ArbSchG m\u00fcssen dokumentiert werden: Gef\u00e4hrdungsbeurteilung, Brandschutzordnung, Unterweisungsnachweise, Pr\u00fcfprotokolle und \u00dcbungsprotokolle."
+            },
+            {
+                id: 56,
+                text: "Welches L\u00f6schmittel sollte man in einem Serverraum verwenden?",
+                options: [
+                    "A) Wasser",
+                    "B) Schaum",
+                    "C) CO\u2082 (r\u00fcckstandsfrei)",
+                    "D) ABC-Pulver"
+                ],
+                correct: 2,
+                explanation: "Im Serverraum ist CO\u2082 die beste Wahl, da es r\u00fcckstandsfrei ist und die empfindliche Technik nicht besch\u00e4digt."
+            },
+            {
+                id: 57,
+                text: "Was umfasst die praktische Ausbildung von Brandschutzhelfern?",
+                options: [
+                    "A) Nur theoretischen Unterricht",
+                    "B) \u00dcbung mit Feuerl\u00f6schern an einem Brandsimulator",
+                    "C) Nur das Lesen der Brandschutzordnung",
+                    "D) Nur Erste-Hilfe-Ma\u00dfnahmen"
+                ],
+                correct: 1,
+                explanation: "Die praktische Ausbildung umfasst die \u00dcbung mit Feuerl\u00f6schern, damit die Brandschutzhelfer im Ernstfall sicher mit den L\u00f6schger\u00e4ten umgehen k\u00f6nnen."
+            },
+            {
+                id: 58,
+                text: "Welche der folgenden Aussagen zum Brandschutz ist FALSCH?",
+                options: [
+                    "A) Brandrauch ist die h\u00e4ufigste Todesursache bei Br\u00e4nden",
+                    "B) Wasser ist das universelle L\u00f6schmittel f\u00fcr alle Brandklassen",
+                    "C) Mindestens 5 % der Besch\u00e4ftigten m\u00fcssen Brandschutzhelfer sein",
+                    "D) Die Notrufnummer 112 gilt europaweit"
+                ],
+                correct: 1,
+                explanation: "Die Aussage \u201eWasser ist das universelle L\u00f6schmittel f\u00fcr alle Brandklassen\u201c ist FALSCH. Wasser ist nur f\u00fcr Klasse A geeignet. Bei Fett-, Metall- und Elektrobr\u00e4nden ist Wasser gef\u00e4hrlich."
+            },
+            {
+                id: 59,
+                text: "Welche Bedienreihenfolge gilt f\u00fcr einen Feuerl\u00f6scher?",
+                options: [
+                    "A) Dr\u00fccken \u2013 Ziehen \u2013 Richten \u2013 L\u00f6schen",
+                    "B) Sicherungsstift ziehen \u2013 D\u00fcse richten \u2013 Hebel dr\u00fccken \u2013 Sto\u00dfweise l\u00f6schen",
+                    "C) Sch\u00fctteln \u2013 \u00d6ffnen \u2013 Zielen \u2013 Spr\u00fchen",
+                    "D) Umdrehen \u2013 Aufschlagen \u2013 Richten \u2013 L\u00f6schen"
+                ],
+                correct: 1,
+                explanation: "Die korrekte Reihenfolge: 1. Sicherungsstift ziehen, 2. D\u00fcse/Schlauch auf den Brandherd richten, 3. Hebel dr\u00fccken, 4. Sto\u00dfweise l\u00f6schen (von vorne nach hinten, von unten nach oben)."
+            },
+            {
+                id: 60,
+                text: "Welche Zusammenfassung zum Brandschutz ist korrekt?",
+                options: [
+                    "A) Brandschutz ist allein Aufgabe der Feuerwehr",
+                    "B) Der Arbeitgeber muss Brandschutzma\u00dfnahmen treffen, Besch\u00e4ftigte haben Mitwirkungspflichten; es gibt baulichen, anlagentechnischen und organisatorischen Brandschutz",
+                    "C) Brandschutz betrifft nur Industriebetriebe",
+                    "D) Brandschutzhelfer ersetzen die Feuerwehr"
+                ],
+                correct: 1,
+                explanation: "Brandschutz ist eine gemeinsame Aufgabe: Der Arbeitgeber trifft Ma\u00dfnahmen (ArbSchG, ArbSt\u00e4ttV), die Besch\u00e4ftigten wirken mit (\u00a7 15 ArbSchG). Die drei S\u00e4ulen (baulich, anlagentechnisch, organisatorisch) bilden ein Gesamtsystem."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always in the same spot
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 99;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 06 &ndash; Mitbestimmung und Betriebsverfassung</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 06 &ndash; Mitbestimmung und Betriebsverfassung</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1972). <em>Betriebsverfassungsgesetz (BetrVG)</em>. BGBl. I S. 2518. https://www.gesetze-im-internet.de/betrvg/</p>
+    <p>Bundesministerium der Justiz. (2005). <em>Berufsbildungsgesetz (BBiG)</em>. BGBl. I S. 931. https://www.gesetze-im-internet.de/bbig_2005/</p>
+    <p>Bundesministerium der Justiz. (1974). <em>Bundespersonalvertretungsgesetz (BPersVG)</em>. BGBl. I S. 1614. https://www.gesetze-im-internet.de/bpersvg_2021/</p>
+    <p>Fitting, K., Engels, G., Schmidt, I., Trebinger, Y. &amp; Linsenmaier, W. (2022). <em>Betriebsverfassungsgesetz: Handkommentar</em> (31. Aufl.). Franz Vahlen.</p>
+    <p>Richardi, R. (2022). <em>Betriebsverfassungsgesetz mit Wahlordnung: Kommentar</em> (17. Aufl.). C.H. Beck.</p>
+    <p>D&auml;ubler, W., Kittner, M., Klebe, T. &amp; Wedde, P. (2022). <em>Betriebsverfassungsgesetz: Kommentar f&uuml;r die Praxis</em> (18. Aufl.). Bund-Verlag.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: BetrVG Grundlagen (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welches Gesetz regelt die innerbetriebliche Mitbestimmung in der Privatwirtschaft?",
+                options: [
+                    "A) Betriebsverfassungsgesetz (BetrVG)",
+                    "B) Bundespersonalvertretungsgesetz (BPersVG)",
+                    "C) Tarifvertragsgesetz (TVG)",
+                    "D) B\u00fcrgerliches Gesetzbuch (BGB)"
+                ],
+                correct: 0,
+                explanation: "Das Betriebsverfassungsgesetz (BetrVG) ist die zentrale Rechtsgrundlage f\u00fcr die innerbetriebliche Mitbestimmung in privatwirtschaftlichen Betrieben."
+            },
+            {
+                id: 2,
+                text: "Ab wie vielen st\u00e4ndigen wahlberechtigten Arbeitnehmern kann ein Betriebsrat gew\u00e4hlt werden?",
+                options: [
+                    "A) Ab 3 Arbeitnehmern",
+                    "B) Ab 5 Arbeitnehmern",
+                    "C) Ab 10 Arbeitnehmern",
+                    "D) Ab 20 Arbeitnehmern"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 1 BetrVG k\u00f6nnen in Betrieben mit mindestens 5 st\u00e4ndigen wahlberechtigten Arbeitnehmern, von denen 3 w\u00e4hlbar sind, Betriebsr\u00e4te gew\u00e4hlt werden."
+            },
+            {
+                id: 3,
+                text: "F\u00fcr welchen Bereich gilt das BetrVG NICHT?",
+                options: [
+                    "A) Handwerksbetriebe",
+                    "B) Industrieunternehmen",
+                    "C) \u00d6ffentlicher Dienst",
+                    "D) Dienstleistungsunternehmen"
+                ],
+                correct: 2,
+                explanation: "Das BetrVG gilt nur f\u00fcr privatwirtschaftliche Betriebe. Im \u00f6ffentlichen Dienst gilt stattdessen das Bundespersonalvertretungsgesetz (BPersVG) bzw. die Landespersonalvertretungsgesetze."
+            },
+            {
+                id: 4,
+                text: "Welcher Grundsatz ist das Leitprinzip des BetrVG?",
+                options: [
+                    "A) Arbeitskampffreiheit",
+                    "B) Vertrauensvolle Zusammenarbeit (\u00a7 2 Abs. 1)",
+                    "C) Gewinnmaximierung",
+                    "D) Tarifautonomie"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 2 Abs. 1 BetrVG arbeiten Arbeitgeber und Betriebsrat vertrauensvoll zum Wohl der Arbeitnehmer und des Betriebs zusammen. Dies ist das zentrale Leitprinzip."
+            },
+            {
+                id: 5,
+                text: "Was bedeutet die Friedenspflicht gem\u00e4\u00df \u00a7 74 Abs. 2 BetrVG?",
+                options: [
+                    "A) Der Arbeitgeber darf keine Mitarbeiter entlassen",
+                    "B) Zwischen Betriebsrat und Arbeitgeber sind keine Arbeitsk\u00e4mpfe zul\u00e4ssig",
+                    "C) Arbeitnehmer d\u00fcrfen nicht streiken",
+                    "D) Der Betriebsrat muss allen Ma\u00dfnahmen des AG zustimmen"
+                ],
+                correct: 1,
+                explanation: "Die Friedenspflicht nach \u00a7 74 Abs. 2 BetrVG verbietet Arbeitsk\u00e4mpfe zwischen Betriebsrat und Arbeitgeber. Streiks sind Sache der Gewerkschaften, nicht des Betriebsrats."
+            },
+            {
+                id: 6,
+                text: "In welchem Jahr wurde das BetrVG grundlegend reformiert?",
+                options: [
+                    "A) 1949",
+                    "B) 1972",
+                    "C) 1990",
+                    "D) 2005"
+                ],
+                correct: 1,
+                explanation: "Das BetrVG wurde 1972 grundlegend reformiert (Erstfassung 1952). Eine weitere wichtige Novelle erfolgte 2001."
+            },
+            {
+                id: 7,
+                text: "Was gilt f\u00fcr die T\u00e4tigkeit von BR-Mitgliedern gem\u00e4\u00df \u00a7 37 BetrVG?",
+                options: [
+                    "A) Sie erhalten eine zus\u00e4tzliche Verg\u00fctung",
+                    "B) Sie \u00fcben ein Ehrenamt aus",
+                    "C) Sie werden automatisch bef\u00f6rdert",
+                    "D) Sie erhalten Sonderk\u00fcndigungsschutz f\u00fcr 5 Jahre"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 37 Abs. 1 BetrVG f\u00fchren die Mitglieder des Betriebsrats ihr Amt unentgeltlich als Ehrenamt. Sie erhalten aber Freistellung von der Arbeit."
+            },
+            {
+                id: 8,
+                text: "An welche Einheit kn\u00fcpft das BetrVG die Mitbestimmung?",
+                options: [
+                    "A) An den Konzern",
+                    "B) An das Unternehmen",
+                    "C) An den Betrieb",
+                    "D) An die Branche"
+                ],
+                correct: 2,
+                explanation: "Das BetrVG kn\u00fcpft die Mitbestimmung an den Betrieb als organisatorische Einheit. Jeder Betrieb kann seinen eigenen Betriebsrat w\u00e4hlen."
+            },
+            {
+                id: 9,
+                text: "Was ist der Gesamtbetriebsrat?",
+                options: [
+                    "A) Der gr\u00f6\u00dfte Betriebsrat in Deutschland",
+                    "B) Ein \u00fcbergeordnetes Organ f\u00fcr Angelegenheiten des gesamten Unternehmens",
+                    "C) Eine Gewerkschaftsvertretung im Betrieb",
+                    "D) Der Betriebsrat eines Konzerns"
+                ],
+                correct: 1,
+                explanation: "Der Gesamtbetriebsrat (\u00a7\u00a7 47\u201353 BetrVG) wird gebildet, wenn ein Unternehmen mehrere Betriebe mit eigenen Betriebsr\u00e4ten hat. Er ist zust\u00e4ndig f\u00fcr unternehmensweite Angelegenheiten."
+            },
+            {
+                id: 10,
+                text: "Welche Pflicht haben BR-Mitglieder gem\u00e4\u00df \u00a7 79 BetrVG?",
+                options: [
+                    "A) Weisungspflicht gegen\u00fcber dem Arbeitgeber",
+                    "B) Geheimhaltungspflicht f\u00fcr Betriebs- und Gesch\u00e4ftsgeheimnisse",
+                    "C) Anwesenheitspflicht bei jeder Betriebsversammlung",
+                    "D) Berichtspflicht gegen\u00fcber der Gewerkschaft"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 79 BetrVG sind BR-Mitglieder zur Geheimhaltung von Betriebs- und Gesch\u00e4ftsgeheimnissen verpflichtet, die ihnen im Rahmen ihrer T\u00e4tigkeit bekannt werden."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Betriebsrat (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Ab welchem Alter besitzt man das aktive Wahlrecht zum Betriebsrat?",
+                options: [
+                    "A) Ab 14 Jahren",
+                    "B) Ab 16 Jahren",
+                    "C) Ab 18 Jahren",
+                    "D) Ab 21 Jahren"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 7 BetrVG sind alle Arbeitnehmer des Betriebs ab 16 Jahren wahlberechtigt (aktives Wahlrecht). Dies wurde 2001 von 18 auf 16 gesenkt."
+            },
+            {
+                id: 12,
+                text: "Ab welchem Alter und mit welcher Betriebszugeh\u00f6rigkeit ist man in den Betriebsrat w\u00e4hlbar?",
+                options: [
+                    "A) Ab 16 Jahren, ohne Betriebszugeh\u00f6rigkeit",
+                    "B) Ab 18 Jahren und 6 Monaten Betriebszugeh\u00f6rigkeit",
+                    "C) Ab 21 Jahren und 1 Jahr Betriebszugeh\u00f6rigkeit",
+                    "D) Ab 18 Jahren ohne weitere Voraussetzungen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 8 BetrVG sind alle wahlberechtigten Arbeitnehmer w\u00e4hlbar, die dem Betrieb 6 Monate angeh\u00f6ren und mindestens 18 Jahre alt sind."
+            },
+            {
+                id: 13,
+                text: "Wie lange betr\u00e4gt die regul\u00e4re Amtszeit des Betriebsrats?",
+                options: [
+                    "A) 2 Jahre",
+                    "B) 3 Jahre",
+                    "C) 4 Jahre",
+                    "D) 5 Jahre"
+                ],
+                correct: 2,
+                explanation: "Die regul\u00e4re Amtszeit des Betriebsrats betr\u00e4gt 4 Jahre (\u00a7 21 BetrVG). Die Wahlen finden alle 4 Jahre zwischen dem 1. M\u00e4rz und 31. Mai statt."
+            },
+            {
+                id: 14,
+                text: "Wie viele BR-Mitglieder hat ein Betrieb mit 35 Arbeitnehmern?",
+                options: [
+                    "A) 1 Mitglied",
+                    "B) 3 Mitglieder",
+                    "C) 5 Mitglieder",
+                    "D) 7 Mitglieder"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 9 BetrVG besteht der Betriebsrat bei 21 bis 50 Arbeitnehmern aus 3 Mitgliedern."
+            },
+            {
+                id: 15,
+                text: "Welchen K\u00fcndigungsschutz genie\u00dfen BR-Mitglieder?",
+                options: [
+                    "A) Keinen besonderen Schutz",
+                    "B) Ordentliche Unk\u00fcndbarkeit w\u00e4hrend der Amtszeit und 1 Jahr danach",
+                    "C) Absolute Unk\u00fcndbarkeit f\u00fcr immer",
+                    "D) Ordentliche Unk\u00fcndbarkeit nur w\u00e4hrend der Amtszeit"
+                ],
+                correct: 1,
+                explanation: "BR-Mitglieder sind gem\u00e4\u00df \u00a7 15 KSchG w\u00e4hrend ihrer Amtszeit ordentlich unk\u00fcndbar. Der Schutz wirkt noch 1 Jahr nach Ende der Amtszeit nach."
+            },
+            {
+                id: 16,
+                text: "Was ist eine Betriebsvereinbarung?",
+                options: [
+                    "A) Ein Tarifvertrag auf Betriebsebene",
+                    "B) Ein schriftlicher Vertrag zwischen AG und BR, der unmittelbar und zwingend f\u00fcr alle AN gilt",
+                    "C) Eine m\u00fcndliche Absprache zwischen AG und AN",
+                    "D) Eine Vereinbarung zwischen zwei Betriebsr\u00e4ten"
+                ],
+                correct: 1,
+                explanation: "Eine Betriebsvereinbarung ist gem\u00e4\u00df \u00a7 77 BetrVG ein schriftlicher Vertrag zwischen AG und BR, der unmittelbar und zwingend f\u00fcr alle Arbeitnehmer des Betriebs gilt."
+            },
+            {
+                id: 17,
+                text: "Ab wie vielen Arbeitnehmern werden BR-Mitglieder von der Arbeit freigestellt (\u00a7 38 BetrVG)?",
+                options: [
+                    "A) Ab 100 Arbeitnehmern",
+                    "B) Ab 200 Arbeitnehmern",
+                    "C) Ab 500 Arbeitnehmern",
+                    "D) Ab 1.000 Arbeitnehmern"
+                ],
+                correct: 1,
+                explanation: "Ab 200 Arbeitnehmern wird mindestens ein BR-Mitglied vollst\u00e4ndig von der Arbeit freigestellt (\u00a7 38 BetrVG), um sich ausschlie\u00dflich der BR-T\u00e4tigkeit zu widmen."
+            },
+            {
+                id: 18,
+                text: "D\u00fcrfen Leiharbeitnehmer den Betriebsrat w\u00e4hlen?",
+                options: [
+                    "A) Nein, niemals",
+                    "B) Ja, ab 3 Monaten Einsatz im Betrieb",
+                    "C) Ja, sofort ab dem ersten Tag",
+                    "D) Ja, aber nur wenn sie \u00fcber 25 Jahre alt sind"
+                ],
+                correct: 1,
+                explanation: "Leiharbeitnehmer sind nach 3 Monaten Einsatz im Entleiherbetrieb wahlberechtigt (\u00a7 7 Satz 2 BetrVG). Sie k\u00f6nnen aber nicht in den Betriebsrat gew\u00e4hlt werden."
+            },
+            {
+                id: 19,
+                text: "Welche K\u00fcndigungsfrist gilt f\u00fcr eine Betriebsvereinbarung (\u00a7 77 Abs. 5 BetrVG)?",
+                options: [
+                    "A) 1 Monat",
+                    "B) 3 Monate",
+                    "C) 6 Monate",
+                    "D) 1 Jahr"
+                ],
+                correct: 1,
+                explanation: "Betriebsvereinbarungen k\u00f6nnen mit einer Frist von 3 Monaten gek\u00fcndigt werden (\u00a7 77 Abs. 5 BetrVG), sofern nichts anderes vereinbart ist."
+            },
+            {
+                id: 20,
+                text: "Welche der folgenden Aufgaben geh\u00f6rt zu den allgemeinen Aufgaben des BR (\u00a7 80 BetrVG)?",
+                options: [
+                    "A) Festlegung der Arbeitsentgelte",
+                    "B) \u00dcberwachung der Einhaltung von Gesetzen zugunsten der AN",
+                    "C) Einstellung neuer Mitarbeiter",
+                    "D) K\u00fcndigung von Arbeitnehmern"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 80 Abs. 1 Nr. 1 BetrVG hat der BR die Einhaltung der zugunsten der Arbeitnehmer geltenden Gesetze, Verordnungen, Tarifvertr\u00e4ge und Betriebsvereinbarungen zu \u00fcberwachen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Mitbestimmungsrechte (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Was bedeutet \u201eerzwingbare Mitbestimmung\u201c im Sinne des \u00a7 87 BetrVG?",
+                options: [
+                    "A) Der AG kann die Mitbestimmung des BR erzwingen",
+                    "B) Der BR kann bei Nichteinigung die Einigungsstelle anrufen, deren Spruch verbindlich ist",
+                    "C) Der AG muss den BR informieren, bevor er handelt",
+                    "D) Der BR hat ein Vetorecht gegen alle Ma\u00dfnahmen des AG"
+                ],
+                correct: 1,
+                explanation: "Erzwingbare Mitbestimmung bedeutet, dass der BR bei Nichteinigung die Einigungsstelle anrufen kann. Deren Spruch ersetzt die Einigung und ist verbindlich."
+            },
+            {
+                id: 22,
+                text: "In welchem Paragraphen ist die erzwingbare Mitbestimmung in sozialen Angelegenheiten geregelt?",
+                options: [
+                    "A) \u00a7 77 BetrVG",
+                    "B) \u00a7 80 BetrVG",
+                    "C) \u00a7 87 BetrVG",
+                    "D) \u00a7 99 BetrVG"
+                ],
+                correct: 2,
+                explanation: "\u00a7 87 BetrVG ist der zentrale Paragraph f\u00fcr die erzwingbare Mitbestimmung in sozialen Angelegenheiten. Er enth\u00e4lt 14 Nummern."
+            },
+            {
+                id: 23,
+                text: "Welches Thema f\u00e4llt unter die erzwingbare Mitbestimmung nach \u00a7 87 Abs. 1 Nr. 2 BetrVG?",
+                options: [
+                    "A) Einstellung neuer Mitarbeiter",
+                    "B) Beginn und Ende der t\u00e4glichen Arbeitszeit",
+                    "C) H\u00f6he der L\u00f6hne",
+                    "D) K\u00fcndigung von Mitarbeitern"
+                ],
+                correct: 1,
+                explanation: "\u00a7 87 Abs. 1 Nr. 2 BetrVG regelt die erzwingbare Mitbestimmung bei Beginn und Ende der t\u00e4glichen Arbeitszeit, Pausen und Verteilung der Arbeitszeit auf die Wochentage."
+            },
+            {
+                id: 24,
+                text: "Was regelt \u00a7 87 Abs. 1 Nr. 6 BetrVG?",
+                options: [
+                    "A) Urlaubsplanung",
+                    "B) Einf\u00fchrung technischer \u00dcberwachungseinrichtungen",
+                    "C) Lohngestaltung",
+                    "D) Einstellung von Mitarbeitern"
+                ],
+                correct: 1,
+                explanation: "\u00a7 87 Abs. 1 Nr. 6 BetrVG gibt dem BR ein erzwingbares Mitbestimmungsrecht bei der Einf\u00fchrung und Anwendung technischer \u00dcberwachungseinrichtungen (z. B. Video\u00fcberwachung, GPS-Tracking)."
+            },
+            {
+                id: 25,
+                text: "Was passiert, wenn der AG eine K\u00fcndigung ohne Anh\u00f6rung des BR ausspricht (\u00a7 102 BetrVG)?",
+                options: [
+                    "A) Die K\u00fcndigung ist wirksam, aber anfechtbar",
+                    "B) Die K\u00fcndigung ist unwirksam",
+                    "C) Die K\u00fcndigung muss wiederholt werden",
+                    "D) Der BR kann die K\u00fcndigung genehmigen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 102 Abs. 1 Satz 3 BetrVG ist eine ohne Anh\u00f6rung des Betriebsrats ausgesprochene K\u00fcndigung unwirksam \u2013 unabh\u00e4ngig davon, ob ein K\u00fcndigungsgrund vorlag."
+            },
+            {
+                id: 26,
+                text: "Bei welchen personellen Ma\u00dfnahmen hat der BR ein Zustimmungsrecht (\u00a7 99 BetrVG)?",
+                options: [
+                    "A) Nur bei K\u00fcndigungen",
+                    "B) Bei Einstellungen, Eingruppierungen, Umgruppierungen und Versetzungen",
+                    "C) Nur bei Versetzungen ins Ausland",
+                    "D) Bei allen Gehalts\u00e4nderungen"
+                ],
+                correct: 1,
+                explanation: "Der BR hat gem\u00e4\u00df \u00a7 99 BetrVG ein Zustimmungsrecht bei Einstellungen, Eingruppierungen, Umgruppierungen und Versetzungen. Dies gilt in Betrieben mit mehr als 20 AN."
+            },
+            {
+                id: 27,
+                text: "Welche Frist hat der BR f\u00fcr die Stellungnahme bei einer ordentlichen K\u00fcndigung (\u00a7 102 Abs. 2)?",
+                options: [
+                    "A) 3 Tage",
+                    "B) 1 Woche",
+                    "C) 2 Wochen",
+                    "D) 1 Monat"
+                ],
+                correct: 1,
+                explanation: "Bei einer ordentlichen K\u00fcndigung hat der BR gem\u00e4\u00df \u00a7 102 Abs. 2 BetrVG eine Frist von 1 Woche, um Bedenken zu \u00e4u\u00dfern. Bei au\u00dferordentlicher K\u00fcndigung betr\u00e4gt die Frist 3 Tage."
+            },
+            {
+                id: 28,
+                text: "Ab wie vielen Arbeitnehmern muss ein Wirtschaftsausschuss gebildet werden?",
+                options: [
+                    "A) Ab 20 Arbeitnehmern",
+                    "B) Ab 50 Arbeitnehmern",
+                    "C) Ab 100 Arbeitnehmern",
+                    "D) Ab 200 Arbeitnehmern"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 106 BetrVG ist in Unternehmen mit mehr als 100 Arbeitnehmern ein Wirtschaftsausschuss zu bilden."
+            },
+            {
+                id: 29,
+                text: "Was ist ein Sozialplan (\u00a7 112 BetrVG)?",
+                options: [
+                    "A) Ein Plan zur Sozialversicherung der Arbeitnehmer",
+                    "B) Eine Vereinbarung zum Ausgleich wirtschaftlicher Nachteile bei Betriebs\u00e4nderungen",
+                    "C) Ein Plan f\u00fcr Sozialeinrichtungen im Betrieb",
+                    "D) Ein Urlaubsplan f\u00fcr sozial schwache Arbeitnehmer"
+                ],
+                correct: 1,
+                explanation: "Ein Sozialplan ist eine Vereinbarung zwischen AG und BR zum Ausgleich wirtschaftlicher Nachteile f\u00fcr die AN bei Betriebs\u00e4nderungen (\u00a7 112 BetrVG). Er kann \u00fcber die Einigungsstelle erzwungen werden."
+            },
+            {
+                id: 30,
+                text: "Welche Angelegenheit geh\u00f6rt NICHT zur erzwingbaren Mitbestimmung nach \u00a7 87 BetrVG?",
+                options: [
+                    "A) Arbeitszeitregelung",
+                    "B) Urlaubsplan",
+                    "C) H\u00f6he des individuellen Gehalts",
+                    "D) Technische \u00dcberwachungseinrichtungen"
+                ],
+                correct: 2,
+                explanation: "Die H\u00f6he des individuellen Gehalts unterliegt nicht der Mitbestimmung nach \u00a7 87. Der BR bestimmt nur bei den Grunds\u00e4tzen der Lohngestaltung (\u00a7 87 Nr. 10) mit, nicht bei der konkreten H\u00f6he."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Jugend- und Auszubildendenvertretung (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Was ist die JAV (Jugend- und Auszubildendenvertretung)?",
+                options: [
+                    "A) Eine Gewerkschaft f\u00fcr junge Arbeitnehmer",
+                    "B) Eine Vertretung der jugendlichen AN und Auszubildenden neben dem BR",
+                    "C) Ein eigenst\u00e4ndiges Organ mit eigenen Rechten gegen\u00fcber dem AG",
+                    "D) Ein Ausschuss des Wirtschaftsausschusses"
+                ],
+                correct: 1,
+                explanation: "Die JAV vertritt die besonderen Interessen der jugendlichen AN (unter 18) und Auszubildenden (unter 25). Sie ist kein eigenst\u00e4ndiges Organ, sondern wirkt neben dem Betriebsrat."
+            },
+            {
+                id: 32,
+                text: "Wie lange betr\u00e4gt die Amtszeit der JAV?",
+                options: [
+                    "A) 1 Jahr",
+                    "B) 2 Jahre",
+                    "C) 3 Jahre",
+                    "D) 4 Jahre"
+                ],
+                correct: 1,
+                explanation: "Die Amtszeit der JAV betr\u00e4gt 2 Jahre (\u00a7 64 BetrVG). Das ist k\u00fcrzer als beim BR (4 Jahre), weil sich die Zusammensetzung der Azubis schneller \u00e4ndert."
+            },
+            {
+                id: 33,
+                text: "Welche Voraussetzung muss f\u00fcr eine JAV-Wahl erf\u00fcllt sein?",
+                options: [
+                    "A) Es m\u00fcssen mindestens 20 Azubis im Betrieb sein",
+                    "B) Es muss ein Betriebsrat bestehen und mindestens 5 Jugendliche/Azubis besch\u00e4ftigt sein",
+                    "C) Der Arbeitgeber muss die Wahl genehmigen",
+                    "D) Die Gewerkschaft muss einen Antrag stellen"
+                ],
+                correct: 1,
+                explanation: "F\u00fcr eine JAV-Wahl muss im Betrieb ein Betriebsrat bestehen und es m\u00fcssen mindestens 5 Arbeitnehmer unter 18 Jahren oder Auszubildende unter 25 Jahren vorhanden sein (\u00a7 60 BetrVG)."
+            },
+            {
+                id: 34,
+                text: "Wer ist bei der JAV-Wahl wahlberechtigt (\u00a7 61 Abs. 1 BetrVG)?",
+                options: [
+                    "A) Alle Arbeitnehmer des Betriebs",
+                    "B) Nur Auszubildende unter 18 Jahren",
+                    "C) Arbeitnehmer unter 18 Jahren und Auszubildende unter 25 Jahren",
+                    "D) Alle Arbeitnehmer unter 25 Jahren"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 61 Abs. 1 BetrVG sind alle Arbeitnehmer unter 18 Jahren und alle Auszubildenden unter 25 Jahren wahlberechtigt."
+            },
+            {
+                id: 35,
+                text: "Hat die JAV Stimmrecht bei BR-Sitzungen?",
+                options: [
+                    "A) Nein, die JAV hat nur Teilnahmerecht",
+                    "B) Ja, bei allen Beschl\u00fcssen",
+                    "C) Ja, aber nur bei Beschl\u00fcssen, die Jugendliche oder Azubis betreffen",
+                    "D) Nein, die JAV darf nicht an BR-Sitzungen teilnehmen"
+                ],
+                correct: 2,
+                explanation: "Die JAV hat ein Teilnahmerecht an allen BR-Sitzungen (\u00a7 67 Abs. 1). Stimmrecht hat sie gem\u00e4\u00df \u00a7 67 Abs. 2 aber nur bei Beschl\u00fcssen, die Jugendliche oder Azubis \u00fcberwiegend betreffen."
+            },
+            {
+                id: 36,
+                text: "Was regelt \u00a7 78a BetrVG?",
+                options: [
+                    "A) Die Wahl des Betriebsrats",
+                    "B) Den \u00dcbernahmeanspruch von JAV- und BR-Mitgliedern in Ausbildung",
+                    "C) Die Geheimhaltungspflicht",
+                    "D) Die Betriebsversammlung"
+                ],
+                correct: 1,
+                explanation: "\u00a7 78a BetrVG regelt den \u00dcbernahmeanspruch: JAV- und BR-Mitglieder in Ausbildung k\u00f6nnen 3 Monate vor Ende der Ausbildung die \u00dcbernahme in ein unbefristetes Arbeitsverh\u00e4ltnis verlangen."
+            },
+            {
+                id: 37,
+                text: "Wie viele JAV-Mitglieder hat ein Betrieb mit 80 wahlberechtigten Jugendlichen/Azubis?",
+                options: [
+                    "A) 3 Mitglieder",
+                    "B) 5 Mitglieder",
+                    "C) 7 Mitglieder",
+                    "D) 9 Mitglieder"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 62 BetrVG hat die JAV bei 51 bis 150 wahlberechtigten jugendlichen AN und Auszubildenden 5 Mitglieder."
+            },
+            {
+                id: 38,
+                text: "Was ist das Aussetzungsrecht der JAV (\u00a7 66 BetrVG)?",
+                options: [
+                    "A) Das Recht, die Arbeit niederzulegen",
+                    "B) Das Recht, einen BR-Beschluss vertagen zu lassen, wenn Interessen der Jugendlichen erheblich ber\u00fchrt werden",
+                    "C) Das Recht, die JAV-Wahl auszusetzen",
+                    "D) Das Recht, den Arbeitgeber von einer Betriebsversammlung auszuschlie\u00dfen"
+                ],
+                correct: 1,
+                explanation: "Das Aussetzungsrecht (\u00a7 66 BetrVG) erlaubt es der JAV, einen BR-Beschluss vertagen zu lassen, wenn die Interessen der Jugendlichen und Auszubildenden erheblich ber\u00fchrt werden."
+            },
+            {
+                id: 39,
+                text: "Genie\u00dfen JAV-Mitglieder K\u00fcndigungsschutz?",
+                options: [
+                    "A) Nein, keinen besonderen Schutz",
+                    "B) Ja, den gleichen Schutz wie BR-Mitglieder",
+                    "C) Ja, aber nur w\u00e4hrend der Amtszeit",
+                    "D) Nur wenn sie \u00e4lter als 18 sind"
+                ],
+                correct: 1,
+                explanation: "JAV-Mitglieder genie\u00dfen den gleichen besonderen K\u00fcndigungsschutz wie BR-Mitglieder: ordentlich unk\u00fcndbar w\u00e4hrend der Amtszeit und 1 Jahr danach (\u00a7 15 KSchG)."
+            },
+            {
+                id: 40,
+                text: "Wann muss ein JAV-Mitglied sp\u00e4testens die \u00dcbernahme nach \u00a7 78a BetrVG verlangen?",
+                options: [
+                    "A) Am letzten Tag der Ausbildung",
+                    "B) 3 Monate vor Ende der Ausbildung",
+                    "C) 6 Monate vor Ende der Ausbildung",
+                    "D) 1 Jahr vor Ende der Ausbildung"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 78a Abs. 2 BetrVG muss das JAV-Mitglied innerhalb der letzten 3 Monate vor Beendigung des Berufsausbildungsverh\u00e4ltnisses schriftlich die Weiterbeschäftigung verlangen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Personalvertretung und Betriebsversammlung (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Welches Gesetz regelt die Mitbestimmung im \u00f6ffentlichen Dienst des Bundes?",
+                options: [
+                    "A) Betriebsverfassungsgesetz (BetrVG)",
+                    "B) Bundespersonalvertretungsgesetz (BPersVG)",
+                    "C) Tarifvertragsgesetz (TVG)",
+                    "D) Beamtenstatusgesetz (BeamtStG)"
+                ],
+                correct: 1,
+                explanation: "Im \u00f6ffentlichen Dienst des Bundes gilt das Bundespersonalvertretungsgesetz (BPersVG). F\u00fcr Landesbesch\u00e4ftigte gelten die jeweiligen Landespersonalvertretungsgesetze."
+            },
+            {
+                id: 42,
+                text: "Wie hei\u00dft das Pendant zum Betriebsrat im \u00f6ffentlichen Dienst?",
+                options: [
+                    "A) Belegschaftsrat",
+                    "B) Personalrat",
+                    "C) Mitarbeitervertretung",
+                    "D) Dienststellenrat"
+                ],
+                correct: 1,
+                explanation: "Im \u00f6ffentlichen Dienst hei\u00dft die Arbeitnehmervertretung Personalrat. Er \u00fcbernimmt \u00e4hnliche Funktionen wie der Betriebsrat in der Privatwirtschaft."
+            },
+            {
+                id: 43,
+                text: "Ist die Mitbestimmung im \u00f6ffentlichen Dienst st\u00e4rker oder schw\u00e4cher als in der Privatwirtschaft?",
+                options: [
+                    "A) St\u00e4rker",
+                    "B) Gleich stark",
+                    "C) Schw\u00e4cher",
+                    "D) Es gibt keine Mitbestimmung im \u00f6ffentlichen Dienst"
+                ],
+                correct: 2,
+                explanation: "Die Mitbestimmung ist im \u00f6ffentlichen Dienst schw\u00e4cher ausgepr\u00e4gt, da die oberste Dienstbeh\u00f6rde ein Letztentscheidungsrecht haben kann."
+            },
+            {
+                id: 44,
+                text: "Wie oft muss die Betriebsversammlung mindestens stattfinden?",
+                options: [
+                    "A) Einmal im Jahr",
+                    "B) Zweimal im Jahr",
+                    "C) Einmal pro Kalendervierteljahr",
+                    "D) Einmal pro Monat"
+                ],
+                correct: 2,
+                explanation: "Gem\u00e4\u00df \u00a7 43 Abs. 1 BetrVG muss die Betriebsversammlung mindestens einmal pro Kalendervierteljahr stattfinden (also mindestens 4-mal pro Jahr)."
+            },
+            {
+                id: 45,
+                text: "Wer beruft die Betriebsversammlung ein und leitet sie?",
+                options: [
+                    "A) Der Arbeitgeber",
+                    "B) Der Betriebsrat",
+                    "C) Die Gewerkschaft",
+                    "D) Das Arbeitsgericht"
+                ],
+                correct: 1,
+                explanation: "Die Betriebsversammlung wird vom Betriebsrat einberufen und geleitet (\u00a7 42 Abs. 1 BetrVG). Der AG ist einzuladen und hat Rederecht."
+            },
+            {
+                id: 46,
+                text: "Findet die Betriebsversammlung w\u00e4hrend oder au\u00dferhalb der Arbeitszeit statt?",
+                options: [
+                    "A) Immer au\u00dferhalb der Arbeitszeit",
+                    "B) Grunds\u00e4tzlich w\u00e4hrend der Arbeitszeit",
+                    "C) Nur am Wochenende",
+                    "D) Nach Vereinbarung mit dem AG"
+                ],
+                correct: 1,
+                explanation: "Die Betriebsversammlung findet grunds\u00e4tzlich w\u00e4hrend der Arbeitszeit statt (\u00a7 44 Abs. 1 BetrVG). Die Teilnehmer erleiden keine Verg\u00fctungseinbu\u00dfen."
+            },
+            {
+                id: 47,
+                text: "Was ist die Einigungsstelle (\u00a7 76 BetrVG)?",
+                options: [
+                    "A) Ein Arbeitsgericht",
+                    "B) Eine betriebliche Schlichtungsstelle bei Meinungsverschiedenheiten zwischen AG und BR",
+                    "C) Eine Gewerkschaftseinrichtung",
+                    "D) Eine Beh\u00f6rde der Arbeitsverwaltung"
+                ],
+                correct: 1,
+                explanation: "Die Einigungsstelle ist eine betriebliche Schlichtungsstelle, die bei Meinungsverschiedenheiten zwischen AG und BR angerufen wird (\u00a7 76 BetrVG)."
+            },
+            {
+                id: 48,
+                text: "Wer tr\u00e4gt die Kosten der Einigungsstelle?",
+                options: [
+                    "A) Der Betriebsrat",
+                    "B) Der Arbeitgeber",
+                    "C) Beide Seiten zu gleichen Teilen",
+                    "D) Die Gewerkschaft"
+                ],
+                correct: 1,
+                explanation: "Die Kosten der Einigungsstelle tr\u00e4gt gem\u00e4\u00df \u00a7 76a BetrVG immer der Arbeitgeber \u2013 unabh\u00e4ngig davon, wer die Einigungsstelle angerufen hat."
+            },
+            {
+                id: 49,
+                text: "Welche Wirkung hat der Spruch der Einigungsstelle bei erzwingbarer Mitbestimmung?",
+                options: [
+                    "A) Er ist nur eine Empfehlung",
+                    "B) Er wirkt wie eine Betriebsvereinbarung",
+                    "C) Er muss vom Arbeitsgericht best\u00e4tigt werden",
+                    "D) Er gilt nur, wenn der AG zustimmt"
+                ],
+                correct: 1,
+                explanation: "Der Spruch der Einigungsstelle ersetzt die Einigung zwischen AG und BR und wirkt wie eine Betriebsvereinbarung (\u00a7 76 Abs. 5 BetrVG)."
+            },
+            {
+                id: 50,
+                text: "D\u00fcrfen auf der Betriebsversammlung parteipolitische Themen behandelt werden?",
+                options: [
+                    "A) Ja, ohne Einschr\u00e4nkung",
+                    "B) Ja, aber nur mit Zustimmung des AG",
+                    "C) Nein, nur betriebliche Angelegenheiten",
+                    "D) Ja, wenn die Mehrheit der AN zustimmt"
+                ],
+                correct: 2,
+                explanation: "Auf der Betriebsversammlung d\u00fcrfen nur betriebliche, tarifpolitische und sozialpolitische Angelegenheiten behandelt werden. Parteipolitik ist nicht zul\u00e4ssig."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Welche Abstufung der Beteiligungsrechte des BR ist von schwach nach stark korrekt?",
+                options: [
+                    "A) Mitbestimmung \u2013 Anh\u00f6rung \u2013 Information",
+                    "B) Information \u2013 Anh\u00f6rung \u2013 Beratung \u2013 Widerspruch \u2013 Zustimmung \u2013 Erzwingbare Mitbestimmung",
+                    "C) Beratung \u2013 Information \u2013 Zustimmung \u2013 Mitbestimmung",
+                    "D) Zustimmung \u2013 Anh\u00f6rung \u2013 Information \u2013 Mitbestimmung"
+                ],
+                correct: 1,
+                explanation: "Die korrekte Abstufung von schwach nach stark lautet: Information \u2013 Anh\u00f6rung \u2013 Beratung \u2013 Widerspruch \u2013 Zustimmung \u2013 Erzwingbare Mitbestimmung (Merkwort: I-A-B-W-Z-E)."
+            },
+            {
+                id: 52,
+                text: "Welcher Paragraph regelt die Anh\u00f6rung des BR vor einer K\u00fcndigung?",
+                options: [
+                    "A) \u00a7 80 BetrVG",
+                    "B) \u00a7 87 BetrVG",
+                    "C) \u00a7 99 BetrVG",
+                    "D) \u00a7 102 BetrVG"
+                ],
+                correct: 3,
+                explanation: "\u00a7 102 BetrVG regelt die Anh\u00f6rung des BR vor jeder K\u00fcndigung. Ohne diese Anh\u00f6rung ist die K\u00fcndigung unwirksam."
+            },
+            {
+                id: 53,
+                text: "Welcher Schwellenwert ist f\u00fcr die Gr\u00fcndung eines Betriebsrats ma\u00dfgeblich?",
+                options: [
+                    "A) 3 Arbeitnehmer",
+                    "B) 5 st\u00e4ndige wahlberechtigte Arbeitnehmer, davon 3 w\u00e4hlbar",
+                    "C) 10 Arbeitnehmer",
+                    "D) 20 Arbeitnehmer"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 1 BetrVG k\u00f6nnen in Betrieben mit mindestens 5 st\u00e4ndigen wahlberechtigten Arbeitnehmern, von denen 3 w\u00e4hlbar sind, Betriebsr\u00e4te gew\u00e4hlt werden."
+            },
+            {
+                id: 54,
+                text: "Was ist der Unterschied zwischen Betriebsrat und Personalrat?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Der BR gilt f\u00fcr die Privatwirtschaft, der Personalrat f\u00fcr den \u00f6ffentlichen Dienst",
+                    "C) Der Personalrat hat mehr Rechte als der BR",
+                    "D) Der BR wird gew\u00e4hlt, der Personalrat vom AG ernannt"
+                ],
+                correct: 1,
+                explanation: "Der Betriebsrat ist die AN-Vertretung in privatwirtschaftlichen Betrieben (BetrVG), der Personalrat ist das Pendant im \u00f6ffentlichen Dienst (BPersVG)."
+            },
+            {
+                id: 55,
+                text: "Welche Aussage zum JArbSchG und zur JAV ist richtig?",
+                options: [
+                    "A) Die JAV \u00fcberwacht die Einhaltung des JArbSchG im Betrieb",
+                    "B) Das JArbSchG regelt die JAV-Wahl",
+                    "C) Die JAV ersetzt den Betriebsrat f\u00fcr Azubis",
+                    "D) Die JAV ist nur in Betrieben mit \u00fcber 100 Azubis m\u00f6glich"
+                ],
+                correct: 0,
+                explanation: "Zu den Aufgaben der JAV (\u00a7 70 BetrVG) geh\u00f6rt die \u00dcberwachung der Einhaltung von Gesetzen zugunsten der Jugendlichen und Auszubildenden \u2013 dazu z\u00e4hlt auch das JArbSchG."
+            },
+            {
+                id: 56,
+                text: "Der AG m\u00f6chte eine Gleitzeitregelung einf\u00fchren. Welches Recht hat der BR?",
+                options: [
+                    "A) Nur Informationsrecht",
+                    "B) Nur Anh\u00f6rungsrecht",
+                    "C) Erzwingbares Mitbestimmungsrecht (\u00a7 87 Abs. 1 Nr. 2)",
+                    "D) Kein Beteiligungsrecht"
+                ],
+                correct: 2,
+                explanation: "Die Arbeitszeitregelung (Beginn, Ende, Pausen, Verteilung) unterliegt der erzwingbaren Mitbestimmung nach \u00a7 87 Abs. 1 Nr. 2 BetrVG. Der AG kann ohne Zustimmung des BR nicht handeln."
+            },
+            {
+                id: 57,
+                text: "Wie viele Nummern umfasst der Katalog der erzwingbaren Mitbestimmung in \u00a7 87 Abs. 1 BetrVG?",
+                options: [
+                    "A) 8 Nummern",
+                    "B) 10 Nummern",
+                    "C) 12 Nummern",
+                    "D) 14 Nummern"
+                ],
+                correct: 3,
+                explanation: "\u00a7 87 Abs. 1 BetrVG enth\u00e4lt 14 Nummern. Nr. 14 (Ausgestaltung mobiler Arbeit) wurde 2021 hinzugef\u00fcgt."
+            },
+            {
+                id: 58,
+                text: "Ein Azubi ist JAV-Mitglied und verlangt 3 Monate vor Ausbildungsende die \u00dcbernahme. Muss der AG \u00fcbernehmen?",
+                options: [
+                    "A) Nein, der AG kann frei entscheiden",
+                    "B) Ja, es sei denn, er klagt erfolgreich beim Arbeitsgericht (kein Arbeitsplatz/Unzumutbarkeit)",
+                    "C) Nur wenn die Gewerkschaft zustimmt",
+                    "D) Nur wenn der BR mehrheitlich zustimmt"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 78a BetrVG muss der AG das JAV-Mitglied \u00fcbernehmen. Er kann nur beim Arbeitsgericht die Aufl\u00f6sung beantragen, wenn kein freier Arbeitsplatz vorhanden oder die Weiterbeschäftigung unzumutbar ist."
+            },
+            {
+                id: 59,
+                text: "Welche Verbindung besteht zwischen Tarifvertrag und Betriebsvereinbarung?",
+                options: [
+                    "A) Es gibt keine Verbindung",
+                    "B) Betriebsvereinbarungen d\u00fcrfen tariflich geregelte Angelegenheiten nicht regeln (Tarifsperre, \u00a7 77 Abs. 3)",
+                    "C) Betriebsvereinbarungen ersetzen immer den Tarifvertrag",
+                    "D) Tarifvertr\u00e4ge werden vom Betriebsrat abgeschlossen"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 77 Abs. 3 BetrVG k\u00f6nnen Angelegenheiten, die \u00fcblicherweise durch Tarifvertrag geregelt werden, nicht Gegenstand einer Betriebsvereinbarung sein (Tarifsperre/Tarifvorrang)."
+            },
+            {
+                id: 60,
+                text: "Welche Zusammenfassung der betrieblichen Mitbestimmung ist korrekt?",
+                options: [
+                    "A) Der BR kann den AG in allen Entscheidungen \u00fcberstimmen",
+                    "B) Das BetrVG regelt die Mitbestimmung in sozialen, personellen und wirtschaftlichen Angelegenheiten mit unterschiedlicher Intensit\u00e4t",
+                    "C) Die Mitbestimmung gilt nur f\u00fcr Gro\u00dfbetriebe ab 500 Mitarbeitern",
+                    "D) Der BR wird vom Arbeitgeber eingesetzt und kann von ihm abberufen werden"
+                ],
+                correct: 1,
+                explanation: "Das BetrVG regelt die Mitbestimmung in sozialen (\u00a7 87), personellen (\u00a7\u00a7 99, 102) und wirtschaftlichen (\u00a7\u00a7 106\u2013113) Angelegenheiten \u2013 mit unterschiedlicher Intensit\u00e4t von Information bis erzwingbarer Mitbestimmung."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 66;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

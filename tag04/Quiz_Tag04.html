@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 04 &ndash; Sozialrechtliche Bestimmungen und Tarifrecht</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 04 &ndash; Sozialrechtliche Bestimmungen und Tarifrecht</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1949). <em>Grundgesetz f&uuml;r die Bundesrepublik Deutschland (GG)</em>. BGBl. I S. 1.</p>
+    <p>Bundesministerium der Justiz. (1969). <em>Tarifvertragsgesetz (TVG)</em>. BGBl. I S. 1323.</p>
+    <p>Bundesministerium der Justiz. (1988). <em>Sozialgesetzbuch F&uuml;nftes Buch &ndash; Gesetzliche Krankenversicherung (SGB V)</em>. BGBl. I S. 2477.</p>
+    <p>Bundesministerium der Justiz. (1989). <em>Sozialgesetzbuch Sechstes Buch &ndash; Gesetzliche Rentenversicherung (SGB VI)</em>. BGBl. I S. 2261.</p>
+    <p>Bundesministerium der Justiz. (1994). <em>Sozialgesetzbuch Elftes Buch &ndash; Soziale Pflegeversicherung (SGB XI)</em>. BGBl. I S. 1014.</p>
+    <p>Bundesministerium der Justiz. (1996). <em>Sozialgesetzbuch Siebtes Buch &ndash; Gesetzliche Unfallversicherung (SGB VII)</em>. BGBl. I S. 1254.</p>
+    <p>Bundesministerium der Justiz. (1997). <em>Sozialgesetzbuch Drittes Buch &ndash; Arbeitsf&ouml;rderung (SGB III)</em>. BGBl. I S. 594.</p>
+    <p>Junker, A. (2022). <em>Grundkurs Arbeitsrecht</em> (22. Aufl.). C.H. Beck.</p>
+    <p>L&ouml;wisch, M. &amp; Rieble, V. (2017). <em>Tarifvertragsgesetz: Kommentar</em> (4. Aufl.). Vahlen.</p>
+    <p>Muckel, S. &amp; Ogorek, M. (2022). <em>Sozialrecht</em> (5. Aufl.). C.H. Beck.</p>
+    <p>Waltermann, R. (2022). <em>Sozialrecht</em> (15. Aufl.). C.F. M&uuml;ller.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Geschichte und Grundlagen der Sozialversicherung (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Unter welchem Reichskanzler wurde in den 1880er-Jahren das erste staatliche Sozialversicherungssystem eingef\u00fchrt?",
+                options: [
+                    "A) Friedrich Ebert",
+                    "B) Otto von Bismarck",
+                    "C) Konrad Adenauer",
+                    "D) Wilhelm II."
+                ],
+                correct: 1,
+                explanation: "Otto von Bismarck f\u00fchrte in den 1880er-Jahren die drei ersten Sozialversicherungsgesetze ein: Krankenversicherung (1883), Unfallversicherung (1884) und Invalidit\u00e4ts- und Altersversicherung (1889)."
+            },
+            {
+                id: 2,
+                text: "Welches Sozialversicherungsgesetz wurde 1883 als erstes eingef\u00fchrt?",
+                options: [
+                    "A) Unfallversicherungsgesetz",
+                    "B) Invalidit\u00e4ts- und Altersversicherungsgesetz",
+                    "C) Krankenversicherungsgesetz",
+                    "D) Arbeitslosenversicherungsgesetz"
+                ],
+                correct: 2,
+                explanation: "Das Krankenversicherungsgesetz von 1883 war das erste der drei Bismarck'schen Sozialgesetze."
+            },
+            {
+                id: 3,
+                text: "Was besagt das Solidarit\u00e4tsprinzip in der Sozialversicherung?",
+                options: [
+                    "A) Jeder zahlt gleich hohe Beitr\u00e4ge unabh\u00e4ngig vom Einkommen",
+                    "B) Die Gemeinschaft tr\u00e4gt die Risiken gemeinsam; Beitr\u00e4ge richten sich nach der Leistungsf\u00e4higkeit",
+                    "C) Wer mehr einzahlt, bekommt immer mehr Leistungen",
+                    "D) Der Staat finanziert alle Sozialleistungen aus Steuermitteln"
+                ],
+                correct: 1,
+                explanation: "Das Solidarit\u00e4tsprinzip bedeutet: Die Gemeinschaft der Versicherten tr\u00e4gt die Risiken gemeinsam. Beitr\u00e4ge richten sich nach der wirtschaftlichen Leistungsf\u00e4higkeit (Einkommen), Leistungen nach dem Bedarf."
+            },
+            {
+                id: 4,
+                text: "In welchem Sozialversicherungszweig gilt das \u00c4quivalenzprinzip besonders stark?",
+                options: [
+                    "A) Krankenversicherung",
+                    "B) Pflegeversicherung",
+                    "C) Rentenversicherung",
+                    "D) Unfallversicherung"
+                ],
+                correct: 2,
+                explanation: "In der Rentenversicherung gilt das \u00c4quivalenzprinzip besonders stark: Wer h\u00f6here Beitr\u00e4ge zahlt (mehr Entgeltpunkte sammelt), erh\u00e4lt sp\u00e4ter eine h\u00f6here Rente."
+            },
+            {
+                id: 5,
+                text: "Was versteht man unter dem Sozialstaatsprinzip?",
+                options: [
+                    "A) Der Staat darf keine Sozialleistungen k\u00fcrzen",
+                    "B) Art. 20 Abs. 1 GG verpflichtet den Staat, f\u00fcr soziale Sicherheit und Gerechtigkeit zu sorgen",
+                    "C) Nur Arbeitnehmer haben Anspruch auf Sozialleistungen",
+                    "D) Das Sozialstaatsprinzip ist nicht im Grundgesetz verankert"
+                ],
+                correct: 1,
+                explanation: "Art. 20 Abs. 1 GG bestimmt: \u201eDie Bundesrepublik Deutschland ist ein demokratischer und sozialer Bundesstaat.\u201c Daraus leitet sich die Verpflichtung des Staates ab, f\u00fcr soziale Sicherheit zu sorgen."
+            },
+            {
+                id: 6,
+                text: "Welches Prinzip verhindert in der Sozialversicherung eine Negativselektion?",
+                options: [
+                    "A) \u00c4quivalenzprinzip",
+                    "B) Solidarit\u00e4tsprinzip",
+                    "C) Versicherungspflicht",
+                    "D) Selbstverwaltungsprinzip"
+                ],
+                correct: 2,
+                explanation: "Die Versicherungspflicht stellt sicher, dass alle abh\u00e4ngig Besch\u00e4ftigten versichert sind \u2013 auch die Gesunden und Jungen. Ohne Pflicht w\u00fcrden sich nur Personen mit hohem Risiko versichern (Negativselektion)."
+            },
+            {
+                id: 7,
+                text: "In welchem Jahr wurde die Arbeitslosenversicherung eingef\u00fchrt?",
+                options: [
+                    "A) 1883",
+                    "B) 1889",
+                    "C) 1927",
+                    "D) 1995"
+                ],
+                correct: 2,
+                explanation: "Die Arbeitslosenversicherung wurde 1927 in der Weimarer Republik eingef\u00fchrt. Sie ist heute im SGB III geregelt."
+            },
+            {
+                id: 8,
+                text: "Was bedeutet das Selbstverwaltungsprinzip in der Sozialversicherung?",
+                options: [
+                    "A) Jeder Versicherte verwaltet seine Beitr\u00e4ge selbst",
+                    "B) Die SV-Tr\u00e4ger werden von der Regierung direkt gesteuert",
+                    "C) Die SV-Tr\u00e4ger sind K\u00f6rperschaften des \u00f6ffentlichen Rechts mit parit\u00e4tischer Selbstverwaltung durch AG und AN",
+                    "D) Nur Arbeitgeber verwalten die Sozialversicherung"
+                ],
+                correct: 2,
+                explanation: "Die SV-Tr\u00e4ger (z.B. Krankenkassen, DRV) sind K\u00f6rperschaften des \u00f6ffentlichen Rechts. Ihre Verwaltungsr\u00e4te sind parit\u00e4tisch mit Arbeitgeber- und Arbeitnehmervertretern besetzt."
+            },
+            {
+                id: 9,
+                text: "Welche Sozialversicherung ist die j\u00fcngste?",
+                options: [
+                    "A) Krankenversicherung",
+                    "B) Rentenversicherung",
+                    "C) Arbeitslosenversicherung",
+                    "D) Pflegeversicherung"
+                ],
+                correct: 3,
+                explanation: "Die Pflegeversicherung (SGB XI) wurde 1995 als j\u00fcngste S\u00e4ule der Sozialversicherung eingef\u00fchrt."
+            },
+            {
+                id: 10,
+                text: "Welcher Artikel des Grundgesetzes verankert das Sozialstaatsprinzip?",
+                options: [
+                    "A) Art. 1 GG",
+                    "B) Art. 9 Abs. 3 GG",
+                    "C) Art. 12 GG",
+                    "D) Art. 20 Abs. 1 GG"
+                ],
+                correct: 3,
+                explanation: "Art. 20 Abs. 1 GG bestimmt: \u201eDie Bundesrepublik Deutschland ist ein demokratischer und sozialer Bundesstaat.\u201c Dies ist die verfassungsrechtliche Grundlage des Sozialstaatsprinzips."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Krankenversicherung und Pflegeversicherung (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Wie hoch ist der allgemeine Beitragssatz zur gesetzlichen Krankenversicherung?",
+                options: [
+                    "A) 12,4 %",
+                    "B) 14,6 %",
+                    "C) 18,6 %",
+                    "D) 3,4 %"
+                ],
+                correct: 1,
+                explanation: "Der allgemeine Beitragssatz zur GKV betr\u00e4gt 14,6 % des beitragspflichtigen Bruttoentgelts. Hinzu kommt ein kassenindividueller Zusatzbeitrag (durchschnittlich ca. 1,7 %)."
+            },
+            {
+                id: 12,
+                text: "Wie wird der GKV-Beitrag zwischen Arbeitgeber und Arbeitnehmer aufgeteilt?",
+                options: [
+                    "A) AG tr\u00e4gt den gesamten Beitrag",
+                    "B) AN tr\u00e4gt den gesamten Beitrag",
+                    "C) AG und AN tragen den Beitrag je h\u00e4lftig",
+                    "D) AG tr\u00e4gt 2/3, AN tr\u00e4gt 1/3"
+                ],
+                correct: 2,
+                explanation: "Seit 2019 werden auch die Zusatzbeitr\u00e4ge h\u00e4lftig zwischen AG und AN aufgeteilt. Zuvor trug der AN den Zusatzbeitrag allein."
+            },
+            {
+                id: 13,
+                text: "Ab wann zahlt die GKV Krankengeld?",
+                options: [
+                    "A) Ab dem 1. Tag der Arbeitsunf\u00e4higkeit",
+                    "B) Ab der 3. Woche der Arbeitsunf\u00e4higkeit",
+                    "C) Ab der 7. Woche der Arbeitsunf\u00e4higkeit (nach Ende der Entgeltfortzahlung)",
+                    "D) Ab dem 2. Monat der Arbeitsunf\u00e4higkeit"
+                ],
+                correct: 2,
+                explanation: "Die ersten 6 Wochen zahlt der Arbeitgeber die Entgeltfortzahlung (EntgFG). Ab der 7. Woche (43. Tag) zahlt die GKV Krankengeld \u2013 ca. 70 % des Bruttolohns, max. 90 % des Nettolohns."
+            },
+            {
+                id: 14,
+                text: "In welchem SGB-Buch ist die gesetzliche Krankenversicherung geregelt?",
+                options: [
+                    "A) SGB III",
+                    "B) SGB V",
+                    "C) SGB VI",
+                    "D) SGB XI"
+                ],
+                correct: 1,
+                explanation: "Die GKV ist im SGB V (F\u00fcnftes Buch Sozialgesetzbuch) geregelt."
+            },
+            {
+                id: 15,
+                text: "Wann wurde die Pflegeversicherung eingef\u00fchrt?",
+                options: [
+                    "A) 1883",
+                    "B) 1927",
+                    "C) 1989",
+                    "D) 1995"
+                ],
+                correct: 3,
+                explanation: "Die Pflegeversicherung (SGB XI) wurde 1995 als j\u00fcngste S\u00e4ule der Sozialversicherung eingef\u00fchrt."
+            },
+            {
+                id: 16,
+                text: "Wie hoch ist der Beitragssatz zur Pflegeversicherung f\u00fcr Versicherte MIT Kindern?",
+                options: [
+                    "A) 2,6 %",
+                    "B) 3,4 %",
+                    "C) 4,0 %",
+                    "D) 14,6 %"
+                ],
+                correct: 1,
+                explanation: "Der Beitragssatz zur GPV betr\u00e4gt 3,4 % f\u00fcr Versicherte mit Kindern. Kinderlose zahlen einen Zuschlag von 0,6 %, also insgesamt 4,0 %."
+            },
+            {
+                id: 17,
+                text: "Wie viele Pflegegrade gibt es seit 2017?",
+                options: [
+                    "A) 3 Pflegestufen",
+                    "B) 4 Pflegegrade",
+                    "C) 5 Pflegegrade",
+                    "D) 6 Pflegegrade"
+                ],
+                correct: 2,
+                explanation: "Seit 2017 gibt es 5 Pflegegrade (Pflegegrad 1\u20135), die die fr\u00fcheren 3 Pflegestufen ersetzt haben. Die Begutachtung erfolgt durch den Medizinischen Dienst (MD)."
+            },
+            {
+                id: 18,
+                text: "Wer begutachtet den Pflegegrad eines Versicherten?",
+                options: [
+                    "A) Der Hausarzt",
+                    "B) Das Sozialamt",
+                    "C) Der Medizinische Dienst (MD)",
+                    "D) Die Berufsgenossenschaft"
+                ],
+                correct: 2,
+                explanation: "Der Medizinische Dienst (MD, fr\u00fcher MDK) begutachtet im Auftrag der Pflegekasse den Pflegebedarf und empfiehlt den Pflegegrad."
+            },
+            {
+                id: 19,
+                text: "Was ist der Kinderlos-Zuschlag in der Pflegeversicherung?",
+                options: [
+                    "A) Ein zus\u00e4tzlicher Beitrag von 0,6 %, den kinderlose Versicherte allein tragen",
+                    "B) Eine Leistungserh\u00f6hung f\u00fcr kinderlose Versicherte",
+                    "C) Ein Freibetrag f\u00fcr Versicherte ohne Kinder",
+                    "D) Eine Beitragserm\u00e4\u00dfigung f\u00fcr Eltern"
+                ],
+                correct: 0,
+                explanation: "Kinderlose Versicherte ab 23 Jahren zahlen seit dem BVerfG-Urteil von 2001 einen zus\u00e4tzlichen Beitrag von 0,6 % zur Pflegeversicherung. Dieser Zuschlag wird allein vom AN getragen."
+            },
+            {
+                id: 20,
+                text: "Wo sind die Pflegekassen organisatorisch angesiedelt?",
+                options: [
+                    "A) Bei den Berufsgenossenschaften",
+                    "B) Bei der Bundesagentur f\u00fcr Arbeit",
+                    "C) Bei den gesetzlichen Krankenkassen",
+                    "D) Beim Bundesgesundheitsministerium"
+                ],
+                correct: 2,
+                explanation: "Die Pflegekassen sind bei den jeweiligen Krankenkassen angesiedelt. Wer bei der AOK krankenversichert ist, ist automatisch auch bei der Pflegekasse der AOK pflegeversichert."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Rentenversicherung und Arbeitslosenversicherung (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Wie hoch ist der Beitragssatz zur gesetzlichen Rentenversicherung?",
+                options: [
+                    "A) 14,6 %",
+                    "B) 18,6 %",
+                    "C) 2,6 %",
+                    "D) 20,0 %"
+                ],
+                correct: 1,
+                explanation: "Der Beitragssatz zur GRV betr\u00e4gt 18,6 % des Bruttolohns. AG und AN tragen den Beitrag je h\u00e4lftig (je 9,3 %)."
+            },
+            {
+                id: 22,
+                text: "Was versteht man unter dem \u201eGenerationenvertrag\u201c in der Rentenversicherung?",
+                options: [
+                    "A) Ein schriftlicher Vertrag zwischen Generationen",
+                    "B) Das Umlageverfahren: Die heutigen Beitragszahler finanzieren die heutigen Rentner",
+                    "C) Ein Sparmodell, bei dem jeder f\u00fcr seine eigene Rente anspart",
+                    "D) Ein Abkommen zwischen Bund und L\u00e4ndern zur Rentenfinanzierung"
+                ],
+                correct: 1,
+                explanation: "Der Generationenvertrag bezeichnet das Umlageverfahren der GRV: Die aktuell Erwerbst\u00e4tigen finanzieren mit ihren Beitr\u00e4gen die Renten der aktuellen Rentner. Es wird kein Kapital angespart."
+            },
+            {
+                id: 23,
+                text: "Ab welchem Alter gilt die Regelaltersrente (nach vollst\u00e4ndiger Anhebung)?",
+                options: [
+                    "A) 63 Jahre",
+                    "B) 65 Jahre",
+                    "C) 67 Jahre",
+                    "D) 70 Jahre"
+                ],
+                correct: 2,
+                explanation: "Die Regelaltersgrenze wird schrittweise auf 67 Jahre angehoben (seit 2012). F\u00fcr Jahrgang 1964 und j\u00fcnger gilt die Regelaltersrente ab 67."
+            },
+            {
+                id: 24,
+                text: "Wer ist Tr\u00e4ger der gesetzlichen Rentenversicherung?",
+                options: [
+                    "A) Die Bundesagentur f\u00fcr Arbeit",
+                    "B) Die Deutsche Rentenversicherung (DRV)",
+                    "C) Die Berufsgenossenschaften",
+                    "D) Die gesetzlichen Krankenkassen"
+                ],
+                correct: 1,
+                explanation: "Tr\u00e4ger der GRV ist die Deutsche Rentenversicherung (DRV) mit dem Bund als Dachorganisation und den Regionaltr\u00e4gern."
+            },
+            {
+                id: 25,
+                text: "Welche Leistung der GRV wird nach dem Grundsatz \u201eReha vor Rente\u201c erbracht?",
+                options: [
+                    "A) Altersrente",
+                    "B) Hinterbliebenenrente",
+                    "C) Rehabilitation (medizinisch und beruflich)",
+                    "D) Erwerbsminderungsrente"
+                ],
+                correct: 2,
+                explanation: "Die GRV erbringt Rehabilitationsleistungen nach dem Grundsatz \u201eReha vor Rente\u201c: Bevor eine Erwerbsminderungsrente gew\u00e4hrt wird, soll durch Rehabilitation die Erwerbsf\u00e4higkeit wiederhergestellt werden."
+            },
+            {
+                id: 26,
+                text: "Wie hoch ist der Beitragssatz zur Arbeitslosenversicherung?",
+                options: [
+                    "A) 1,3 %",
+                    "B) 2,6 %",
+                    "C) 3,4 %",
+                    "D) 14,6 %"
+                ],
+                correct: 1,
+                explanation: "Der Beitragssatz zur ALV betr\u00e4gt 2,6 % des Bruttolohns. AG und AN tragen den Beitrag je h\u00e4lftig (je 1,3 %)."
+            },
+            {
+                id: 27,
+                text: "Wie hoch ist das Arbeitslosengeld I f\u00fcr einen Arbeitnehmer OHNE Kinder?",
+                options: [
+                    "A) 50 % des Nettoentgelts",
+                    "B) 60 % des pauschalisierten Nettoentgelts",
+                    "C) 67 % des pauschalisierten Nettoentgelts",
+                    "D) 80 % des Bruttoentgelts"
+                ],
+                correct: 1,
+                explanation: "ALG I betr\u00e4gt 60 % des pauschalisierten Nettoentgelts f\u00fcr Arbeitnehmer ohne Kinder. Mit Kindern erh\u00f6ht sich der Satz auf 67 %."
+            },
+            {
+                id: 28,
+                text: "Wie lange muss man mindestens versicherungspflichtig besch\u00e4ftigt gewesen sein, um ALG I zu erhalten?",
+                options: [
+                    "A) 6 Monate innerhalb der letzten 12 Monate",
+                    "B) 12 Monate innerhalb der letzten 30 Monate",
+                    "C) 24 Monate innerhalb der letzten 36 Monate",
+                    "D) 3 Monate innerhalb der letzten 12 Monate"
+                ],
+                correct: 1,
+                explanation: "Die Anwartschaftszeit f\u00fcr ALG I betr\u00e4gt mindestens 12 Monate versicherungspflichtige Besch\u00e4ftigung innerhalb der letzten 30 Monate (\u00a7 142 SGB III)."
+            },
+            {
+                id: 29,
+                text: "Was ist der Unterschied zwischen ALG I und B\u00fcrgergeld?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) ALG I ist eine Versicherungsleistung (SGB III), B\u00fcrgergeld ist steuerfinanzierte Grundsicherung (SGB II)",
+                    "C) B\u00fcrgergeld ist h\u00f6her als ALG I",
+                    "D) ALG I wird unbefristet gezahlt, B\u00fcrgergeld ist befristet"
+                ],
+                correct: 1,
+                explanation: "ALG I (SGB III) ist eine Versicherungsleistung \u2013 man muss eingezahlt haben. B\u00fcrgergeld (SGB II, fr\u00fcher Hartz IV) ist eine steuerfinanzierte Grundsicherung f\u00fcr alle Bed\u00fcrftigen, unabh\u00e4ngig von vorheriger Besch\u00e4ftigung."
+            },
+            {
+                id: 30,
+                text: "Was versteht man unter Insolvenzgeld?",
+                options: [
+                    "A) Eine Leistung der Rentenversicherung bei Firmeninsolvenz",
+                    "B) Die Bundesagentur f\u00fcr Arbeit zahlt bis zu 3 Monate r\u00fcckst\u00e4ndig geschuldeten Lohn bei Insolvenz des AG",
+                    "C) Eine einmalige Zahlung der Krankenkasse",
+                    "D) Ein Zuschuss der Berufsgenossenschaft"
+                ],
+                correct: 1,
+                explanation: "Bei Insolvenz des Arbeitgebers zahlt die Bundesagentur f\u00fcr Arbeit das Insolvenzgeld: bis zu 3 Monate r\u00fcckst\u00e4ndig geschuldeten Nettolohn. Die Kosten werden durch die Insolvenzgeldumlage (allein vom AG getragen) finanziert."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Unfallversicherung und Beitragsbemessung (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Welche Besonderheit hat die gesetzliche Unfallversicherung bei der Finanzierung?",
+                options: [
+                    "A) AG und AN tragen den Beitrag h\u00e4lftig",
+                    "B) Nur der AN tr\u00e4gt den Beitrag",
+                    "C) Der Beitrag wird allein vom Arbeitgeber getragen",
+                    "D) Der Beitrag wird aus Steuermitteln finanziert"
+                ],
+                correct: 2,
+                explanation: "Die GUV ist die einzige S\u00e4ule der Sozialversicherung, deren Beitr\u00e4ge ausschlie\u00dflich vom Arbeitgeber getragen werden. Im Gegenzug ist der AG von der zivilrechtlichen Haftung bei Arbeitsunf\u00e4llen befreit (Haftungsabl\u00f6sung)."
+            },
+            {
+                id: 32,
+                text: "Wer sind die Tr\u00e4ger der gesetzlichen Unfallversicherung?",
+                options: [
+                    "A) Die gesetzlichen Krankenkassen",
+                    "B) Die Berufsgenossenschaften und Unfallkassen",
+                    "C) Die Deutsche Rentenversicherung",
+                    "D) Die Bundesagentur f\u00fcr Arbeit"
+                ],
+                correct: 1,
+                explanation: "Tr\u00e4ger der GUV sind die Berufsgenossenschaften (f\u00fcr die gewerbliche Wirtschaft) und die Unfallkassen (f\u00fcr den \u00f6ffentlichen Dienst). Dachverband ist die DGUV."
+            },
+            {
+                id: 33,
+                text: "Welche Risiken deckt die gesetzliche Unfallversicherung ab?",
+                options: [
+                    "A) Nur Arbeitsunf\u00e4lle",
+                    "B) Arbeitsunf\u00e4lle (einschlie\u00dflich Wegeunf\u00e4lle) und Berufskrankheiten",
+                    "C) Alle Krankheiten",
+                    "D) Nur Berufskrankheiten"
+                ],
+                correct: 1,
+                explanation: "Die GUV deckt Arbeitsunf\u00e4lle (einschlie\u00dflich Wegeunf\u00e4lle, d.h. Unf\u00e4lle auf dem direkten Weg zur Arbeit und zur\u00fcck) und Berufskrankheiten ab."
+            },
+            {
+                id: 34,
+                text: "Ab welcher Minderung der Erwerbsf\u00e4higkeit (MdE) wird eine Unfallrente gezahlt?",
+                options: [
+                    "A) Ab 10 %",
+                    "B) Ab 20 %",
+                    "C) Ab 30 %",
+                    "D) Ab 50 %"
+                ],
+                correct: 1,
+                explanation: "Eine Unfallrente (Verletztenrente) wird ab einer Minderung der Erwerbsf\u00e4higkeit (MdE) von mindestens 20 % gezahlt, die l\u00e4nger als 26 Wochen nach dem Unfall andauert."
+            },
+            {
+                id: 35,
+                text: "Was versteht man unter der \u201eHaftungsabl\u00f6sung\u201c in der GUV?",
+                options: [
+                    "A) Der AN haftet f\u00fcr Arbeitsunf\u00e4lle des AG",
+                    "B) Da der AG die GUV allein finanziert, ist er von der zivilrechtlichen Haftung bei Arbeitsunf\u00e4llen befreit",
+                    "C) Die Berufsgenossenschaft haftet gegen\u00fcber dem Staat",
+                    "D) Der AN verzichtet auf alle Anspr\u00fcche gegen die GUV"
+                ],
+                correct: 1,
+                explanation: "Die Haftungsabl\u00f6sung (\u00a7 104 SGB VII) bedeutet: Der AG finanziert die GUV allein und ist daf\u00fcr von der zivilrechtlichen Schadensersatzhaftung gegen\u00fcber dem AN bei Arbeitsunf\u00e4llen befreit."
+            },
+            {
+                id: 36,
+                text: "Was ist die Beitragsbemessungsgrenze (BBG)?",
+                options: [
+                    "A) Die Untergrenze, ab der SV-Beitr\u00e4ge erhoben werden",
+                    "B) Die obere Einkommensgrenze, bis zu der SV-Beitr\u00e4ge erhoben werden",
+                    "C) Der Mindestlohn in Deutschland",
+                    "D) Die Grenze, ab der man sich privat versichern kann"
+                ],
+                correct: 1,
+                explanation: "Die BBG ist die obere Einkommensgrenze, bis zu der Sozialversicherungsbeitr\u00e4ge erhoben werden. Einkommen oberhalb der BBG ist beitragsfrei."
+            },
+            {
+                id: 37,
+                text: "Wof\u00fcr ist die Versicherungspflichtgrenze (JAEG) relevant?",
+                options: [
+                    "A) F\u00fcr alle f\u00fcnf SV-Zweige",
+                    "B) Ausschlie\u00dflich f\u00fcr die Krankenversicherung (Wahlfreiheit PKV)",
+                    "C) Nur f\u00fcr die Rentenversicherung",
+                    "D) Nur f\u00fcr die Unfallversicherung"
+                ],
+                correct: 1,
+                explanation: "Die JAEG ist ausschlie\u00dflich f\u00fcr die Krankenversicherung relevant: Wer regelm\u00e4\u00dfig oberhalb der JAEG verdient, kann sich privat krankenversichern (PKV). F\u00fcr die anderen SV-Zweige gibt es keine entsprechende Befreiung."
+            },
+            {
+                id: 38,
+                text: "In welchen Sozialversicherungszweigen sind Auszubildende pflichtversichert?",
+                options: [
+                    "A) Nur in KV und RV",
+                    "B) Nur in KV, RV und ALV",
+                    "C) In allen f\u00fcnf Zweigen der Sozialversicherung",
+                    "D) In keinem, da die Verg\u00fctung zu gering ist"
+                ],
+                correct: 2,
+                explanation: "Auszubildende sind in ALLEN f\u00fcnf Zweigen der Sozialversicherung pflichtversichert (GKV, GRV, ALV, GPV, GUV). Bei einer Verg\u00fctung \u2264 325 \u20ac/Monat tr\u00e4gt der AG die Beitr\u00e4ge allein."
+            },
+            {
+                id: 39,
+                text: "Was gilt f\u00fcr Minijobber (bis 520 \u20ac) in der Sozialversicherung?",
+                options: [
+                    "A) Sie haben den gleichen SV-Schutz wie Vollzeitbesch\u00e4ftigte",
+                    "B) Sie sind in keinem SV-Zweig versichert",
+                    "C) Der AG zahlt pauschale Beitr\u00e4ge (KV, RV); der AN ist grunds\u00e4tzlich RV-pflichtig mit Opt-out-M\u00f6glichkeit",
+                    "D) Nur die Unfallversicherung gilt"
+                ],
+                correct: 2,
+                explanation: "Bei Minijobs (bis 520 \u20ac) zahlt der AG pauschale Beitr\u00e4ge (13 % KV, 15 % RV). Der AN ist grunds\u00e4tzlich RV-pflichtig, kann sich aber befreien lassen (Opt-out). Kein Anspruch auf ALG I oder KV-Leistungen f\u00fcr den AN."
+            },
+            {
+                id: 40,
+                text: "Ein Arbeitnehmer verdient 3.500 \u20ac brutto. Wie hoch ist sein AN-Anteil am GRV-Beitrag (Beitragssatz 18,6 %)?",
+                options: [
+                    "A) 651,00 \u20ac",
+                    "B) 325,50 \u20ac",
+                    "C) 163,00 \u20ac",
+                    "D) 455,00 \u20ac"
+                ],
+                correct: 1,
+                explanation: "GRV-Beitrag gesamt: 3.500 \u20ac \u00d7 18,6 % = 651,00 \u20ac. H\u00e4lftiger AN-Anteil: 651,00 \u20ac \u00f7 2 = 325,50 \u20ac."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Tarifrecht (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Welcher Artikel des Grundgesetzes garantiert die Koalitionsfreiheit?",
+                options: [
+                    "A) Art. 1 GG",
+                    "B) Art. 9 Abs. 3 GG",
+                    "C) Art. 12 GG",
+                    "D) Art. 20 GG"
+                ],
+                correct: 1,
+                explanation: "Art. 9 Abs. 3 GG garantiert die Koalitionsfreiheit: das Recht, zur Wahrung und F\u00f6rderung der Arbeits- und Wirtschaftsbedingungen Vereinigungen zu bilden."
+            },
+            {
+                id: 42,
+                text: "Was versteht man unter \u201eTarifautonomie\u201c?",
+                options: [
+                    "A) Der Staat legt die L\u00f6hne fest",
+                    "B) Gewerkschaften und Arbeitgeberverb\u00e4nde regeln die Arbeitsbedingungen eigenverantwortlich ohne staatliche Einmischung",
+                    "C) Jeder Arbeitnehmer verhandelt sein Gehalt einzeln",
+                    "D) Die Betriebsr\u00e4te bestimmen die L\u00f6hne"
+                ],
+                correct: 1,
+                explanation: "Tarifautonomie bedeutet, dass Gewerkschaften und Arbeitgeberverb\u00e4nde die Arbeitsbedingungen eigenverantwortlich und ohne staatliche Einmischung regeln. Der Staat setzt nur den gesetzlichen Rahmen (TVG)."
+            },
+            {
+                id: 43,
+                text: "Wer sind die Tarifvertragsparteien nach \u00a7 2 TVG?",
+                options: [
+                    "A) Betriebsrat und Arbeitgeber",
+                    "B) Gewerkschaften und Arbeitgeberverb\u00e4nde (oder einzelne AG)",
+                    "C) Staat und Gewerkschaften",
+                    "D) Arbeitnehmer und Arbeitgeber als Einzelpersonen"
+                ],
+                correct: 1,
+                explanation: "Nach \u00a7 2 TVG sind die Tarifvertragsparteien auf AN-Seite die Gewerkschaften und auf AG-Seite die Arbeitgeberverb\u00e4nde oder einzelne Arbeitgeber (bei Haustarifvertr\u00e4gen)."
+            },
+            {
+                id: 44,
+                text: "Was regelt ein Manteltarifvertrag?",
+                options: [
+                    "A) Ausschlie\u00dflich die Lohnh\u00f6he",
+                    "B) Allgemeine Arbeitsbedingungen wie Arbeitszeit, Urlaub und K\u00fcndigungsfristen",
+                    "C) Nur die Eingruppierung in Entgeltstufen",
+                    "D) Die Gewerkschaftsbeitr\u00e4ge"
+                ],
+                correct: 1,
+                explanation: "Der Manteltarifvertrag regelt die allgemeinen Arbeitsbedingungen: Arbeitszeit, Urlaub, K\u00fcndigungsfristen, Zuschl\u00e4ge etc. Er l\u00e4uft langfristig und wird selten ge\u00e4ndert."
+            },
+            {
+                id: 45,
+                text: "Was regelt ein Entgelttarifvertrag (Lohn-/Gehaltstarifvertrag)?",
+                options: [
+                    "A) Arbeitszeit und Urlaub",
+                    "B) Die Lohn- und Gehaltsh\u00f6he sowie die Eingruppierung",
+                    "C) Arbeitssicherheitsvorschriften",
+                    "D) K\u00fcndigungsfristen"
+                ],
+                correct: 1,
+                explanation: "Der Entgelttarifvertrag regelt die Lohn- und Gehaltsh\u00f6he sowie die Eingruppierung in Entgeltstufen. Er wird h\u00e4ufig (alle 1\u20132 Jahre) neu verhandelt."
+            },
+            {
+                id: 46,
+                text: "Was bedeutet \u201eunmittelbar und zwingend\u201c im Zusammenhang mit Tarifvertr\u00e4gen?",
+                options: [
+                    "A) Der TV muss im Arbeitsvertrag ausdr\u00fccklich erw\u00e4hnt werden",
+                    "B) Der TV gilt direkt f\u00fcr die Arbeitsverh\u00e4ltnisse und kann nicht zum Nachteil des AN abbedungen werden",
+                    "C) Der TV gilt nur, wenn beide Parteien zustimmen",
+                    "D) Der TV kann jederzeit durch den Arbeitsvertrag ersetzt werden"
+                ],
+                correct: 1,
+                explanation: "\u201eUnmittelbar und zwingend\u201c (\u00a7 4 Abs. 1 TVG) bedeutet: Der TV wirkt direkt auf die einzelnen Arbeitsverh\u00e4ltnisse, ohne dass er im Arbeitsvertrag stehen muss. Er kann nicht zuungunsten des AN abbedungen werden."
+            },
+            {
+                id: 47,
+                text: "Was ist eine Allgemeinverbindlicherkl\u00e4rung (\u00a7 5 TVG)?",
+                options: [
+                    "A) Eine Erkl\u00e4rung des Betriebsrats",
+                    "B) Das Bundesarbeitsministerium erkl\u00e4rt einen TV f\u00fcr allgemeinverbindlich, sodass er auch f\u00fcr Nichtmitglieder gilt",
+                    "C) Eine automatische Verl\u00e4ngerung des TV",
+                    "D) Eine Erkl\u00e4rung, dass der TV ung\u00fcltig ist"
+                ],
+                correct: 1,
+                explanation: "Bei einer Allgemeinverbindlicherkl\u00e4rung (\u00a7 5 TVG) erkl\u00e4rt das Bundesarbeitsministerium einen TV f\u00fcr allgemeinverbindlich. Er gilt dann auch f\u00fcr Arbeitgeber und Arbeitnehmer, die nicht Mitglied der Tarifvertragsparteien sind."
+            },
+            {
+                id: 48,
+                text: "Was besagt das G\u00fcnstigkeitsprinzip (\u00a7 4 Abs. 3 TVG)?",
+                options: [
+                    "A) Der Arbeitsvertrag hat immer Vorrang vor dem Tarifvertrag",
+                    "B) Abweichungen vom TV im Arbeitsvertrag sind nur zul\u00e4ssig, wenn sie f\u00fcr den AN g\u00fcnstiger sind",
+                    "C) Der TV darf nur G\u00fcnstiges f\u00fcr den AG regeln",
+                    "D) Der AN muss die g\u00fcnstigste Krankenkasse w\u00e4hlen"
+                ],
+                correct: 1,
+                explanation: "Das G\u00fcnstigkeitsprinzip (\u00a7 4 Abs. 3 TVG) besagt: Abweichungen vom Tarifvertrag im Arbeitsvertrag sind nur zul\u00e4ssig, wenn sie f\u00fcr den Arbeitnehmer g\u00fcnstiger sind. Der TV setzt den Mindeststandard."
+            },
+            {
+                id: 49,
+                text: "Was ist ein Haustarifvertrag (Firmentarifvertrag)?",
+                options: [
+                    "A) Ein TV, der f\u00fcr alle Betriebe einer Branche gilt",
+                    "B) Ein TV, der nur f\u00fcr ein einzelnes Unternehmen gilt",
+                    "C) Ein TV, der f\u00fcr alle Haushalte in Deutschland gilt",
+                    "D) Eine Betriebsvereinbarung"
+                ],
+                correct: 1,
+                explanation: "Ein Haustarifvertrag (Firmentarifvertrag) wird zwischen einer Gewerkschaft und einem einzelnen Arbeitgeber abgeschlossen und gilt nur f\u00fcr dieses eine Unternehmen (z.B. Tarifvertrag VW)."
+            },
+            {
+                id: 50,
+                text: "Was versteht man unter der \u201eNachwirkung\u201c eines Tarifvertrags (\u00a7 4 Abs. 5 TVG)?",
+                options: [
+                    "A) Ein TV wirkt nur in die Zukunft",
+                    "B) Nach Ablauf des TV gelten seine Normen weiter, bis sie durch eine neue Vereinbarung ersetzt werden",
+                    "C) Der TV verl\u00e4ngert sich automatisch um ein Jahr",
+                    "D) Die Nachwirkung bedeutet, dass der TV r\u00fcckwirkend gilt"
+                ],
+                correct: 1,
+                explanation: "Die Nachwirkung (\u00a7 4 Abs. 5 TVG) bedeutet: Nach Ablauf eines TV gelten dessen Normen weiter, bis sie durch eine neue Vereinbarung ersetzt werden. Sie k\u00f6nnen dann aber auch durch individuelle Vereinbarung abge\u00e4ndert werden."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Arbeitskampf, Betriebsvereinbarungen und Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Was versteht man unter \u201eFriedenspflicht\u201c im Tarifrecht?",
+                options: [
+                    "A) Arbeitnehmer m\u00fcssen immer friedlich sein",
+                    "B) W\u00e4hrend der Laufzeit eines TV darf kein Arbeitskampf gef\u00fchrt werden",
+                    "C) Der Staat muss bei Tarifverhandlungen f\u00fcr Frieden sorgen",
+                    "D) Der Betriebsrat muss alle Konflikte l\u00f6sen"
+                ],
+                correct: 1,
+                explanation: "Die Friedenspflicht ergibt sich aus dem schuldrechtlichen Teil des TV: W\u00e4hrend der Laufzeit eines Tarifvertrags d\u00fcrfen die Tarifvertragsparteien keinen Arbeitskampf f\u00fchren."
+            },
+            {
+                id: 52,
+                text: "Welche Streikform ist in Deutschland grunds\u00e4tzlich rechtswidrig?",
+                options: [
+                    "A) Warnstreik",
+                    "B) Erzwingungsstreik",
+                    "C) Wilder Streik (ohne Gewerkschaft)",
+                    "D) Organisierter Streik nach Urabstimmung"
+                ],
+                correct: 2,
+                explanation: "Ein wilder Streik \u2013 also eine spontane Arbeitsniederlegung ohne gewerkschaftliche Organisation \u2013 ist in Deutschland rechtswidrig. Ein rechtm\u00e4\u00dfiger Streik muss von einer tariff\u00e4higen Gewerkschaft getragen sein."
+            },
+            {
+                id: 53,
+                text: "Was bedeutet \u201eUltima Ratio\u201c im Zusammenhang mit dem Streikrecht?",
+                options: [
+                    "A) Der Streik muss so kurz wie m\u00f6glich sein",
+                    "B) Der Streik darf nur als letztes Mittel eingesetzt werden, nachdem alle Verhandlungsm\u00f6glichkeiten ausgesch\u00f6pft sind",
+                    "C) Der Streik muss von der Regierung genehmigt werden",
+                    "D) Nur Vollzeitbesch\u00e4ftigte d\u00fcrfen streiken"
+                ],
+                correct: 1,
+                explanation: "Ultima Ratio (letztes Mittel) bedeutet: Der Streik darf nur eingesetzt werden, wenn alle Verhandlungs- und ggf. Schlichtungsm\u00f6glichkeiten ausgesch\u00f6pft sind."
+            },
+            {
+                id: 54,
+                text: "Was passiert mit dem Arbeitsverh\u00e4ltnis w\u00e4hrend eines rechtm\u00e4\u00dfigen Streiks?",
+                options: [
+                    "A) Es wird automatisch gek\u00fcndigt",
+                    "B) Es ruht \u2013 keine K\u00fcndigung, aber auch kein Lohn",
+                    "C) Der AG muss weiter Lohn zahlen",
+                    "D) Der AN erh\u00e4lt Krankengeld"
+                ],
+                correct: 1,
+                explanation: "W\u00e4hrend eines rechtm\u00e4\u00dfigen Streiks ruht das Arbeitsverh\u00e4ltnis. Es besteht kein Lohnanspruch und der AG darf nicht k\u00fcndigen. Die Gewerkschaft zahlt ihren Mitgliedern Streikgeld."
+            },
+            {
+                id: 55,
+                text: "Was ist eine \u201eAbwehraussperrung\u201c?",
+                options: [
+                    "A) Ein AG sperrt Kunden aus dem Betrieb aus",
+                    "B) Der AG verweigert als Reaktion auf einen Streik die Besch\u00e4ftigung und Lohnzahlung",
+                    "C) Der Betriebsrat sperrt den AG von Verhandlungen aus",
+                    "D) Eine Abwehrma\u00dfnahme der Gewerkschaft"
+                ],
+                correct: 1,
+                explanation: "Eine Abwehraussperrung ist die Reaktion des AG auf einen Streik: Er verweigert die Besch\u00e4ftigung und die Lohnzahlung. Sie ist grunds\u00e4tzlich zul\u00e4ssig, wenn sie verh\u00e4ltnism\u00e4\u00dfig ist."
+            },
+            {
+                id: 56,
+                text: "Was ist eine Betriebsvereinbarung?",
+                options: [
+                    "A) Ein Vertrag zwischen Gewerkschaft und AG-Verband",
+                    "B) Ein schriftlicher Vertrag zwischen Arbeitgeber und Betriebsrat mit unmittelbarer Wirkung f\u00fcr alle AN",
+                    "C) Ein individueller Arbeitsvertrag",
+                    "D) Eine gesetzliche Verordnung"
+                ],
+                correct: 1,
+                explanation: "Eine Betriebsvereinbarung ist ein schriftlicher Vertrag zwischen Arbeitgeber und Betriebsrat. Sie gilt unmittelbar und zwingend f\u00fcr alle Arbeitnehmer des Betriebs (\u00a7 77 BetrVG)."
+            },
+            {
+                id: 57,
+                text: "Was besagt die \u201eTarifsperre\u201c nach \u00a7 77 Abs. 3 BetrVG?",
+                options: [
+                    "A) Tarifvertr\u00e4ge d\u00fcrfen nicht abgeschlossen werden",
+                    "B) Betriebsvereinbarungen d\u00fcrfen keine Themen regeln, die \u00fcblicherweise tariflich geregelt sind",
+                    "C) Der Betriebsrat darf keine Verhandlungen f\u00fchren",
+                    "D) Streiks sind w\u00e4hrend einer Betriebsvereinbarung verboten"
+                ],
+                correct: 1,
+                explanation: "Die Tarifsperre (\u00a7 77 Abs. 3 BetrVG) besagt: Betriebsvereinbarungen d\u00fcrfen Arbeitsentgelte und sonstige Arbeitsbedingungen, die \u00fcblicherweise tarifvertraglich geregelt sind, nicht regeln \u2013 es sei denn, der TV enth\u00e4lt eine \u00d6ffnungsklausel."
+            },
+            {
+                id: 58,
+                text: "Welche Rechtsquelle steht in der Normenpyramide des Arbeitsrechts ganz oben?",
+                options: [
+                    "A) Tarifvertrag",
+                    "B) Grundgesetz",
+                    "C) Europarecht (EU-Verordnungen und -Richtlinien)",
+                    "D) Bundesgesetze"
+                ],
+                correct: 2,
+                explanation: "Ganz oben in der Normenpyramide steht das Europarecht (EU-Verordnungen und EU-Richtlinien). Es hat Vorrang vor nationalem Recht, einschlie\u00dflich des Grundgesetzes in bestimmten Bereichen."
+            },
+            {
+                id: 59,
+                text: "Welche Mindestquote ist bei einer Urabstimmung f\u00fcr einen Streik in der Regel erforderlich?",
+                options: [
+                    "A) 50 % der Gewerkschaftsmitglieder",
+                    "B) 60 % der Gewerkschaftsmitglieder",
+                    "C) 75 % der Gewerkschaftsmitglieder",
+                    "D) 90 % aller Arbeitnehmer im Betrieb"
+                ],
+                correct: 2,
+                explanation: "F\u00fcr einen Streik ist in der Regel eine Urabstimmung unter den Gewerkschaftsmitgliedern erforderlich, bei der mindestens 75 % f\u00fcr den Streik stimmen m\u00fcssen."
+            },
+            {
+                id: 60,
+                text: "Ein Tarifvertrag sieht 30 Tage Urlaub vor, der Arbeitsvertrag enth\u00e4lt 35 Tage. Wie viele Urlaubstage stehen dem AN zu?",
+                options: [
+                    "A) 30 Tage, weil der TV zwingend gilt",
+                    "B) 35 Tage, weil das G\u00fcnstigkeitsprinzip gilt",
+                    "C) 24 Tage, weil nur das BUrlG gilt",
+                    "D) 28 Tage als Durchschnitt"
+                ],
+                correct: 1,
+                explanation: "Nach dem G\u00fcnstigkeitsprinzip (\u00a7 4 Abs. 3 TVG) gilt die f\u00fcr den AN g\u00fcnstigere Regelung. Da 35 Tage mehr sind als 30, stehen dem AN 35 Urlaubstage zu."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};   // qid -> selected option index
+let checked = {};    // qid -> true (answer was checked)
+let showAll = false;
+let currentQ = 0;
+
+const flatQ = sections.flatMap(s => s.questions);
+const totalQ = flatQ.length;
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = (!showAll && globalIdx !== currentQ) ? ' hidden' : '';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 42;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

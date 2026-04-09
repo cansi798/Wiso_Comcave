@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 11 &ndash; BWL Grundlagen und Produktionsfaktoren</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 11 &ndash; BWL Grundlagen und Produktionsfaktoren</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1896). <em>B&uuml;rgerliches Gesetzbuch (BGB)</em>. https://www.gesetze-im-internet.de/bgb/</p>
+    <p>Bundesministerium der Justiz. (1897). <em>Handelsgesetzbuch (HGB)</em>. https://www.gesetze-im-internet.de/hgb/</p>
+    <p>Bundesministerium der Justiz. (1892). <em>GmbH-Gesetz (GmbHG)</em>. https://www.gesetze-im-internet.de/gmbhg/</p>
+    <p>Bundesministerium der Justiz. (1965). <em>Aktiengesetz (AktG)</em>. https://www.gesetze-im-internet.de/aktg/</p>
+    <p>Schmalen, H. &amp; Pechtl, H. (2014). <em>Grundlagen und Probleme der Betriebswirtschaft</em> (15. Aufl.). Sch&auml;ffer-Poeschel.</p>
+    <p>Schierenbeck, H. &amp; W&ouml;hle, C. B. (2016). <em>Grundz&uuml;ge der Betriebswirtschaftslehre</em> (19. Aufl.). De Gruyter Oldenbourg.</p>
+    <p>Vahs, D. &amp; Sch&auml;fer-Kunz, J. (2015). <em>Einf&uuml;hrung in die Betriebswirtschaftslehre</em> (7. Aufl.). Sch&auml;ffer-Poeschel.</p>
+    <p>W&ouml;he, G., D&ouml;ring, U. &amp; Br&ouml;sel, G. (2020). <em>Einf&uuml;hrung in die Allgemeine Betriebswirtschaftslehre</em> (27. Aufl.). Vahlen.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: BWL Grundlagen (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Womit befasst sich die Betriebswirtschaftslehre (BWL)?",
+                options: [
+                    "A) Mit der Beschreibung, Erkl\u00e4rung und Gestaltung wirtschaftlicher Vorg\u00e4nge in Betrieben",
+                    "B) Ausschlie\u00dflich mit der Gesamtwirtschaft eines Landes",
+                    "C) Nur mit der Produktion von G\u00fctern",
+                    "D) Mit den Gesetzen der Physik in der Industrie"
+                ],
+                correct: 0,
+                explanation: "Die BWL befasst sich mit der Beschreibung, Erkl\u00e4rung und Gestaltung wirtschaftlicher Vorg\u00e4nge in Betrieben und ist eine anwendungsorientierte Sozialwissenschaft."
+            },
+            {
+                id: 2,
+                text: "Was untersucht die Allgemeine BWL (ABWL)?",
+                options: [
+                    "A) Nur Fragestellungen der Bankbranche",
+                    "B) Branchenunabh\u00e4ngige Fragestellungen, die f\u00fcr alle Betriebe gelten",
+                    "C) Ausschlie\u00dflich Probleme der Industrie",
+                    "D) Nur die Steuerpolitik eines Landes"
+                ],
+                correct: 1,
+                explanation: "Die ABWL untersucht branchenunabh\u00e4ngige Fragestellungen wie Beschaffung, Produktion, Absatz, Finanzierung und Rechnungswesen, die f\u00fcr alle Betriebe gelten."
+            },
+            {
+                id: 3,
+                text: "Was ist die Kernfrage der BWL?",
+                options: [
+                    "A) Wie kann der Staat seine Einnahmen maximieren?",
+                    "B) Wie k\u00f6nnen knappe Ressourcen optimal eingesetzt werden?",
+                    "C) Wie kann die Arbeitslosigkeit gesenkt werden?",
+                    "D) Wie wird das Bruttoinlandsprodukt berechnet?"
+                ],
+                correct: 1,
+                explanation: "Die Kernfrage der BWL lautet: Wie k\u00f6nnen knappe Ressourcen optimal eingesetzt werden? Dies ist der Ausgangspunkt f\u00fcr alle betriebswirtschaftlichen \u00dcberlegungen."
+            },
+            {
+                id: 4,
+                text: "Was unterscheidet einen Betrieb von einem Unternehmen?",
+                options: [
+                    "A) Ein Betrieb ist die technisch-organisatorische Einheit, ein Unternehmen die wirtschaftlich-rechtliche Einheit",
+                    "B) Es gibt keinen Unterschied",
+                    "C) Ein Unternehmen ist immer kleiner als ein Betrieb",
+                    "D) Ein Betrieb hat immer Gewinnerzielungsabsicht, ein Unternehmen nicht"
+                ],
+                correct: 0,
+                explanation: "Ein Betrieb ist die technisch-organisatorische Einheit der Produktion (z.\u202fB. eine Fabrik), ein Unternehmen die wirtschaftlich-rechtliche Einheit (z.\u202fB. die VW AG)."
+            },
+            {
+                id: 5,
+                text: "Welches ist die richtige Reihenfolge des betrieblichen Leistungsprozesses?",
+                options: [
+                    "A) Absatz \u2192 Produktion \u2192 Beschaffung",
+                    "B) Produktion \u2192 Absatz \u2192 Beschaffung",
+                    "C) Beschaffung \u2192 Produktion \u2192 Absatz",
+                    "D) Finanzierung \u2192 Absatz \u2192 Produktion"
+                ],
+                correct: 2,
+                explanation: "Der betriebliche Leistungsprozess l\u00e4uft in der Reihenfolge: Beschaffung (Einkauf) \u2192 Produktion (Herstellung) \u2192 Absatz (Verkauf)."
+            },
+            {
+                id: 6,
+                text: "Was ist eine Spezielle BWL (SBWL)?",
+                options: [
+                    "A) Eine BWL, die nur f\u00fcr gro\u00dfe Unternehmen gilt",
+                    "B) Eine BWL, die branchenspezifische Fragestellungen untersucht",
+                    "C) Eine BWL f\u00fcr den \u00f6ffentlichen Dienst",
+                    "D) Eine veraltete Form der BWL"
+                ],
+                correct: 1,
+                explanation: "Spezielle BWLen untersuchen branchenspezifische Fragestellungen, z.\u202fB. Bankbetriebslehre, Industriebetriebslehre oder Handelsbetriebslehre."
+            },
+            {
+                id: 7,
+                text: "Welche der folgenden Funktionen ist KEINE betriebliche Grundfunktion?",
+                options: [
+                    "A) Beschaffung",
+                    "B) Produktion",
+                    "C) Steuerpolitik",
+                    "D) Absatz"
+                ],
+                correct: 2,
+                explanation: "Die betrieblichen Grundfunktionen sind Beschaffung, Produktion und Absatz. Steuerpolitik ist eine staatliche Aufgabe, keine betriebliche Grundfunktion."
+            },
+            {
+                id: 8,
+                text: "Was ist eine Querschnittsfunktion im Betrieb?",
+                options: [
+                    "A) Eine Funktion, die nur in der Produktion vorkommt",
+                    "B) Eine Funktion, die den gesamten Leistungsprozess begleitet (z.\u202fB. Finanzierung, Rechnungswesen)",
+                    "C) Eine Funktion, die nur beim Absatz relevant ist",
+                    "D) Eine Funktion, die nur in Gro\u00dfunternehmen existiert"
+                ],
+                correct: 1,
+                explanation: "Querschnittsfunktionen begleiten den gesamten betrieblichen Leistungsprozess. Dazu geh\u00f6ren Finanzierung, Rechnungswesen, Personalwirtschaft und Organisation."
+            },
+            {
+                id: 9,
+                text: "Welches Kennzeichen hat ein Unternehmen im Vergleich zum Betrieb?",
+                options: [
+                    "A) Kombination von Produktionsfaktoren",
+                    "B) Gewinnerzielungsabsicht, Autonomie und Privatbesitz",
+                    "C) Technisch-organisatorische Struktur",
+                    "D) Produktion von G\u00fctern"
+                ],
+                correct: 1,
+                explanation: "Ein Unternehmen ist gekennzeichnet durch Gewinnerzielungsabsicht, Autonomie (Selbstbestimmung) und Privatbesitz. Der Betrieb ist dagegen die technisch-organisatorische Einheit."
+            },
+            {
+                id: 10,
+                text: "Die BWL ist eine ...",
+                options: [
+                    "A) Naturwissenschaft",
+                    "B) Anwendungsorientierte Sozialwissenschaft",
+                    "C) Reine Geisteswissenschaft",
+                    "D) Formalwissenschaft wie die Mathematik"
+                ],
+                correct: 1,
+                explanation: "Die BWL ist eine anwendungsorientierte Sozialwissenschaft. Sie will nicht nur erkl\u00e4ren, sondern konkrete Handlungsempfehlungen f\u00fcr betriebliche Entscheidungen geben."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: \u00d6konomisches Prinzip und Kennzahlen (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Was beschreibt das \u00f6konomische Prinzip?",
+                options: [
+                    "A) Das Streben nach einem m\u00f6glichst g\u00fcnstigen Verh\u00e4ltnis zwischen Input und Output",
+                    "B) Die staatliche Regulierung der Wirtschaft",
+                    "C) Das Verbot von Monopolen",
+                    "D) Die Maximierung der Steuerlast"
+                ],
+                correct: 0,
+                explanation: "Das \u00f6konomische Prinzip (Rationalprinzip) beschreibt das Streben nach einem m\u00f6glichst g\u00fcnstigen Verh\u00e4ltnis zwischen Mitteleinsatz (Input) und Ergebnis (Output)."
+            },
+            {
+                id: 12,
+                text: "Was bedeutet das Minimalprinzip?",
+                options: [
+                    "A) Mit gegebenen Mitteln maximalen Ertrag erzielen",
+                    "B) Ein gegebenes Ziel mit m\u00f6glichst geringem Mitteleinsatz erreichen",
+                    "C) Minimalen Gewinn anstreben",
+                    "D) Die Produktion auf ein Minimum reduzieren"
+                ],
+                correct: 1,
+                explanation: "Beim Minimalprinzip (Sparsamkeitsprinzip) ist das Ziel (Output) vorgegeben und der Mitteleinsatz (Input) soll minimiert werden."
+            },
+            {
+                id: 13,
+                text: "Ein Unternehmen hat 1.000 \u20ac Budget und will damit den maximalen Umsatz erzielen. Welches Prinzip wendet es an?",
+                options: [
+                    "A) Minimalprinzip",
+                    "B) Maximalprinzip",
+                    "C) Optimalprinzip",
+                    "D) Sozialprinzip"
+                ],
+                correct: 1,
+                explanation: "Beim Maximalprinzip sind die Mittel (Input) gegeben (1.000 \u20ac) und der Ertrag (Output) soll maximiert werden."
+            },
+            {
+                id: 14,
+                text: "Wie berechnet man die Wirtschaftlichkeit?",
+                options: [
+                    "A) Aufwand geteilt durch Ertrag",
+                    "B) Ertrag geteilt durch Aufwand",
+                    "C) Gewinn geteilt durch Umsatz",
+                    "D) Output geteilt durch Input in Mengeneinheiten"
+                ],
+                correct: 1,
+                explanation: "Wirtschaftlichkeit = Ertrag / Aufwand. Ein Wert \u00fcber 1 bedeutet wirtschaftliches Handeln."
+            },
+            {
+                id: 15,
+                text: "Ein Unternehmen hat 500.000 \u20ac Ertrag und 400.000 \u20ac Aufwand. Wie hoch ist die Wirtschaftlichkeit?",
+                options: [
+                    "A) 0,80",
+                    "B) 1,00",
+                    "C) 1,25",
+                    "D) 1,50"
+                ],
+                correct: 2,
+                explanation: "Wirtschaftlichkeit = 500.000 / 400.000 = 1,25. Da der Wert gr\u00f6\u00dfer als 1 ist, arbeitet das Unternehmen wirtschaftlich."
+            },
+            {
+                id: 16,
+                text: "Was misst die Produktivit\u00e4t?",
+                options: [
+                    "A) Das Verh\u00e4ltnis von Ertrag zu Aufwand in Geldeinheiten",
+                    "B) Die technische Ergiebigkeit (Output/Input in Mengeneinheiten)",
+                    "C) Die Verzinsung des Eigenkapitals",
+                    "D) Den Marktanteil eines Unternehmens"
+                ],
+                correct: 1,
+                explanation: "Die Produktivit\u00e4t misst die technische Ergiebigkeit als Verh\u00e4ltnis von Ausbringungsmenge (Output) zu Einsatzmenge (Input) in Mengeneinheiten, z.\u202fB. St\u00fcck pro Arbeitsstunde."
+            },
+            {
+                id: 17,
+                text: "Wie berechnet man die Eigenkapitalrentabilit\u00e4t?",
+                options: [
+                    "A) Gewinn / Umsatz \u00d7 100 %",
+                    "B) Gewinn / Eigenkapital \u00d7 100 %",
+                    "C) Ertrag / Aufwand",
+                    "D) Umsatz / Gesamtkapital \u00d7 100 %"
+                ],
+                correct: 1,
+                explanation: "Eigenkapitalrentabilit\u00e4t = Gewinn / Eigenkapital \u00d7 100 %. Sie zeigt, wie gut sich das eingesetzte Eigenkapital verzinst."
+            },
+            {
+                id: 18,
+                text: "Ein Unternehmen hat 200.000 \u20ac Gewinn bei 500.000 \u20ac Eigenkapital. Wie hoch ist die EK-Rentabilit\u00e4t?",
+                options: [
+                    "A) 20 %",
+                    "B) 25 %",
+                    "C) 40 %",
+                    "D) 250 %"
+                ],
+                correct: 2,
+                explanation: "EK-Rentabilit\u00e4t = 200.000 / 500.000 \u00d7 100 = 40 %. Jeder eingesetzte Euro Eigenkapital bringt 40 Cent Gewinn."
+            },
+            {
+                id: 19,
+                text: "Welche Aussage zur Gesamtkapitalrentabilit\u00e4t ist richtig?",
+                options: [
+                    "A) Im Z\u00e4hler stehen nur die Fremdkapitalzinsen",
+                    "B) Im Z\u00e4hler steht der Gewinn plus die Fremdkapitalzinsen",
+                    "C) Im Nenner steht nur das Eigenkapital",
+                    "D) Sie wird in St\u00fcck pro Stunde gemessen"
+                ],
+                correct: 1,
+                explanation: "Gesamtkapitalrentabilit\u00e4t = (Gewinn + Fremdkapitalzinsen) / Gesamtkapital \u00d7 100 %. Die FK-Zinsen werden addiert, weil sie die Verg\u00fctung f\u00fcr das Fremdkapital darstellen."
+            },
+            {
+                id: 20,
+                text: "Ein Betrieb hat 800.000 \u20ac Ertrag und 600.000 \u20ac Aufwand bei 1.200.000 \u20ac Umsatz. Wie hoch ist die Umsatzrentabilit\u00e4t?",
+                options: [
+                    "A) 10,00 %",
+                    "B) 16,67 %",
+                    "C) 25,00 %",
+                    "D) 33,33 %"
+                ],
+                correct: 1,
+                explanation: "Gewinn = 800.000 \u2013 600.000 = 200.000 \u20ac. Umsatzrentabilit\u00e4t = 200.000 / 1.200.000 \u00d7 100 = 16,67 %."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Bed\u00fcrfnisse und G\u00fcter (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Was ist ein Bed\u00fcrfnis?",
+                options: [
+                    "A) Ein am Markt wirksamer Kauf",
+                    "B) Die Empfindung eines Mangels mit dem Wunsch, ihn zu beseitigen",
+                    "C) Ein konkretes Kaufangebot",
+                    "D) Die Zahlungsbereitschaft f\u00fcr ein Produkt"
+                ],
+                correct: 1,
+                explanation: "Ein Bed\u00fcrfnis ist die Empfindung eines Mangels mit dem Wunsch, ihn zu beseitigen (z.\u202fB. Durst). Es ist der Ausgangspunkt allen Wirtschaftens."
+            },
+            {
+                id: 22,
+                text: "Wann wird aus einem Bed\u00fcrfnis ein Bedarf?",
+                options: [
+                    "A) Wenn der Mangel besonders gro\u00df ist",
+                    "B) Wenn Kaufkraft hinzukommt",
+                    "C) Wenn das Gut am Markt erh\u00e4ltlich ist",
+                    "D) Wenn der Staat das Gut subventioniert"
+                ],
+                correct: 1,
+                explanation: "Aus einem Bed\u00fcrfnis wird ein Bedarf, wenn Kaufkraft (Geld) hinzukommt. Erst dann kann das Bed\u00fcrfnis potenziell befriedigt werden."
+            },
+            {
+                id: 23,
+                text: "Welche Stufe der Bed\u00fcrfnispyramide nach Maslow steht an der Basis?",
+                options: [
+                    "A) Selbstverwirklichung",
+                    "B) Soziale Bed\u00fcrfnisse",
+                    "C) Sicherheitsbed\u00fcrfnisse",
+                    "D) Grundbed\u00fcrfnisse (Nahrung, Kleidung, Wohnung)"
+                ],
+                correct: 3,
+                explanation: "An der Basis der Maslow-Pyramide stehen die Grundbed\u00fcrfnisse (physiologische Bed\u00fcrfnisse): Nahrung, Kleidung, Wohnung. Sie m\u00fcssen zuerst befriedigt werden."
+            },
+            {
+                id: 24,
+                text: "Was sind Substitutionsg\u00fcter?",
+                options: [
+                    "A) G\u00fcter, die sich gegenseitig erg\u00e4nzen",
+                    "B) G\u00fcter, die sich gegenseitig ersetzen k\u00f6nnen",
+                    "C) G\u00fcter, die unbegrenzt verf\u00fcgbar sind",
+                    "D) G\u00fcter, die nur f\u00fcr die Produktion verwendet werden"
+                ],
+                correct: 1,
+                explanation: "Substitutionsg\u00fcter k\u00f6nnen sich gegenseitig ersetzen, z.\u202fB. Butter und Margarine. Komplement\u00e4rg\u00fcter erg\u00e4nzen sich dagegen (z.\u202fB. Auto und Benzin)."
+            },
+            {
+                id: 25,
+                text: "Was unterscheidet freie G\u00fcter von wirtschaftlichen G\u00fctern?",
+                options: [
+                    "A) Freie G\u00fcter haben einen h\u00f6heren Preis",
+                    "B) Freie G\u00fcter sind unbegrenzt verf\u00fcgbar und haben keinen Preis",
+                    "C) Wirtschaftliche G\u00fcter sind immer Dienstleistungen",
+                    "D) Es gibt keinen Unterschied"
+                ],
+                correct: 1,
+                explanation: "Freie G\u00fcter sind unbegrenzt verf\u00fcgbar und haben keinen Preis (z.\u202fB. Luft). Wirtschaftliche G\u00fcter sind knapp und haben einen Preis."
+            },
+            {
+                id: 26,
+                text: "Was sind Komplement\u00e4rg\u00fcter?",
+                options: [
+                    "A) G\u00fcter, die sich gegenseitig ersetzen",
+                    "B) G\u00fcter, die sich gegenseitig erg\u00e4nzen",
+                    "C) G\u00fcter, die nur im Luxussegment vorkommen",
+                    "D) G\u00fcter ohne Marktpreis"
+                ],
+                correct: 1,
+                explanation: "Komplement\u00e4rg\u00fcter erg\u00e4nzen sich gegenseitig \u2013 der Nutzen eines Gutes h\u00e4ngt vom anderen ab. Beispiele: Auto und Benzin, Drucker und Tintenpatronen."
+            },
+            {
+                id: 27,
+                text: "Wann spricht man von Nachfrage?",
+                options: [
+                    "A) Wenn ein Mangel empfunden wird",
+                    "B) Wenn Kaufkraft vorhanden ist",
+                    "C) Wenn der Bedarf am Markt tats\u00e4chlich wirksam wird (Kauf)",
+                    "D) Wenn ein Gut produziert wird"
+                ],
+                correct: 2,
+                explanation: "Nachfrage entsteht, wenn ein Bedarf am Markt tats\u00e4chlich wirksam wird, also der Kauf get\u00e4tigt wird. Die Kette lautet: Bed\u00fcrfnis \u2192 Bedarf \u2192 Nachfrage."
+            },
+            {
+                id: 28,
+                text: "Ist Mehl in einer B\u00e4ckerei ein Konsumgut oder Produktionsgut?",
+                options: [
+                    "A) Immer ein Konsumgut",
+                    "B) Ein Produktionsgut, weil es zur Herstellung von Brot verwendet wird",
+                    "C) Weder noch",
+                    "D) Ein freies Gut"
+                ],
+                correct: 1,
+                explanation: "In einer B\u00e4ckerei ist Mehl ein Produktionsgut, weil es zur Herstellung von Brot verwendet wird. Im Privathaushalt w\u00e4re das gleiche Mehl ein Konsumgut."
+            },
+            {
+                id: 29,
+                text: "Was sind Opportunit\u00e4tskosten?",
+                options: [
+                    "A) Die tats\u00e4chlich gezahlten Kosten f\u00fcr ein Produkt",
+                    "B) Der Ertrag der besten entgangenen Alternative",
+                    "C) Die Steuern auf Gewinne",
+                    "D) Die Kosten f\u00fcr Werbung"
+                ],
+                correct: 1,
+                explanation: "Opportunit\u00e4tskosten sind der Ertrag der besten entgangenen Alternative. Jede Entscheidung bedeutet Verzicht auf andere M\u00f6glichkeiten."
+            },
+            {
+                id: 30,
+                text: "Was ist das Grundproblem der Wirtschaft?",
+                options: [
+                    "A) Zu viele G\u00fcter auf dem Markt",
+                    "B) Die Knappheit: unbegrenzte Bed\u00fcrfnisse bei begrenzten Ressourcen",
+                    "C) Zu niedrige Steuern",
+                    "D) Zu wenig Arbeitnehmer"
+                ],
+                correct: 1,
+                explanation: "Das Grundproblem der Wirtschaft ist die Knappheit: Menschliche Bed\u00fcrfnisse sind unbegrenzt, die verf\u00fcgbaren G\u00fcter und Ressourcen sind begrenzt."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Produktionsfaktoren (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Welche Produktionsfaktoren unterscheidet Gutenberg?",
+                options: [
+                    "A) Arbeit, Boden, Kapital",
+                    "B) Elementarfaktoren und dispositiver Faktor",
+                    "C) Rohstoffe und Energie",
+                    "D) Personal und Maschinen"
+                ],
+                correct: 1,
+                explanation: "Gutenberg unterscheidet Elementarfaktoren (Arbeit, Betriebsmittel, Werkstoffe) und den dispositiven Faktor (Unternehmensf\u00fchrung)."
+            },
+            {
+                id: 32,
+                text: "Was sind die drei Elementarfaktoren nach Gutenberg?",
+                options: [
+                    "A) Arbeit, Boden, Kapital",
+                    "B) Menschliche Arbeitsleistung, Betriebsmittel, Werkstoffe",
+                    "C) Planung, Organisation, Kontrolle",
+                    "D) Rohstoffe, Hilfsstoffe, Betriebsstoffe"
+                ],
+                correct: 1,
+                explanation: "Die drei Elementarfaktoren sind: Menschliche Arbeitsleistung (ausf\u00fchrende Arbeit), Betriebsmittel und Werkstoffe."
+            },
+            {
+                id: 33,
+                text: "Was sind Betriebsmittel?",
+                options: [
+                    "A) Stoffe, die im Produktionsprozess verbraucht werden",
+                    "B) Gegenst\u00e4nde und Einrichtungen, die \u00fcber l\u00e4ngere Zeit genutzt werden und nicht in das Produkt eingehen",
+                    "C) Rohstoffe, die als Hauptbestandteil in das Produkt eingehen",
+                    "D) Leitende T\u00e4tigkeiten der Unternehmensf\u00fchrung"
+                ],
+                correct: 1,
+                explanation: "Betriebsmittel sind Gebrauchsg\u00fcter, die \u00fcber l\u00e4ngere Zeit im Betrieb genutzt werden (z.\u202fB. Maschinen, Geb\u00e4ude, Computer) und nicht in das Produkt eingehen."
+            },
+            {
+                id: 34,
+                text: "Was ist der Unterschied zwischen Rohstoffen und Hilfsstoffen?",
+                options: [
+                    "A) Rohstoffe sind billiger als Hilfsstoffe",
+                    "B) Rohstoffe gehen als Hauptbestandteil, Hilfsstoffe als Nebenbestandteil in das Produkt ein",
+                    "C) Hilfsstoffe werden nicht verbraucht",
+                    "D) Es gibt keinen Unterschied"
+                ],
+                correct: 1,
+                explanation: "Rohstoffe gehen als Hauptbestandteil in das Produkt ein (z.\u202fB. Holz f\u00fcr M\u00f6bel), Hilfsstoffe als Nebenbestandteil (z.\u202fB. Schrauben, Leim)."
+            },
+            {
+                id: 35,
+                text: "Was sind Betriebsstoffe?",
+                options: [
+                    "A) Stoffe, die als Hauptbestandteil in das Produkt eingehen",
+                    "B) Stoffe, die im Produktionsprozess verbraucht werden, aber NICHT in das Produkt eingehen",
+                    "C) Maschinen und Anlagen",
+                    "D) Leitende Arbeitskr\u00e4fte"
+                ],
+                correct: 1,
+                explanation: "Betriebsstoffe werden im Produktionsprozess verbraucht, gehen aber nicht in das Produkt ein (z.\u202fB. Strom, Schmiermittel, Reinigungsmittel)."
+            },
+            {
+                id: 36,
+                text: "Was umfasst der dispositive Faktor?",
+                options: [
+                    "A) Nur die k\u00f6rperliche Arbeit der Mitarbeiter",
+                    "B) Die leitende und planende T\u00e4tigkeit der Unternehmensf\u00fchrung",
+                    "C) Nur die Betriebsmittel",
+                    "D) Nur die Werkstoffe"
+                ],
+                correct: 1,
+                explanation: "Der dispositive Faktor umfasst Gesch\u00e4fts- und Betriebsleitung, Planung, Organisation und Kontrolle \u2013 also die leitende und planende T\u00e4tigkeit."
+            },
+            {
+                id: 37,
+                text: "In einer Schreinerei: Was ist Holz?",
+                options: [
+                    "A) Betriebsmittel",
+                    "B) Betriebsstoff",
+                    "C) Rohstoff",
+                    "D) Hilfsstoff"
+                ],
+                correct: 2,
+                explanation: "Holz ist in einer Schreinerei der Rohstoff, weil es als Hauptbestandteil in das Produkt (M\u00f6bel) eingeht."
+            },
+            {
+                id: 38,
+                text: "Warum ist die menschliche Arbeitsleistung als Produktionsfaktor besonders?",
+                options: [
+                    "A) Weil sie unbegrenzt verf\u00fcgbar ist",
+                    "B) Weil sie nicht lagerf\u00e4hig ist und von Qualifikation und Motivation abh\u00e4ngt",
+                    "C) Weil sie keinem gesetzlichen Schutz unterliegt",
+                    "D) Weil sie durch Maschinen vollst\u00e4ndig ersetzt werden kann"
+                ],
+                correct: 1,
+                explanation: "Menschliche Arbeitsleistung ist nicht lagerf\u00e4hig (eine nicht genutzte Stunde ist verloren) und h\u00e4ngt von Ausbildung, Motivation und Erfahrung ab."
+            },
+            {
+                id: 39,
+                text: "Wie unterscheidet Gutenberg die Arbeit im Vergleich zur VWL?",
+                options: [
+                    "A) Gar nicht \u2013 Arbeit ist Arbeit",
+                    "B) Er trennt ausf\u00fchrende Arbeit (Elementarfaktor) von dispositiver Arbeit (dispositiver Faktor)",
+                    "C) Er z\u00e4hlt Arbeit nicht als Produktionsfaktor",
+                    "D) Er unterscheidet nur k\u00f6rperliche und geistige Arbeit"
+                ],
+                correct: 1,
+                explanation: "Gutenberg trennt die Arbeit in ausf\u00fchrende Arbeit (Elementarfaktor) und dispositive Arbeit (dispositiver Faktor). In der VWL ist Arbeit ein einheitlicher Faktor."
+            },
+            {
+                id: 40,
+                text: "Welcher VWL-Produktionsfaktor entspricht am ehesten den Betriebsmitteln bei Gutenberg?",
+                options: [
+                    "A) Arbeit",
+                    "B) Boden",
+                    "C) Kapital",
+                    "D) Wissen"
+                ],
+                correct: 2,
+                explanation: "Der VWL-Faktor Kapital (produzierte Produktionsmittel wie Maschinen, Werkzeuge) entspricht am ehesten den Betriebsmitteln bei Gutenberg."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Wirtschaftssektoren und Rechtsformen (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Was geh\u00f6rt zum prim\u00e4ren Wirtschaftssektor?",
+                options: [
+                    "A) Banken und Versicherungen",
+                    "B) Industrie und Handwerk",
+                    "C) Landwirtschaft, Forstwirtschaft, Fischerei, Bergbau",
+                    "D) IT-Dienstleistungen"
+                ],
+                correct: 2,
+                explanation: "Der prim\u00e4re Sektor (Urproduktion) umfasst die Gewinnung von Rohstoffen: Landwirtschaft, Forstwirtschaft, Fischerei und Bergbau."
+            },
+            {
+                id: 42,
+                text: "Wie hoch ist heute ungef\u00e4hr der Anteil des terti\u00e4ren Sektors an der Besch\u00e4ftigung in Deutschland?",
+                options: [
+                    "A) Ca. 25 %",
+                    "B) Ca. 50 %",
+                    "C) Ca. 75 %",
+                    "D) Ca. 95 %"
+                ],
+                correct: 2,
+                explanation: "Heute arbeiten ca. 75 % aller Besch\u00e4ftigten in Deutschland im terti\u00e4ren Sektor (Dienstleistungen). Deutschland ist eine Dienstleistungsgesellschaft."
+            },
+            {
+                id: 43,
+                text: "Was besagt die Drei-Sektoren-Hypothese nach Fourasti\u00e9?",
+                options: [
+                    "A) Alle drei Sektoren sind immer gleich gro\u00df",
+                    "B) Der Schwerpunkt verschiebt sich vom prim\u00e4ren \u00fcber den sekund\u00e4ren zum terti\u00e4ren Sektor",
+                    "C) Nur der sekund\u00e4re Sektor w\u00e4chst",
+                    "D) Der prim\u00e4re Sektor wird immer gr\u00f6\u00dfer"
+                ],
+                correct: 1,
+                explanation: "Die Drei-Sektoren-Hypothese besagt, dass sich im Laufe der Entwicklung der Schwerpunkt vom prim\u00e4ren \u00fcber den sekund\u00e4ren zum terti\u00e4ren Sektor verschiebt (Tertiarisierung)."
+            },
+            {
+                id: 44,
+                text: "Was ist eine wesentliche Ursache des Strukturwandels?",
+                options: [
+                    "A) Sinkende Bev\u00f6lkerungszahl",
+                    "B) Technischer Fortschritt und Automatisierung",
+                    "C) Verbot von Dienstleistungen",
+                    "D) Abschaffung der Landwirtschaft"
+                ],
+                correct: 1,
+                explanation: "Technischer Fortschritt und Automatisierung ersetzen menschliche Arbeit in Produktion und Landwirtschaft und verschieben Besch\u00e4ftigung in den Dienstleistungssektor."
+            },
+            {
+                id: 45,
+                text: "Was bestimmt die Rechtsform eines Unternehmens?",
+                options: [
+                    "A) Nur die Anzahl der Mitarbeiter",
+                    "B) Die rechtliche Struktur, insbesondere Haftung, Gesch\u00e4ftsf\u00fchrung und Kapitalaufbringung",
+                    "C) Nur den Standort des Unternehmens",
+                    "D) Nur die Branche"
+                ],
+                correct: 1,
+                explanation: "Die Rechtsform bestimmt die rechtliche Struktur eines Unternehmens \u2013 insbesondere Haftung, Gesch\u00e4ftsf\u00fchrung und Kapitalaufbringung."
+            },
+            {
+                id: 46,
+                text: "Wie hoch ist das Mindestkapital einer GmbH?",
+                options: [
+                    "A) 1 \u20ac",
+                    "B) 10.000 \u20ac",
+                    "C) 25.000 \u20ac",
+                    "D) 50.000 \u20ac"
+                ],
+                correct: 2,
+                explanation: "Das Mindestkapital (Stammkapital) einer GmbH betr\u00e4gt 25.000 \u20ac gem\u00e4\u00df GmbHG."
+            },
+            {
+                id: 47,
+                text: "Was ist die h\u00e4ufigste Rechtsform in Deutschland?",
+                options: [
+                    "A) GmbH",
+                    "B) AG",
+                    "C) Einzelunternehmen",
+                    "D) OHG"
+                ],
+                correct: 2,
+                explanation: "Das Einzelunternehmen ist die h\u00e4ufigste Rechtsform in Deutschland (ca. 70 % aller Unternehmen). Die GmbH ist die h\u00e4ufigste Kapitalgesellschaft."
+            },
+            {
+                id: 48,
+                text: "Wer haftet bei einer OHG?",
+                options: [
+                    "A) Nur der Gesch\u00e4ftsf\u00fchrer",
+                    "B) Alle Gesellschafter unbeschr\u00e4nkt, gesamtschuldnerisch und unmittelbar",
+                    "C) Nur die Kommanditisten",
+                    "D) Niemand pers\u00f6nlich"
+                ],
+                correct: 1,
+                explanation: "Bei einer OHG haften alle Gesellschafter unbeschr\u00e4nkt (mit gesamtem Verm\u00f6gen), gesamtschuldnerisch (jeder f\u00fcr alles) und unmittelbar (Gl\u00e4ubiger kann direkt fordern)."
+            },
+            {
+                id: 49,
+                text: "Was ist die Besonderheit der UG (haftungsbeschr\u00e4nkt)?",
+                options: [
+                    "A) Sie erfordert 50.000 \u20ac Grundkapital",
+                    "B) Sie kann mit 1 \u20ac Stammkapital gegr\u00fcndet werden, 25 % des Gewinns m\u00fcssen angespart werden",
+                    "C) Alle Gesellschafter haften unbeschr\u00e4nkt",
+                    "D) Sie ist nur f\u00fcr B\u00f6rsenunternehmen geeignet"
+                ],
+                correct: 1,
+                explanation: "Die UG (haftungsbeschr\u00e4nkt) kann mit nur 1 \u20ac gegr\u00fcndet werden. 25 % des Jahresgewinns m\u00fcssen zur\u00fcckgelegt werden, bis 25.000 \u20ac erreicht sind."
+            },
+            {
+                id: 50,
+                text: "Welche Organe hat eine Aktiengesellschaft (AG)?",
+                options: [
+                    "A) Nur den Vorstand",
+                    "B) Vorstand, Aufsichtsrat und Hauptversammlung",
+                    "C) Gesch\u00e4ftsf\u00fchrer und Gesellschafterversammlung",
+                    "D) Komplement\u00e4r und Kommanditist"
+                ],
+                correct: 1,
+                explanation: "Eine AG hat drei Organe: Vorstand (Gesch\u00e4ftsf\u00fchrung), Aufsichtsrat (\u00dcberwachung) und Hauptversammlung (Versammlung der Aktion\u00e4re)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Welche Aussage zum \u00f6konomischen Prinzip ist FALSCH?",
+                options: [
+                    "A) Das Minimalprinzip will den Input bei festem Output minimieren",
+                    "B) Das Maximalprinzip will den Output bei festem Input maximieren",
+                    "C) Das Optimalprinzip strebt das beste Input-Output-Verh\u00e4ltnis an",
+                    "D) Beim Minimalprinzip sind sowohl Input als auch Output variabel"
+                ],
+                correct: 3,
+                explanation: "Beim Minimalprinzip ist der Output (das Ziel) fest vorgegeben, nur der Input soll minimiert werden. Die Aussage D ist daher falsch."
+            },
+            {
+                id: 52,
+                text: "Ein Mitarbeiter stellt 80 St\u00fcck pro 8-Stunden-Tag her. Wie hoch ist seine Arbeitsproduktivit\u00e4t?",
+                options: [
+                    "A) 8 St\u00fcck/Stunde",
+                    "B) 10 St\u00fcck/Stunde",
+                    "C) 80 St\u00fcck/Tag",
+                    "D) 640 St\u00fcck"
+                ],
+                correct: 1,
+                explanation: "Arbeitsproduktivit\u00e4t = Output / Input = 80 St\u00fcck / 8 Stunden = 10 St\u00fcck pro Stunde."
+            },
+            {
+                id: 53,
+                text: "Welche Zuordnung ist korrekt? VWL: Boden \u2192 BWL (Gutenberg): ...",
+                options: [
+                    "A) Dispositiver Faktor",
+                    "B) Ausf\u00fchrende Arbeit",
+                    "C) Betriebsmittel (Grundst\u00fccke) und Werkstoffe (Rohstoffe)",
+                    "D) Hilfsstoffe"
+                ],
+                correct: 2,
+                explanation: "Der VWL-Faktor 'Boden' wird bei Gutenberg aufgeteilt in Betriebsmittel (Grundst\u00fccke, Geb\u00e4ude) und Werkstoffe (Rohstoffe aus der Natur)."
+            },
+            {
+                id: 54,
+                text: "In einer KG: Wer haftet unbeschr\u00e4nkt?",
+                options: [
+                    "A) Der Kommanditist",
+                    "B) Der Komplement\u00e4r",
+                    "C) Beide Gesellschafter gleicherma\u00dfen",
+                    "D) Keiner \u2013 die Haftung ist immer beschr\u00e4nkt"
+                ],
+                correct: 1,
+                explanation: "In einer KG haftet der Komplement\u00e4r unbeschr\u00e4nkt (auch mit Privatverm\u00f6gen), der Kommanditist nur beschr\u00e4nkt bis zur H\u00f6he seiner Einlage."
+            },
+            {
+                id: 55,
+                text: "Was beschreibt den Strukturwandel in Deutschland am besten?",
+                options: [
+                    "A) Zunahme des prim\u00e4ren Sektors",
+                    "B) Zunahme des sekund\u00e4ren Sektors",
+                    "C) Verschiebung zum terti\u00e4ren Sektor (Tertiarisierung)",
+                    "D) Gleichm\u00e4\u00dfiges Wachstum aller Sektoren"
+                ],
+                correct: 2,
+                explanation: "Der Strukturwandel in Deutschland ist durch die Tertiarisierung gekennzeichnet: Der Anteil des Dienstleistungssektors (terti\u00e4r) w\u00e4chst auf heute ca. 75 %."
+            },
+            {
+                id: 56,
+                text: "Strom in einer Fabrik ist ein ...",
+                options: [
+                    "A) Rohstoff",
+                    "B) Hilfsstoff",
+                    "C) Betriebsstoff",
+                    "D) Betriebsmittel"
+                ],
+                correct: 2,
+                explanation: "Strom ist ein Betriebsstoff: Er wird im Produktionsprozess verbraucht, geht aber nicht in das Produkt ein. Betriebsstoffe sind Verbrauchsg\u00fcter."
+            },
+            {
+                id: 57,
+                text: "Welche Kennzahl ist dimensionslos (hat keine Einheit)?",
+                options: [
+                    "A) Produktivit\u00e4t",
+                    "B) Wirtschaftlichkeit",
+                    "C) Eigenkapitalrentabilit\u00e4t",
+                    "D) Umsatzrentabilit\u00e4t"
+                ],
+                correct: 1,
+                explanation: "Die Wirtschaftlichkeit (Ertrag/Aufwand) ist dimensionslos, da sich die Einheiten (Euro) k\u00fcrzen. Produktivit\u00e4t hat eine Einheit (z.\u202fB. St\u00fcck/h), Rentabilit\u00e4t wird in % angegeben."
+            },
+            {
+                id: 58,
+                text: "Warum werden bei der Gesamtkapitalrentabilit\u00e4t die Fremdkapitalzinsen zum Gewinn addiert?",
+                options: [
+                    "A) Weil sie den Gewinn erh\u00f6hen",
+                    "B) Weil sie die Verg\u00fctung f\u00fcr das eingesetzte Fremdkapital darstellen",
+                    "C) Weil sie steuerlich absetzbar sind",
+                    "D) Weil sie den Umsatz erh\u00f6hen"
+                ],
+                correct: 1,
+                explanation: "Die FK-Zinsen sind die Verg\u00fctung f\u00fcr das Fremdkapital. Um die Rentabilit\u00e4t des GESAMTEN Kapitals zu messen, m\u00fcssen sie zum Gewinn addiert werden."
+            },
+            {
+                id: 59,
+                text: "Welche Rechtsform hat KEINE Haftungsbeschr\u00e4nkung?",
+                options: [
+                    "A) GmbH",
+                    "B) AG",
+                    "C) OHG",
+                    "D) UG"
+                ],
+                correct: 2,
+                explanation: "Bei der OHG haften alle Gesellschafter unbeschr\u00e4nkt mit ihrem gesamten Privatverm\u00f6gen. GmbH, AG und UG sind Kapitalgesellschaften mit Haftungsbeschr\u00e4nkung."
+            },
+            {
+                id: 60,
+                text: "Welche Zusammenfassung ist korrekt?",
+                options: [
+                    "A) BWL betrachtet die Gesamtwirtschaft, VWL den einzelnen Betrieb",
+                    "B) Gutenberg unterscheidet Elementarfaktoren (Arbeit, Betriebsmittel, Werkstoffe) und den dispositiven Faktor; die VWL kennt Arbeit, Boden, Kapital",
+                    "C) Alle Rechtsformen haben die gleiche Haftung",
+                    "D) Der prim\u00e4re Sektor ist in Deutschland am gr\u00f6\u00dften"
+                ],
+                correct: 1,
+                explanation: "Gutenberg unterscheidet Elementarfaktoren (Arbeit, Betriebsmittel, Werkstoffe) und den dispositiven Faktor. Die VWL kennt die klassische Dreiteilung Arbeit, Boden, Kapital."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always in the same spot
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 1111;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

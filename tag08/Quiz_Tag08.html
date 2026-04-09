@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 08 &ndash; Unfallverh&uuml;tung und Erste Hilfe</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem;
+            padding: 1.4rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #004a99;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        /* ============ OPTIONS ============ */
+        .options-list { list-style: none; }
+        .options-list li {
+            margin-bottom: 0.5rem;
+        }
+        .options-list label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            padding: 0.65rem 0.9rem;
+            border: 2px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] {
+            accent-color: #004a99;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+        .options-list label.selected { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* ============ BUTTON & FEEDBACK ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .check-btn:hover { background: #003366; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* ============ NAVIGATION (single-question mode) ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.4rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #003366; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* ============ RESULTS ============ */
+        .results-panel {
+            background: #ffffff;
+            border: 2px solid #004a99;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 08 &ndash; Unfallverh&uuml;tung und Erste Hilfe</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1996). <em>Sozialgesetzbuch Siebtes Buch &ndash; Gesetzliche Unfallversicherung (SGB VII)</em>. https://www.gesetze-im-internet.de/sgb_7/</p>
+    <p>Bundesministerium der Justiz. (1996). <em>Arbeitsschutzgesetz (ArbSchG)</em>. https://www.gesetze-im-internet.de/arbschg/</p>
+    <p>Deutsche Gesetzliche Unfallversicherung. (2013). <em>DGUV Vorschrift 1 &ndash; Grunds&auml;tze der Pr&auml;vention</em>. https://publikationen.dguv.de/regelwerk/dguv-vorschriften/</p>
+    <p>Deutsches Rotes Kreuz. (2020). <em>Handbuch Erste Hilfe</em>. DRK Service GmbH.</p>
+    <p>Kittner, M. &amp; Pieper, R. (2023). <em>Arbeitsschutzrecht</em> (12. Aufl.). Bund-Verlag.</p>
+    <p>Semler, S. &amp; Kolbe, C. (2021). <em>Wirtschafts- und Sozialkunde</em>. Westermann.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Berufsgenossenschaften und DGUV (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Wer ist Tr\u00e4ger der gesetzlichen Unfallversicherung f\u00fcr die gewerbliche Wirtschaft?",
+                options: [
+                    "A) Die Krankenkassen",
+                    "B) Die Berufsgenossenschaften",
+                    "C) Die Deutsche Rentenversicherung",
+                    "D) Die Bundesagentur f\u00fcr Arbeit"
+                ],
+                correct: 1,
+                explanation: "Die Berufsgenossenschaften (BG) sind die Tr\u00e4ger der gesetzlichen Unfallversicherung f\u00fcr die gewerbliche Wirtschaft (\u00a7 114 SGB VII)."
+            },
+            {
+                id: 2,
+                text: "Wer finanziert die gesetzliche Unfallversicherung?",
+                options: [
+                    "A) Arbeitgeber und Arbeitnehmer je zur H\u00e4lfte",
+                    "B) Allein der Arbeitnehmer",
+                    "C) Allein der Arbeitgeber",
+                    "D) Der Staat aus Steuermitteln"
+                ],
+                correct: 2,
+                explanation: "Die gesetzliche Unfallversicherung ist der einzige Sozialversicherungszweig, der allein vom Arbeitgeber finanziert wird. Arbeitnehmer zahlen keine Beitr\u00e4ge."
+            },
+            {
+                id: 3,
+                text: "Welche drei Aufgabenbereiche haben die Berufsgenossenschaften?",
+                options: [
+                    "A) Ausbildung, Pr\u00fcfung, Zertifizierung",
+                    "B) Pr\u00e4vention, Rehabilitation, Entsch\u00e4digung",
+                    "C) Beratung, Versicherung, Steuererleichterung",
+                    "D) Kontrolle, Bestrafung, Entsch\u00e4digung"
+                ],
+                correct: 1,
+                explanation: "Die drei Aufgabenbereiche der BG sind: Pr\u00e4vention (Unf\u00e4lle verhindern), Rehabilitation (Wiedereingliederung) und Entsch\u00e4digung (Verletztengeld, Rente). Merkregel: P-R-E."
+            },
+            {
+                id: 4,
+                text: "Wie sind die Berufsgenossenschaften organisiert?",
+                options: [
+                    "A) Nach Bundesl\u00e4ndern",
+                    "B) Nach Betriebsgr\u00f6\u00dfe",
+                    "C) Nach Branchen",
+                    "D) Nach Rechtsform des Unternehmens"
+                ],
+                correct: 2,
+                explanation: "Die Berufsgenossenschaften sind nach Branchen organisiert (z. B. BG Handel und Warenlogistik, Verwaltungs-BG). Jeder Betrieb ist Pflichtmitglied der f\u00fcr seine Branche zust\u00e4ndigen BG."
+            },
+            {
+                id: 5,
+                text: "Was ist die DGUV?",
+                options: [
+                    "A) Eine Abteilung des Bundesministeriums f\u00fcr Arbeit",
+                    "B) Der Spitzenverband der Berufsgenossenschaften und Unfallkassen",
+                    "C) Eine private Versicherungsgesellschaft",
+                    "D) Ein Gericht f\u00fcr Arbeitsrechtsstreitigkeiten"
+                ],
+                correct: 1,
+                explanation: "Die Deutsche Gesetzliche Unfallversicherung (DGUV) ist der Spitzenverband der gewerblichen Berufsgenossenschaften und der Unfallkassen der \u00f6ffentlichen Hand."
+            },
+            {
+                id: 6,
+                text: "Wonach richten sich die Beitr\u00e4ge zur gesetzlichen Unfallversicherung?",
+                options: [
+                    "A) Nur nach der Anzahl der Besch\u00e4ftigten",
+                    "B) Nach Entgeltsumme, Gefahrklasse und individuellem Unfallgeschehen",
+                    "C) Nach dem Gewinn des Unternehmens",
+                    "D) Alle Unternehmen zahlen den gleichen Beitragssatz"
+                ],
+                correct: 1,
+                explanation: "Die Beitr\u00e4ge werden nach der Entgeltsumme aller Versicherten, der Gefahrklasse der Branche und individuellen Zu-/Abschl\u00e4gen je nach Unfallgeschehen berechnet (\u00a7\u00a7 150\u2013155 SGB VII)."
+            },
+            {
+                id: 7,
+                text: "In welchem Verfahren werden die Beitr\u00e4ge zur Unfallversicherung erhoben?",
+                options: [
+                    "A) Im Kapitaldeckungsverfahren",
+                    "B) Im Umlageverfahren (nachtr\u00e4glich)",
+                    "C) Im Vorauszahlungsverfahren (monatlich)",
+                    "D) Im Mischverfahren"
+                ],
+                correct: 1,
+                explanation: "Die Beitr\u00e4ge werden nachtr\u00e4glich im Umlageverfahren erhoben. Am Jahresende wird berechnet, wie viel der Betrieb zahlen muss."
+            },
+            {
+                id: 8,
+                text: "Was bedeutet \u201ePflichtmitgliedschaft\u201c bei der Berufsgenossenschaft?",
+                options: [
+                    "A) Nur Betriebe mit mehr als 10 Mitarbeitern m\u00fcssen Mitglied sein",
+                    "B) Jeder Betrieb geh\u00f6rt automatisch einer BG an",
+                    "C) Betriebe k\u00f6nnen die BG frei w\u00e4hlen",
+                    "D) Nur Industriebetriebe sind Pflichtmitglieder"
+                ],
+                correct: 1,
+                explanation: "Jeder Betrieb geh\u00f6rt automatisch einer Berufsgenossenschaft an \u2013 es gibt keine Wahlfreiheit und keine Gr\u00f6\u00dfenbeschr\u00e4nkung. Auch Einzelunternehmer ohne Angestellte sind Mitglied."
+            },
+            {
+                id: 9,
+                text: "Welche Leistung erbringt die BG im Bereich Entsch\u00e4digung?",
+                options: [
+                    "A) Ausbildungsverg\u00fctung",
+                    "B) Arbeitslosengeld",
+                    "C) Verletztengeld und Unfallrente",
+                    "D) Weihnachtsgeld"
+                ],
+                correct: 2,
+                explanation: "Im Bereich Entsch\u00e4digung zahlt die BG Verletztengeld (bei Arbeitsunf\u00e4higkeit), Unfallrente (bei dauerhafter Minderung der Erwerbsf\u00e4higkeit) und Hinterbliebenenleistungen."
+            },
+            {
+                id: 10,
+                text: "Was ist eine Gefahrklasse?",
+                options: [
+                    "A) Eine Schulnote f\u00fcr den Arbeitsschutz",
+                    "B) Eine Kennzahl f\u00fcr das Unfallrisiko einer Branche zur Beitragsberechnung",
+                    "C) Eine Einstufung der Arbeitnehmer nach Qualifikation",
+                    "D) Ein Synonym f\u00fcr Gefahrstoffklasse"
+                ],
+                correct: 1,
+                explanation: "Die Gefahrklasse ist eine Kennzahl, die das Unfallrisiko einer Branche widerspiegelt. B\u00fcrot\u00e4tigkeiten haben eine niedrige, Baut\u00e4tigkeiten eine hohe Gefahrklasse \u2013 entsprechend variieren die BG-Beitr\u00e4ge."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Unfallverh\u00fctungsvorschriften (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Welche Ebene des DGUV-Regelwerks ist rechtsverbindlich?",
+                options: [
+                    "A) DGUV Regeln",
+                    "B) DGUV Informationen",
+                    "C) DGUV Vorschriften",
+                    "D) DGUV Grunds\u00e4tze"
+                ],
+                correct: 2,
+                explanation: "Nur die DGUV Vorschriften (Unfallverh\u00fctungsvorschriften) sind rechtsverbindlich. DGUV Regeln, Informationen und Grunds\u00e4tze sind Empfehlungen bzw. Praxishilfen."
+            },
+            {
+                id: 12,
+                text: "Wie hei\u00dft die wichtigste Unfallverh\u00fctungsvorschrift?",
+                options: [
+                    "A) DGUV Vorschrift 3 \u2013 Elektrische Anlagen",
+                    "B) DGUV Vorschrift 1 \u2013 Grunds\u00e4tze der Pr\u00e4vention",
+                    "C) DGUV Regel 100-001 \u2013 Arbeitssicherheit",
+                    "D) DGUV Information 204-001 \u2013 Erste Hilfe"
+                ],
+                correct: 1,
+                explanation: "Die DGUV Vorschrift 1 \u2013 Grunds\u00e4tze der Pr\u00e4vention ist die zentrale UVV. Sie regelt die grundlegenden Pflichten von Arbeitgebern und Versicherten."
+            },
+            {
+                id: 13,
+                text: "Wie oft muss der Arbeitgeber Unterweisungen zum Arbeitsschutz durchf\u00fchren?",
+                options: [
+                    "A) Alle 3 Jahre",
+                    "B) Nur bei Neueinstellung",
+                    "C) Mindestens einmal j\u00e4hrlich",
+                    "D) Nur auf Verlangen der BG"
+                ],
+                correct: 2,
+                explanation: "Unterweisungen m\u00fcssen vor Aufnahme der T\u00e4tigkeit und danach mindestens einmal j\u00e4hrlich erfolgen (\u00a7 4 DGUV Vorschrift 1). Bei Jugendlichen sogar alle 6 Monate."
+            },
+            {
+                id: 14,
+                text: "Wie oft m\u00fcssen Jugendliche im Arbeitsschutz unterwiesen werden?",
+                options: [
+                    "A) Einmal j\u00e4hrlich",
+                    "B) Alle 6 Monate",
+                    "C) Alle 2 Jahre",
+                    "D) Nur bei Bedarf"
+                ],
+                correct: 1,
+                explanation: "Jugendliche m\u00fcssen mindestens alle 6 Monate (also halbjährlich) im Arbeitsschutz unterwiesen werden \u2013 doppelt so h\u00e4ufig wie erwachsene Arbeitnehmer."
+            },
+            {
+                id: 15,
+                text: "Welche Pflicht hat der Arbeitnehmer gem\u00e4\u00df \u00a7 15 DGUV Vorschrift 1 NICHT?",
+                options: [
+                    "A) Gefahren unverz\u00fcglich melden",
+                    "B) Schutzausr\u00fcstung bestimmungsgem\u00e4\u00df verwenden",
+                    "C) Die Gef\u00e4hrdungsbeurteilung selbst durchf\u00fchren",
+                    "D) Weisungen zum Arbeitsschutz befolgen"
+                ],
+                correct: 2,
+                explanation: "Die Gef\u00e4hrdungsbeurteilung ist Pflicht des Arbeitgebers (\u00a7 5 ArbSchG), nicht des Arbeitnehmers. Die \u00fcbrigen Pflichten ergeben sich aus \u00a7 15 DGUV Vorschrift 1."
+            },
+            {
+                id: 16,
+                text: "Ab wie vielen Besch\u00e4ftigten muss ein Sicherheitsbeauftragter bestellt werden?",
+                options: [
+                    "A) Ab 5 Besch\u00e4ftigten",
+                    "B) Ab 10 Besch\u00e4ftigten",
+                    "C) Ab 20 Besch\u00e4ftigten",
+                    "D) Ab 50 Besch\u00e4ftigten"
+                ],
+                correct: 2,
+                explanation: "In Unternehmen mit regelm\u00e4\u00dfig mehr als 20 Besch\u00e4ftigten muss der Arbeitgeber Sicherheitsbeauftragte bestellen (\u00a7 22 SGB VII)."
+            },
+            {
+                id: 17,
+                text: "Welche Aussage \u00fcber Sicherheitsbeauftragte ist richtig?",
+                options: [
+                    "A) Sie haben Weisungsrecht gegen\u00fcber Kollegen",
+                    "B) Sie sind ehrenamtlich t\u00e4tig und haben kein Weisungsrecht",
+                    "C) Sie werden nach dem ASiG bestellt",
+                    "D) Sie m\u00fcssen ein Studium im Arbeitsschutz haben"
+                ],
+                correct: 1,
+                explanation: "Sicherheitsbeauftragte sind ehrenamtlich t\u00e4tig (neben ihrer Hauptt\u00e4tigkeit) und haben kein Weisungsrecht. Sie unterst\u00fctzen den Arbeitgeber in beratender Funktion."
+            },
+            {
+                id: 18,
+                text: "Was ist der Unterschied zwischen Sicherheitsbeauftragtem und Fachkraft f\u00fcr Arbeitssicherheit?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Sicherheitsbeauftragte sind ehrenamtlich; Fachkr\u00e4fte sind qualifizierte Spezialisten nach ASiG",
+                    "C) Fachkr\u00e4fte sind ehrenamtlich; Sicherheitsbeauftragte sind Spezialisten",
+                    "D) Beide werden nach SGB VII bestellt"
+                ],
+                correct: 1,
+                explanation: "Sicherheitsbeauftragte sind ehrenamtlich t\u00e4tige Mitarbeiter (\u00a7 22 SGB VII). Fachkr\u00e4fte f\u00fcr Arbeitssicherheit werden nach dem ASiG bestellt und sind qualifizierte Spezialisten mit entsprechender Ausbildung."
+            },
+            {
+                id: 19,
+                text: "Was muss der Arbeitgeber als Grundlage f\u00fcr Schutzma\u00dfnahmen durchf\u00fchren?",
+                options: [
+                    "A) Eine Mitarbeiterbefragung",
+                    "B) Eine Gef\u00e4hrdungsbeurteilung",
+                    "C) Eine Gewinnanalyse",
+                    "D) Eine Marktforschung"
+                ],
+                correct: 1,
+                explanation: "Der Arbeitgeber muss eine Gef\u00e4hrdungsbeurteilung durchf\u00fchren (\u00a7 5 ArbSchG). Sie ist das zentrale Instrument, um Gefahren systematisch zu ermitteln und geeignete Schutzma\u00dfnahmen abzuleiten."
+            },
+            {
+                id: 20,
+                text: "Was muss der Arbeitgeber den Besch\u00e4ftigten kostenlos zur Verf\u00fcgung stellen?",
+                options: [
+                    "A) Arbeitskleidung und Mittagessen",
+                    "B) Pers\u00f6nliche Schutzausr\u00fcstung (PSA)",
+                    "C) Einen Firmenwagen",
+                    "D) Einen Laptop f\u00fcr zu Hause"
+                ],
+                correct: 1,
+                explanation: "Der Arbeitgeber muss die pers\u00f6nliche Schutzausr\u00fcstung (PSA) kostenlos bereitstellen. Die Besch\u00e4ftigten m\u00fcssen sie bestimmungsgem\u00e4\u00df verwenden."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Arbeitsunf\u00e4lle (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Was ist die Legaldefinition eines Arbeitsunfalls gem\u00e4\u00df \u00a7 8 SGB VII?",
+                options: [
+                    "A) Jeder Unfall, der w\u00e4hrend der Arbeitszeit passiert",
+                    "B) Ein Unfall von Versicherten infolge einer versicherten T\u00e4tigkeit",
+                    "C) Jeder Unfall auf dem Betriebsgel\u00e4nde",
+                    "D) Ein Unfall, der vom Arbeitgeber verschuldet wurde"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 8 Abs. 1 SGB VII sind Arbeitsunf\u00e4lle \u201eUnf\u00e4lle von Versicherten infolge einer versicherten T\u00e4tigkeit\u201c. Es m\u00fcssen vier Voraussetzungen erf\u00fcllt sein."
+            },
+            {
+                id: 22,
+                text: "Welche Voraussetzung geh\u00f6rt NICHT zu den vier Voraussetzungen eines Arbeitsunfalls?",
+                options: [
+                    "A) Versicherte Person",
+                    "B) Zeitlich begrenztes Unfallereignis",
+                    "C) Verschulden des Arbeitgebers",
+                    "D) Gesundheitsschaden als Folge"
+                ],
+                correct: 2,
+                explanation: "Ein Verschulden des Arbeitgebers ist keine Voraussetzung. Die vier Voraussetzungen sind: versicherte Person, Unfallereignis (zeitlich begrenzt, von au\u00dfen), innerer Zusammenhang mit versicherter T\u00e4tigkeit und Gesundheitsschaden."
+            },
+            {
+                id: 23,
+                text: "Was ist ein Wegeunfall?",
+                options: [
+                    "A) Ein Unfall auf dem Firmenparkplatz",
+                    "B) Ein Unfall auf dem direkten Weg zwischen Wohnung und Arbeitsst\u00e4tte",
+                    "C) Ein Unfall beim Einkaufen nach der Arbeit",
+                    "D) Ein Unfall bei einer Dienstreise"
+                ],
+                correct: 1,
+                explanation: "Ein Wegeunfall ist ein Unfall auf dem direkten Weg zwischen Wohnung und Arbeitsst\u00e4tte (\u00a7 8 Abs. 2 Nr. 1 SGB VII). Private Umwege (z. B. Einkaufen) sind nicht versichert."
+            },
+            {
+                id: 24,
+                text: "Ist der Umweg \u00fcber die Kindertagesst\u00e4tte beim Wegeunfall versichert?",
+                options: [
+                    "A) Nein, jeder Umweg unterbricht den Versicherungsschutz",
+                    "B) Ja, der Umweg zur Unterbringung von Kindern ist versichert",
+                    "C) Nur wenn die Kita auf dem direkten Weg liegt",
+                    "D) Nur bei Alleinerziehenden"
+                ],
+                correct: 1,
+                explanation: "Der Umweg zur Unterbringung von Kindern (z. B. Kita) ist als Ausnahme versichert (\u00a7 8 Abs. 2 Nr. 2a SGB VII). Ebenso Umwege bei Fahrgemeinschaften."
+            },
+            {
+                id: 25,
+                text: "Was unterscheidet eine Berufskrankheit von einem Arbeitsunfall?",
+                options: [
+                    "A) Berufskrankheiten werden nicht von der BG abgedeckt",
+                    "B) Eine Berufskrankheit entsteht durch langfristige Einwirkung, ein Arbeitsunfall ist zeitlich begrenzt",
+                    "C) Berufskrankheiten treten nur in der Industrie auf",
+                    "D) Es gibt keinen Unterschied"
+                ],
+                correct: 1,
+                explanation: "Ein Arbeitsunfall ist zeitlich begrenzt (Sekunden bis eine Schicht). Eine Berufskrankheit entsteht durch langfristige berufliche Einwirkung (\u00a7 9 SGB VII) und muss in der BKV-Liste stehen."
+            },
+            {
+                id: 26,
+                text: "Ab wann ist der Arbeitgeber verpflichtet, eine Unfallanzeige bei der BG zu erstatten?",
+                options: [
+                    "A) Bei jedem Arbeitsunfall",
+                    "B) Wenn der Verletzte mehr als 3 Tage arbeitsunf\u00e4hig ist",
+                    "C) Nur bei t\u00f6dlichen Unf\u00e4llen",
+                    "D) Wenn der Arbeitnehmer es verlangt"
+                ],
+                correct: 1,
+                explanation: "Die Unfallanzeige ist Pflicht, wenn der Verletzte mehr als 3 Tage arbeitsunf\u00e4hig ist oder der Unfall t\u00f6dlich verl\u00e4uft (\u00a7 193 SGB VII). Der Unfalltag z\u00e4hlt nicht mit."
+            },
+            {
+                id: 27,
+                text: "Innerhalb welcher Frist muss die Unfallanzeige bei der BG eingehen?",
+                options: [
+                    "A) Innerhalb von 24 Stunden",
+                    "B) Innerhalb von 3 Werktagen",
+                    "C) Innerhalb von 7 Kalendertagen",
+                    "D) Innerhalb von 4 Wochen"
+                ],
+                correct: 1,
+                explanation: "Die Unfallanzeige muss innerhalb von 3 Werktagen nach Bekanntwerden des Unfalls bei der BG eingehen. Bei t\u00f6dlichen oder Massenunf\u00e4llen ist eine sofortige telefonische Meldung erforderlich."
+            },
+            {
+                id: 28,
+                text: "In wie vielen Ausfertigungen muss die Unfallanzeige erstellt werden?",
+                options: [
+                    "A) In einer Ausfertigung",
+                    "B) In zwei Ausfertigungen (BG + Betriebsrat)",
+                    "C) In drei Ausfertigungen",
+                    "D) In vier Ausfertigungen"
+                ],
+                correct: 1,
+                explanation: "Die Unfallanzeige wird in zwei Ausfertigungen erstellt: eine f\u00fcr die BG, eine Durchschrift f\u00fcr den Betriebsrat/Personalrat."
+            },
+            {
+                id: 29,
+                text: "Welches der folgenden Beispiele ist kein Berufskrankheits-Beispiel?",
+                options: [
+                    "A) L\u00e4rmschwerh\u00f6rigkeit durch jahrelange Arbeit in lauter Umgebung",
+                    "B) Asbestose durch beruflichen Kontakt mit Asbest",
+                    "C) Erk\u00e4ltung im B\u00fcro",
+                    "D) Hautekzeme durch beruflichen Umgang mit Chemikalien"
+                ],
+                correct: 2,
+                explanation: "Eine Erk\u00e4ltung ist keine Berufskrankheit, da sie nicht in der BKV-Liste steht und kein spezifischer beruflicher Zusammenhang besteht. L\u00e4rmschwerh\u00f6rigkeit, Asbestose und Hautekzeme sind anerkannte Berufskrankheiten."
+            },
+            {
+                id: 30,
+                text: "Tom f\u00e4hrt nach der Arbeit einen Umweg \u00fcber den Supermarkt und hat dort einen Unfall. Ist das ein Wegeunfall?",
+                options: [
+                    "A) Ja, weil er von der Arbeit kommt",
+                    "B) Nein, weil der private Umweg den Versicherungsschutz unterbricht",
+                    "C) Ja, wenn der Umweg weniger als 1 km betr\u00e4gt",
+                    "D) Nur wenn er Lebensmittel f\u00fcr die Firma kauft"
+                ],
+                correct: 1,
+                explanation: "Private Umwege (wie Einkaufen) unterbrechen den Versicherungsschutz. Nur der direkte Weg zwischen Wohnung und Arbeit ist als Wegeunfall versichert."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Verhalten bei Unf\u00e4llen (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Wie viele Glieder hat die Rettungskette?",
+                options: [
+                    "A) 3 Glieder",
+                    "B) 4 Glieder",
+                    "C) 5 Glieder",
+                    "D) 6 Glieder"
+                ],
+                correct: 2,
+                explanation: "Die Rettungskette hat 5 Glieder: 1. Absichern/Eigenschutz, 2. Notruf 112, 3. Erste Hilfe, 4. Rettungsdienst, 5. Krankenhaus."
+            },
+            {
+                id: 32,
+                text: "Was ist das erste Glied der Rettungskette?",
+                options: [
+                    "A) Notruf absetzen",
+                    "B) Erste Hilfe leisten",
+                    "C) Absichern und Eigenschutz",
+                    "D) Rettungsdienst rufen"
+                ],
+                correct: 2,
+                explanation: "Das erste Glied ist \u201eAbsichern und Eigenschutz\u201c. Die eigene Sicherheit geht immer vor \u2013 wer sich selbst in Gefahr bringt, kann nicht helfen."
+            },
+            {
+                id: 33,
+                text: "Welche Notrufnummer gilt europaweit f\u00fcr Feuerwehr und Rettungsdienst?",
+                options: [
+                    "A) 110",
+                    "B) 112",
+                    "C) 116",
+                    "D) 115"
+                ],
+                correct: 1,
+                explanation: "Die Notrufnummer 112 gilt europaweit, ist kostenlos und auch ohne SIM-Karte erreichbar. 110 ist die Polizei in Deutschland."
+            },
+            {
+                id: 34,
+                text: "Welche der folgenden geh\u00f6rt NICHT zu den 5 W-Fragen beim Notruf?",
+                options: [
+                    "A) Wo ist es passiert?",
+                    "B) Warum ist es passiert?",
+                    "C) Wie viele Verletzte?",
+                    "D) Welche Verletzungen?"
+                ],
+                correct: 1,
+                explanation: "Die 5 W-Fragen sind: Wo, Was, Wie viele, Welche Verletzungen, Warten auf R\u00fcckfragen. \u201eWarum\u201c geh\u00f6rt nicht dazu \u2013 die Ursache ist f\u00fcr den Rettungsdienst zun\u00e4chst zweitrangig."
+            },
+            {
+                id: 35,
+                text: "Was droht bei unterlassener Hilfeleistung gem\u00e4\u00df \u00a7 323c StGB?",
+                options: [
+                    "A) Eine Abmahnung durch den Arbeitgeber",
+                    "B) Freiheitsstrafe bis zu einem Jahr oder Geldstrafe",
+                    "C) Ein Bu\u00dfgeld von maximal 500 Euro",
+                    "D) Keine rechtlichen Konsequenzen"
+                ],
+                correct: 1,
+                explanation: "Unterlassene Hilfeleistung ist eine Straftat. Wer bei Ungl\u00fccksf\u00e4llen nicht hilft, obwohl es zumutbar ist, kann mit Freiheitsstrafe bis zu einem Jahr oder Geldstrafe bestraft werden (\u00a7 323c StGB)."
+            },
+            {
+                id: 36,
+                text: "Was ist bei einem Elektrounfall als Erstes zu tun?",
+                options: [
+                    "A) Den Verletzten sofort anfassen und wegziehen",
+                    "B) Den Strom abschalten",
+                    "C) Wasser \u00fcber den Verletzten gie\u00dfen",
+                    "D) Sofort mit der Herzdruckmassage beginnen"
+                ],
+                correct: 1,
+                explanation: "Bei einem Elektrounfall muss zuerst der Strom abgeschaltet werden! Den Verletzten niemals ber\u00fchren, solange Strom flie\u00dft \u2013 man w\u00fcrde selbst zum Opfer."
+            },
+            {
+                id: 37,
+                text: "Was sollte man bei einer Vergiftung NICHT tun?",
+                options: [
+                    "A) Den Giftnotruf anrufen",
+                    "B) Die Verpackung/das Etikett sichern",
+                    "C) Erbrechen ausl\u00f6sen",
+                    "D) Den Notruf 112 w\u00e4hlen"
+                ],
+                correct: 2,
+                explanation: "Bei Vergiftungen darf kein Erbrechen ausgel\u00f6st werden, da \u00e4tzende Stoffe auf dem R\u00fcckweg erneut Sch\u00e4den verursachen k\u00f6nnen. Stattdessen: Giftnotruf anrufen und Verpackung sichern."
+            },
+            {
+                id: 38,
+                text: "Warum soll man einen Verletzten nach einem Sturz aus H\u00f6he nicht bewegen?",
+                options: [
+                    "A) Weil der Rettungsdienst das \u00fcbernimmt",
+                    "B) Weil eine Wirbels\u00e4ulenverletzung m\u00f6glich ist",
+                    "C) Weil es die Versicherung verlangt",
+                    "D) Weil er sich beschweren k\u00f6nnte"
+                ],
+                correct: 1,
+                explanation: "Nach einem Sturz aus H\u00f6he besteht die Gefahr einer Wirbels\u00e4ulenverletzung. Unsachgem\u00e4\u00dfes Bewegen k\u00f6nnte zu einer Querschnittsl\u00e4hmung f\u00fchren. Nur bei akuter Lebensgefahr bewegen!"
+            },
+            {
+                id: 39,
+                text: "Welche Lagerung ist bei einem Schock angebracht?",
+                options: [
+                    "A) Oberk\u00f6rper hochlagern",
+                    "B) Beine hochlagern (Schocklage)",
+                    "C) Flach auf den Bauch legen",
+                    "D) In den Schneidersitz setzen"
+                ],
+                correct: 1,
+                explanation: "Bei einem Schock (Blässe, kalter Schwei\u00df, schneller Puls) werden die Beine hochgelagert, um das Blut zum Herzen zur\u00fcckflie\u00dfen zu lassen. Zus\u00e4tzlich zudecken und beruhigen."
+            },
+            {
+                id: 40,
+                text: "Welche Ma\u00dfnahme ist bei einer starken Blutung am Arm am wichtigsten?",
+                options: [
+                    "A) Den Arm amputieren",
+                    "B) Einen Druckverband anlegen und den Arm hochlagern",
+                    "C) Die Wunde mit Alkohol desinfizieren",
+                    "D) Den Arm in kaltes Wasser halten"
+                ],
+                correct: 1,
+                explanation: "Bei starken Blutungen wird ein Druckverband angelegt und das betroffene K\u00f6rperteil hochgelagert. Zus\u00e4tzlich Handschuhe tragen (Infektionsschutz)."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Erste Hilfe (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "In welcher Reihenfolge wird beim Auffinden einer Person gepr\u00fcft?",
+                options: [
+                    "A) Atmung \u2192 Kreislauf \u2192 Bewusstsein",
+                    "B) Bewusstsein \u2192 Atmung \u2192 Kreislauf",
+                    "C) Kreislauf \u2192 Bewusstsein \u2192 Atmung",
+                    "D) Blutung \u2192 Bewusstsein \u2192 Atmung"
+                ],
+                correct: 1,
+                explanation: "Die Pr\u00fcfreihenfolge ist: Bewusstsein (ansprechen, sch\u00fctteln) \u2192 Atmung (sehen, h\u00f6ren, f\u00fchlen) \u2192 Kreislauf. Daraus ergibt sich die richtige Ma\u00dfnahme."
+            },
+            {
+                id: 42,
+                text: "Wann wird die stabile Seitenlage angewendet?",
+                options: [
+                    "A) Bei bewusstlosen Personen, die noch atmen",
+                    "B) Bei Personen mit Herzstillstand",
+                    "C) Bei Personen mit Knochenbruch",
+                    "D) Bei Personen mit Nasenbluten"
+                ],
+                correct: 0,
+                explanation: "Die stabile Seitenlage wird bei bewusstlosen Personen angewendet, die noch atmen. Sie verhindert das Ersticken durch Erbrochenes oder die zur\u00fcckfallende Zunge."
+            },
+            {
+                id: 43,
+                text: "Im Rhythmus 30:2 bei der HLW \u2013 was bedeuten die Zahlen?",
+                options: [
+                    "A) 30 Beatmungen und 2 Herzdruckmassagen",
+                    "B) 30 Herzdruckmassagen und 2 Beatmungen",
+                    "C) 30 Sekunden dr\u00fccken und 2 Sekunden Pause",
+                    "D) 30 Minuten Reanimation und 2 Minuten Pause"
+                ],
+                correct: 1,
+                explanation: "Der Rhythmus 30:2 bedeutet: 30 Herzdruckmassagen gefolgt von 2 Beatmungen. Dieser Zyklus wird ohne Unterbrechung wiederholt."
+            },
+            {
+                id: 44,
+                text: "Wie tief sollten die Herzdruckmassagen bei Erwachsenen sein?",
+                options: [
+                    "A) 1\u20132 cm",
+                    "B) 3\u20134 cm",
+                    "C) 5\u20136 cm",
+                    "D) 8\u201310 cm"
+                ],
+                correct: 2,
+                explanation: "Die Herzdruckmassagen sollten bei Erwachsenen 5\u20136 cm tief sein. Der Druckpunkt liegt in der Mitte des Brustkorbs (untere H\u00e4lfte des Brustbeins)."
+            },
+            {
+                id: 45,
+                text: "Mit welcher Frequenz sollten die Herzdruckmassagen durchgef\u00fchrt werden?",
+                options: [
+                    "A) 50\u201360 pro Minute",
+                    "B) 70\u201380 pro Minute",
+                    "C) 100\u2013120 pro Minute",
+                    "D) 150\u2013180 pro Minute"
+                ],
+                correct: 2,
+                explanation: "Die Herzdruckmassagen sollten mit einer Frequenz von 100\u2013120 pro Minute durchgef\u00fchrt werden. Tipp: Der Rhythmus von \u201eStayin' Alive\u201c (Bee Gees) entspricht etwa 103 BPM."
+            },
+            {
+                id: 46,
+                text: "Was ist ein AED?",
+                options: [
+                    "A) Ein Blutdruckmessger\u00e4t",
+                    "B) Ein Automatisierter Externer Defibrillator",
+                    "C) Ein Beatmungsger\u00e4t",
+                    "D) Ein Ger\u00e4t zur Knochenstabilisierung"
+                ],
+                correct: 1,
+                explanation: "Ein AED (Automatisierter Externer Defibrillator) analysiert den Herzrhythmus und gibt bei Bedarf einen Elektroschock ab. Er kann auch von Laien sicher bedient werden."
+            },
+            {
+                id: 47,
+                text: "Wie viel Prozent der Besch\u00e4ftigten m\u00fcssen in einem B\u00fcrobetrieb (>20 Mitarbeiter) Ersthelfer sein?",
+                options: [
+                    "A) 2 %",
+                    "B) 5 %",
+                    "C) 10 %",
+                    "D) 15 %"
+                ],
+                correct: 1,
+                explanation: "In Verwaltungs- und Handelsbetrieben (B\u00fcro) m\u00fcssen mindestens 5 % der Besch\u00e4ftigten als Ersthelfer ausgebildet sein. In sonstigen Betrieben sind es 10 %."
+            },
+            {
+                id: 48,
+                text: "Wie oft m\u00fcssen Ersthelfer ihre Ausbildung auffrischen?",
+                options: [
+                    "A) Jedes Jahr",
+                    "B) Alle 2 Jahre",
+                    "C) Alle 3 Jahre",
+                    "D) Alle 5 Jahre"
+                ],
+                correct: 1,
+                explanation: "Die Ersthelfer-Fortbildung muss alle 2 Jahre erfolgen (9 Unterrichtseinheiten). Die Kosten tr\u00e4gt die Berufsgenossenschaft."
+            },
+            {
+                id: 49,
+                text: "Wer tr\u00e4gt die Kosten f\u00fcr die Ersthelfer-Ausbildung?",
+                options: [
+                    "A) Der Arbeitnehmer",
+                    "B) Die Krankenkasse",
+                    "C) Die Berufsgenossenschaft",
+                    "D) Der Arbeitgeber allein"
+                ],
+                correct: 2,
+                explanation: "Die Kosten f\u00fcr die Ersthelfer-Ausbildung und -Fortbildung tr\u00e4gt die Berufsgenossenschaft. Der Arbeitgeber muss den Mitarbeiter lediglich f\u00fcr die Ausbildung freistellen."
+            },
+            {
+                id: 50,
+                text: "Was ist die \u201eeinzige falsche Ma\u00dfnahme\u201c bei einem Herzstillstand?",
+                options: [
+                    "A) Zu fest dr\u00fccken",
+                    "B) Falsch beatmen",
+                    "C) Nichts tun",
+                    "D) Den AED falsch anlegen"
+                ],
+                correct: 2,
+                explanation: "Die einzige falsche Ma\u00dfnahme bei einem Herzstillstand ist, nichts zu tun. Jeder Versuch der Wiederbelebung ist besser als Untätigkeit. Ersthelfer sind zudem haftungsrechtlich gesch\u00fctzt."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Dokumentation und Gesamtwiederholung (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Was muss gem\u00e4\u00df \u00a7 24 DGUV Vorschrift 1 im Verbandbuch dokumentiert werden?",
+                options: [
+                    "A) Nur schwere Unf\u00e4lle mit Krankenhausaufenthalt",
+                    "B) Jede Erste-Hilfe-Leistung, auch bei Bagatellverletzungen",
+                    "C) Nur Unf\u00e4lle mit mehr als 3 Tagen Arbeitsunf\u00e4higkeit",
+                    "D) Nur Unf\u00e4lle, die vom Arbeitgeber verschuldet wurden"
+                ],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 24 DGUV Vorschrift 1 muss jede Erste-Hilfe-Leistung dokumentiert werden \u2013 auch bei Bagatellverletzungen. Das Verbandbuch dient als Nachweis f\u00fcr sp\u00e4tere Sp\u00e4tfolgen."
+            },
+            {
+                id: 52,
+                text: "Welche Angabe geh\u00f6rt NICHT zu den Pflichtangaben im Verbandbuch?",
+                options: [
+                    "A) Name des Verletzten",
+                    "B) Datum und Uhrzeit des Unfalls",
+                    "C) Personalausweisnummer des Verletzten",
+                    "D) Name des Ersthelfers"
+                ],
+                correct: 2,
+                explanation: "Die Personalausweisnummer ist keine Pflichtangabe. Pflichtangaben sind: Name des Verletzten, Datum/Uhrzeit, Ort, Art der Verletzung, Art der Ma\u00dfnahme, Name des Ersthelfers."
+            },
+            {
+                id: 53,
+                text: "Wie lange m\u00fcssen Verbandbuch-Eintr\u00e4ge aufbewahrt werden?",
+                options: [
+                    "A) 1 Jahr",
+                    "B) 3 Jahre",
+                    "C) 5 Jahre",
+                    "D) 10 Jahre"
+                ],
+                correct: 2,
+                explanation: "Verbandbuch-Eintr\u00e4ge m\u00fcssen 5 Jahre aufbewahrt und danach datenschutzkonform vernichtet werden."
+            },
+            {
+                id: 54,
+                text: "Was ist ein Durchgangsarzt (D-Arzt)?",
+                options: [
+                    "A) Ein Arzt, der durch alle Abteilungen rotiert",
+                    "B) Ein von der BG zugelassener Arzt f\u00fcr Arbeitsunf\u00e4lle",
+                    "C) Ein Betriebsarzt",
+                    "D) Ein Notarzt im Rettungsdienst"
+                ],
+                correct: 1,
+                explanation: "Ein Durchgangsarzt (D-Arzt) ist ein von der BG zugelassener Arzt, der bei Arbeitsunf\u00e4llen aufgesucht werden muss, wenn die AU \u00fcber den Unfalltag hinausgeht oder eine l\u00e4ngere Behandlung absehbar ist."
+            },
+            {
+                id: 55,
+                text: "Warum wird empfohlen, Einzelformulare statt eines gebundenen Verbandbuchs zu verwenden?",
+                options: [
+                    "A) Weil Einzelformulare billiger sind",
+                    "B) Aus Datenschutzgr\u00fcnden (DSGVO)",
+                    "C) Weil gebundene B\u00fccher nicht erlaubt sind",
+                    "D) Weil Einzelformulare sch\u00f6ner aussehen"
+                ],
+                correct: 1,
+                explanation: "Aus Datenschutzgr\u00fcnden (DSGVO) werden Einzelformulare empfohlen, damit nicht alle Mitarbeiter die Eintr\u00e4ge anderer Verletzter einsehen k\u00f6nnen."
+            },
+            {
+                id: 56,
+                text: "Welche Sozialversicherung ist f\u00fcr Arbeitsunf\u00e4lle und Berufskrankheiten zust\u00e4ndig?",
+                options: [
+                    "A) Krankenversicherung",
+                    "B) Rentenversicherung",
+                    "C) Unfallversicherung",
+                    "D) Pflegeversicherung"
+                ],
+                correct: 2,
+                explanation: "Die gesetzliche Unfallversicherung (SGB VII) ist f\u00fcr Arbeitsunf\u00e4lle und Berufskrankheiten zust\u00e4ndig. Tr\u00e4ger sind die Berufsgenossenschaften und Unfallkassen."
+            },
+            {
+                id: 57,
+                text: "Ein Azubi schneidet sich bei der Arbeit leicht in den Finger. Was muss dokumentiert werden?",
+                options: [
+                    "A) Nichts, da es nur eine Bagatelle ist",
+                    "B) Ein Eintrag im Verbandbuch",
+                    "C) Eine Unfallanzeige an die BG",
+                    "D) Ein Bericht an das Gewerbeaufsichtsamt"
+                ],
+                correct: 1,
+                explanation: "Auch bei Bagatellverletzungen muss ein Eintrag im Verbandbuch erfolgen (\u00a7 24 DGUV Vorschrift 1). Eine Unfallanzeige ist erst bei mehr als 3 Tagen AU erforderlich."
+            },
+            {
+                id: 58,
+                text: "Wie lautet die Merkhilfe f\u00fcr die Aufgaben der BG?",
+                options: [
+                    "A) A-B-C",
+                    "B) P-R-E (Pr\u00e4vention, Rehabilitation, Entsch\u00e4digung)",
+                    "C) S-O-S",
+                    "D) H-L-W"
+                ],
+                correct: 1,
+                explanation: "P-R-E steht f\u00fcr Pr\u00e4vention \u2013 Rehabilitation \u2013 Entsch\u00e4digung. Diese Reihenfolge spiegelt auch die Priorit\u00e4t wider: Zuerst Unf\u00e4lle verhindern, dann heilen, dann entsch\u00e4digen."
+            },
+            {
+                id: 59,
+                text: "Welche Aussage zur stabilen Seitenlage ist richtig?",
+                options: [
+                    "A) Sie wird bei Herzstillstand angewendet",
+                    "B) Nach der Seitenlage muss die Atmung nicht mehr kontrolliert werden",
+                    "C) Sie verhindert das Ersticken durch Erbrochenes bei Bewusstlosen",
+                    "D) Sie wird nur bei Kindern angewendet"
+                ],
+                correct: 2,
+                explanation: "Die stabile Seitenlage verhindert das Ersticken durch Erbrochenes oder die zur\u00fcckfallende Zunge bei bewusstlosen Personen mit vorhandener Atmung. Die Atmung muss danach regelm\u00e4\u00dfig kontrolliert werden."
+            },
+            {
+                id: 60,
+                text: "Welche Gesamtaussage zu Unfallverh\u00fctung und Erster Hilfe ist korrekt?",
+                options: [
+                    "A) Nur der Arbeitgeber hat Pflichten im Arbeitsschutz, der Arbeitnehmer nicht",
+                    "B) Die gesetzliche Unfallversicherung wird parit\u00e4tisch von AG und AN finanziert",
+                    "C) Arbeitgeber und Arbeitnehmer haben gemeinsam Verantwortung f\u00fcr Sicherheit; die BG finanziert sich allein durch AG-Beitr\u00e4ge; jede Erste-Hilfe-Leistung muss dokumentiert werden",
+                    "D) Erste Hilfe im Betrieb ist freiwillig und nicht gesetzlich geregelt"
+                ],
+                correct: 2,
+                explanation: "Sowohl AG als auch AN haben Pflichten im Arbeitsschutz. Die BG wird allein durch AG-Beitr\u00e4ge finanziert. Jede Erste-Hilfe-Leistung muss im Verbandbuch dokumentiert werden (\u00a7 24 DGUV V1)."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};      // { questionId: selectedIndex }
+let checked  = {};      // { questionId: true }  after checking
+let showAll  = false;
+let currentQ = 0;       // index into flat list (0-59)
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            // feedback
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    // Navigation (single mode)
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    // section breakdown
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+// Randomize the position of correct answers so they're not always B
+function shuffleQuizOptions() {
+    // Seeded pseudo-random for reproducible shuffle
+    let seed = 88;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    // Fisher-Yates shuffle with index tracking
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            // Remove "A) ", "B) ", "C) ", "D) " prefixes
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            // Shuffle
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            // Re-add prefixes and find new correct index
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>

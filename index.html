@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WiSo Kursmaterialien</title>
+<style>
+  :root {
+    --primary: #004b87;
+    --primary-dark: #003259;
+    --primary-light: #e8f0f8;
+    --accent: #0082b4;
+    --bg: #f5f7fa;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --radius: 12px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  header h1 { font-size: 1.3rem; font-weight: 700; }
+  header p { font-size: 0.85rem; opacity: 0.85; margin-top: 0.25rem; }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+
+  /* --- Breadcrumb Nav --- */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 0;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb .sep { color: var(--text-muted); }
+  .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+  /* --- Day/Prev/Next Nav --- */
+  .day-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+  }
+
+  .day-nav button {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--card-bg);
+    border: 1px solid #dde1e7;
+    border-radius: var(--radius);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .day-nav button:hover { background: var(--primary-light); border-color: var(--primary); }
+  .day-nav button:disabled { opacity: 0.35; cursor: default; background: var(--card-bg); border-color: #dde1e7; }
+  .day-nav .day-title { font-weight: 700; font-size: 1rem; text-align: center; flex: 1; min-width: 0; }
+
+  /* --- Grid --- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.2rem 1rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card:hover, .card:focus {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .card .icon { font-size: 2rem; }
+  .card .label { font-weight: 600; font-size: 0.9rem; line-height: 1.3; }
+  .card .sublabel { font-size: 0.75rem; color: var(--text-muted); }
+  .card.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+  /* --- Resource cards --- */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .resource-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .resource-card:hover {
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .resource-card.disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .resource-card .r-icon { font-size: 2.2rem; flex-shrink: 0; }
+  .resource-card .r-info { flex: 1; }
+  .resource-card .r-title { font-weight: 700; font-size: 1rem; }
+  .resource-card .r-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .resource-card .r-arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+  /* --- Content view --- */
+  .content-view { margin-top: 0.5rem; }
+
+  .content-view iframe {
+    width: 100%;
+    height: 80vh;
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: white;
+  }
+
+  .content-view video, .content-view audio {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    background: black;
+  }
+
+  .content-view video { max-height: 70vh; }
+
+  /* --- Footer --- */
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* --- Login Screen --- */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .login-box {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+
+  .login-box .login-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .login-box h2 { font-size: 1.3rem; margin-bottom: 0.3rem; color: var(--primary); }
+  .login-box p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+  .login-box input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid #dde1e7;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-box input:focus { border-color: var(--accent); }
+  .login-box input.shake {
+    animation: shake 0.4s;
+    border-color: #e74c3c;
+  }
+
+  .login-box button {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .login-box button:hover { background: var(--accent); }
+
+  .login-error {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    min-height: 1.2rem;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
+  /* --- Hidden --- */
+  .hidden { display: none !important; }
+
+  /* --- Responsive --- */
+  @media (max-width: 480px) {
+    header { padding: 1rem 0.75rem; }
+    header h1 { font-size: 1.1rem; }
+    .container { padding: 0.75rem; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.6rem; }
+    .card { padding: 1rem 0.75rem; }
+    .card .icon { font-size: 1.6rem; }
+    .day-nav button { padding: 0.5rem 0.7rem; font-size: 0.8rem; }
+  }
+
+  @media (min-width: 600px) {
+    .resource-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-box">
+    <div class="login-icon">&#128218;</div>
+    <h2>WiSo Dashboard</h2>
+    <p>Bitte Zugangscode eingeben</p>
+    <form id="login-form" onsubmit="return checkCode()">
+      <input type="password" id="code-input" placeholder="Zugangscode" autocomplete="off" autofocus>
+      <div class="login-error" id="login-error"></div>
+      <button type="submit">Zugang</button>
+    </form>
+  </div>
+</div>
+
+<header>
+  <h1>Wirtschafts- und Sozialkunde</h1>
+  <p>Kaufm&auml;nnische Berufe &mdash; Kursmaterialien</p>
+</header>
+
+<div class="container">
+  <div id="breadcrumb" class="breadcrumb"></div>
+
+  <!-- HOME VIEW: Tag-Auswahl -->
+  <div id="view-home">
+    <div class="grid" id="day-grid"></div>
+  </div>
+
+  <!-- DAY VIEW: Ressourcen eines Tages -->
+  <div id="view-day" class="hidden">
+    <div class="day-nav">
+      <button id="btn-prev" onclick="prevDay()">&#9664; Vorheriger</button>
+      <span class="day-title" id="day-title"></span>
+      <button id="btn-next" onclick="nextDay()">N&auml;chster &#9654;</button>
+    </div>
+    <div class="resource-grid" id="resource-grid"></div>
+  </div>
+
+  <!-- CONTENT VIEW: Quiz/Video/Podcast -->
+  <div id="view-content" class="hidden">
+    <div class="day-nav">
+      <button id="btn-prev2" onclick="prevDay()">&#9664; Vorheriger Tag</button>
+      <span class="day-title" id="content-day-title"></span>
+      <button id="btn-next2" onclick="nextDay()">N&auml;chster Tag &#9654;</button>
+    </div>
+    <div class="content-view" id="content-area"></div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 Can Siebert. Alle Rechte vorbehalten.
+</footer>
+
+<script>
+// --- Login ---
+function checkCode() {
+  var input = document.getElementById("code-input");
+  var val = input.value.trim();
+  if (val === "WisoComcave") {
+    sessionStorage.setItem("wiso_auth", "1");
+    document.getElementById("login-overlay").classList.add("hidden");
+    return false;
+  }
+  input.classList.add("shake");
+  document.getElementById("login-error").textContent = "Falscher Code. Bitte erneut versuchen.";
+  setTimeout(function() { input.classList.remove("shake"); }, 400);
+  input.value = "";
+  input.focus();
+  return false;
+}
+
+// Auto-login if already authenticated in this session
+if (sessionStorage.getItem("wiso_auth") === "1") {
+  document.getElementById("login-overlay").classList.add("hidden");
+}
+
+const DAYS = [
+  { nr: 1,  folder: "tag01", title: "Berufliche Bildung & Duales System",        date: "08.04.", quiz: true, video: true, podcast: true },
+  { nr: 2,  folder: "tag02", title: "Der Berufsausbildungsvertrag",               date: "09.04.", quiz: true, video: false, podcast: false },
+  { nr: 3,  folder: "tag03", title: "Arbeitsrechtliche Bestimmungen",             date: "10.04.", quiz: true, video: false, podcast: false },
+  { nr: 4,  folder: "tag04", title: "Sozialrecht und Tarifrecht",                 date: "13.04.", quiz: true, video: false, podcast: false },
+  { nr: 5,  folder: "tag05", title: "Jugendarbeitsschutzgesetz",                  date: "14.04.", quiz: true, video: false, podcast: false },
+  { nr: 6,  folder: "tag06", title: "Mitbestimmung & Betriebsverfassung",         date: "15.04.", quiz: true, video: false, podcast: false },
+  { nr: 7,  folder: "tag07", title: "Arbeitssicherheit & Gesundheitsschutz",      date: "16.04.", quiz: true, video: false, podcast: false },
+  { nr: 8,  folder: "tag08", title: "Unfallverh\u00fctung & Erste Hilfe",        date: "17.04.", quiz: true, video: false, podcast: false },
+  { nr: 9,  folder: "tag09", title: "Brandschutz",                                date: "20.04.", quiz: true, video: false, podcast: false },
+  { nr: 10, folder: "tag10", title: "Umweltschutz im Betrieb",                    date: "21.04.", quiz: false, video: false, podcast: false },
+  { nr: 11, folder: "tag11", title: "BWL Grundlagen & Produktionsfaktoren",       date: "22.04.", quiz: true, video: false, podcast: false },
+  { nr: 12, folder: "tag12", title: "Gesch\u00e4fts- und Leistungsprozesse",     date: "23.04.", quiz: true, video: false, podcast: false },
+  { nr: 13, folder: "tag13", title: "Klausur",                                    date: "24.04.", quiz: false, video: false, podcast: false }
+];
+
+let currentDay = null;
+let currentResource = null;
+
+function showHome() {
+  currentDay = null;
+  currentResource = null;
+  document.getElementById("view-home").classList.remove("hidden");
+  document.getElementById("view-day").classList.add("hidden");
+  document.getElementById("view-content").classList.add("hidden");
+  updateBreadcrumb();
+  window.scrollTo(0, 0);
+}
+
+function showDay(nr) {
+  const day = DAYS.find(d => d.nr === nr);
+  if (!day) return;
+  currentDay = day;
+  currentResource = null;
+
+  document.getElementById("view-home").classList.add("hidden");
+  document.getElementById("view-day").classList.remove("hidden");
+  document.getElementById("view-content").classList.add("hidden");
+
+  document.getElementById("day-title").textContent = "Tag " + day.nr + ": " + day.title;
+  document.getElementById("btn-prev").disabled = day.nr <= 1;
+  document.getElementById("btn-next").disabled = day.nr >= DAYS.length;
+
+  const grid = document.getElementById("resource-grid");
+  grid.innerHTML = "";
+
+  const resources = [
+    { type: "quiz",    icon: "\uD83D\uDCDD", title: "Quiz",    desc: "Interaktives Wissensquiz", available: day.quiz },
+    { type: "video",   icon: "\uD83C\uDFA5", title: "Video",   desc: "Erkl\u00e4rvideo zur Lektion",    available: day.video },
+    { type: "podcast", icon: "\uD83C\uDFA7", title: "Podcast", desc: "Audio-Zusammenfassung",     available: day.podcast }
+  ];
+
+  resources.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "resource-card" + (r.available ? "" : " disabled");
+    card.innerHTML =
+      '<span class="r-icon">' + r.icon + '</span>' +
+      '<div class="r-info"><div class="r-title">' + r.title + '</div>' +
+      '<div class="r-desc">' + (r.available ? r.desc : "Noch nicht verf\u00fcgbar") + '</div></div>' +
+      '<span class="r-arrow">' + (r.available ? "\u203A" : "") + '</span>';
+    if (r.available) card.onclick = function() { showContent(day.nr, r.type); };
+    grid.appendChild(card);
+  });
+
+  updateBreadcrumb();
+  window.scrollTo(0, 0);
+}
+
+function showContent(nr, type) {
+  const day = DAYS.find(d => d.nr === nr);
+  if (!day) return;
+  currentDay = day;
+  currentResource = type;
+
+  document.getElementById("view-home").classList.add("hidden");
+  document.getElementById("view-day").classList.add("hidden");
+  document.getElementById("view-content").classList.remove("hidden");
+
+  const titles = { quiz: "Quiz", video: "Video", podcast: "Podcast" };
+  document.getElementById("content-day-title").textContent = "Tag " + day.nr + " \u2013 " + titles[type];
+  document.getElementById("btn-prev2").disabled = day.nr <= 1;
+  document.getElementById("btn-next2").disabled = day.nr >= DAYS.length;
+
+  const area = document.getElementById("content-area");
+  area.innerHTML = "";
+
+  if (type === "quiz") {
+    const iframe = document.createElement("iframe");
+    iframe.src = day.folder + "/Quiz_Tag" + String(day.nr).padStart(2, "0") + ".html";
+    iframe.title = "Quiz Tag " + day.nr;
+    iframe.allow = "fullscreen";
+    area.appendChild(iframe);
+  } else if (type === "video") {
+    const video = document.createElement("video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.src = day.folder + "/video.mp4";
+    area.appendChild(video);
+  } else if (type === "podcast") {
+    const audio = document.createElement("audio");
+    audio.controls = true;
+    audio.preload = "metadata";
+    audio.style.width = "100%";
+    audio.style.marginTop = "1rem";
+    audio.src = day.folder + "/podcast.m4a";
+    area.appendChild(audio);
+  }
+
+  updateBreadcrumb();
+  window.scrollTo(0, 0);
+}
+
+function prevDay() {
+  if (!currentDay || currentDay.nr <= 1) return;
+  const prevNr = currentDay.nr - 1;
+  if (currentResource) {
+    const prevDayObj = DAYS.find(d => d.nr === prevNr);
+    if (prevDayObj && prevDayObj[currentResource]) {
+      showContent(prevNr, currentResource);
+    } else {
+      showDay(prevNr);
+    }
+  } else {
+    showDay(prevNr);
+  }
+}
+
+function nextDay() {
+  if (!currentDay || currentDay.nr >= DAYS.length) return;
+  const nextNr = currentDay.nr + 1;
+  if (currentResource) {
+    const nextDayObj = DAYS.find(d => d.nr === nextNr);
+    if (nextDayObj && nextDayObj[currentResource]) {
+      showContent(nextNr, currentResource);
+    } else {
+      showDay(nextNr);
+    }
+  } else {
+    showDay(nextNr);
+  }
+}
+
+function updateBreadcrumb() {
+  const bc = document.getElementById("breadcrumb");
+  let html = '<a onclick="showHome()">\uD83C\uDFE0 Start</a>';
+  if (currentDay) {
+    html += '<span class="sep">\u203A</span>';
+    if (currentResource) {
+      html += '<a onclick="showDay(' + currentDay.nr + ')">Tag ' + currentDay.nr + '</a>';
+      const titles = { quiz: "Quiz", video: "Video", podcast: "Podcast" };
+      html += '<span class="sep">\u203A</span><span class="current">' + titles[currentResource] + '</span>';
+    } else {
+      html += '<span class="current">Tag ' + currentDay.nr + ': ' + currentDay.title + '</span>';
+    }
+  }
+  bc.innerHTML = html;
+}
+
+// --- Build day grid ---
+function buildDayGrid() {
+  const grid = document.getElementById("day-grid");
+  DAYS.forEach(day => {
+    const hasContent = day.quiz || day.video || day.podcast;
+    const card = document.createElement("div");
+    card.className = "card" + (hasContent ? "" : " disabled");
+    const badges = [];
+    if (day.quiz) badges.push("\uD83D\uDCDD");
+    if (day.video) badges.push("\uD83C\uDFA5");
+    if (day.podcast) badges.push("\uD83C\uDFA7");
+    card.innerHTML =
+      '<span class="icon">\uD83D\uDCC5</span>' +
+      '<span class="label">Tag ' + day.nr + '</span>' +
+      '<span class="sublabel">' + day.date + '</span>' +
+      (badges.length ? '<span class="sublabel">' + badges.join(" ") + '</span>' : '<span class="sublabel" style="opacity:0.4">Kommt bald</span>');
+    if (hasContent) card.onclick = function() { showDay(day.nr); };
+    grid.appendChild(card);
+  });
+}
+
+// --- Handle browser back ---
+window.addEventListener("popstate", function(e) {
+  if (e.state) {
+    if (e.state.resource) showContent(e.state.day, e.state.resource);
+    else if (e.state.day) showDay(e.state.day);
+    else showHome();
+  } else {
+    showHome();
+  }
+});
+
+// Push state on navigation
+const origShowHome = showHome;
+showHome = function() { origShowHome(); history.pushState({}, "", "#"); };
+const origShowDay = showDay;
+showDay = function(nr) { origShowDay(nr); history.pushState({ day: nr }, "", "#tag" + nr); };
+const origShowContent = showContent;
+showContent = function(nr, type) { origShowContent(nr, type); history.pushState({ day: nr, resource: type }, "", "#tag" + nr + "-" + type); };
+
+// --- Init ---
+buildDayGrid();
+
+// Handle initial hash
+(function() {
+  const hash = location.hash;
+  const m = hash.match(/^#tag(\d+)(?:-(\w+))?$/);
+  if (m) {
+    const nr = parseInt(m[1]);
+    const type = m[2];
+    if (type) showContent(nr, type);
+    else showDay(nr);
+  }
+})();
+</script>
+
+</body>
+</html>
