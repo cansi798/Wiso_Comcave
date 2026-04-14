@@ -425,6 +425,14 @@
   <!-- HOME VIEW: Tag-Auswahl -->
   <div id="view-home">
     <div class="grid" id="day-grid"></div>
+
+    <!-- Pr&uuml;fungssimulationen -->
+    <div style="margin-top:2rem;">
+      <div style="background:var(--primary-dark);color:#fff;padding:0.75rem 1.2rem;border-radius:var(--radius) var(--radius) 0 0;font-weight:700;font-size:1.05rem;">
+        &#128221; Pr&uuml;fungssimulationen
+      </div>
+      <div class="grid" id="exam-grid" style="border:1px solid #dde1e7;border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:1rem;background:var(--card-bg);"></div>
+    </div>
   </div>
 
   <!-- DAY VIEW: Ressourcen eines Tages -->
@@ -487,6 +495,10 @@ const DAYS = [
   { nr: 11, folder: "tag11", title: "BWL Grundlagen Produktionsfaktoren",            date: "22.04.", quiz: true, video: false, podcast: false },
   { nr: 12, folder: "tag12", title: "Gesch\u00e4fts und Leistungsprozesse",         date: "23.04.", quiz: true, video: false, podcast: false },
   { nr: 13, folder: "tag13", title: "Klausur",                                       date: "24.04.", quiz: false, video: false, podcast: false }
+];
+
+const EXAMS = [
+  { id: 1, title: "Pr\u00fcfungssimulation 1", desc: "Tag 01\u201304 \u2013 60 Fragen, 60 Min., IHK-Schl\u00fcssel", file: "pruefungen/Pruefungssimulation_01.html" }
 ];
 
 let currentDay = null;
@@ -618,7 +630,9 @@ function nextDay() {
 function updateBreadcrumb() {
   const bc = document.getElementById("breadcrumb");
   let html = '<a onclick="showHome()">\uD83C\uDFE0 Start</a>';
-  if (currentDay) {
+  if (currentResource === "exam") {
+    html += '<span class="sep">\u203A</span><span class="current">Pr\u00fcfungssimulation</span>';
+  } else if (currentDay) {
     html += '<span class="sep">\u203A</span>';
     if (currentResource) {
       html += '<a onclick="showDay(' + currentDay.nr + ')">Tag ' + currentDay.nr + '</a>';
@@ -652,10 +666,54 @@ function buildDayGrid() {
   });
 }
 
+// --- Build exam grid ---
+function buildExamGrid() {
+  const grid = document.getElementById("exam-grid");
+  if (!grid) return;
+  EXAMS.forEach(exam => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML =
+      '<span class="icon">\uD83D\uDCCB</span>' +
+      '<span class="label">' + exam.title + '</span>' +
+      '<span class="sublabel">' + exam.desc + '</span>';
+    card.onclick = function() { showExam(exam.id); };
+    grid.appendChild(card);
+  });
+}
+
+function showExam(id) {
+  const exam = EXAMS.find(e => e.id === id);
+  if (!exam) return;
+  currentDay = null;
+  currentResource = "exam";
+
+  document.getElementById("view-home").classList.add("hidden");
+  document.getElementById("view-day").classList.add("hidden");
+  document.getElementById("view-content").classList.remove("hidden");
+
+  document.getElementById("content-day-title").textContent = exam.title;
+  document.getElementById("btn-prev2").disabled = true;
+  document.getElementById("btn-next2").disabled = true;
+
+  const area = document.getElementById("content-area");
+  area.innerHTML = "";
+  const iframe = document.createElement("iframe");
+  iframe.src = exam.file;
+  iframe.title = exam.title;
+  iframe.allow = "fullscreen";
+  area.appendChild(iframe);
+
+  updateBreadcrumb();
+  history.pushState({ exam: id }, "", "#pruefung" + id);
+  window.scrollTo(0, 0);
+}
+
 // --- Handle browser back ---
 window.addEventListener("popstate", function(e) {
   if (e.state) {
-    if (e.state.resource) showContent(e.state.day, e.state.resource);
+    if (e.state.exam) showExam(e.state.exam);
+    else if (e.state.resource) showContent(e.state.day, e.state.resource);
     else if (e.state.day) showDay(e.state.day);
     else showHome();
   } else {
@@ -673,10 +731,16 @@ showContent = function(nr, type) { origShowContent(nr, type); history.pushState(
 
 // --- Init ---
 buildDayGrid();
+buildExamGrid();
 
 // Handle initial hash
 (function() {
   const hash = location.hash;
+  const mExam = hash.match(/^#pruefung(\d+)$/);
+  if (mExam) {
+    showExam(parseInt(mExam[1]));
+    return;
+  }
   const m = hash.match(/^#tag(\d+)(?:-(\w+))?$/);
   if (m) {
     const nr = parseInt(m[1]);

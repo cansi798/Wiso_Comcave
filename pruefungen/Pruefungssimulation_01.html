@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pr&uuml;fungssimulation &ndash; Tag 01&ndash;04 | WiSo</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .header h1 { font-size: clamp(1.3rem, 3vw, 1.9rem); margin-bottom: 0.3rem; }
+        .header .subtitle { font-size: clamp(0.85rem, 2vw, 1.05rem); opacity: 0.9; }
+        .header .meta {
+            margin-top: 0.8rem; font-size: 0.85rem; opacity: 0.8;
+            display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;
+        }
+        /* TIMER */
+        .timer-bar {
+            max-width: 960px; margin: 1rem auto 0; padding: 0 1rem;
+            display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .timer-display {
+            font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums;
+            color: #0f3460; min-width: 100px; text-align: center;
+        }
+        .timer-display.warning { color: #e67e22; }
+        .timer-display.critical { color: #dc3545; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .timer-progress { flex: 1; height: 10px; background: #dce3ea; border-radius: 5px; overflow: hidden; min-width: 120px; }
+        .timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, #0f3460, #3a86ff); border-radius: 5px; transition: width 1s linear; }
+        .timer-fill.warning { background: linear-gradient(90deg, #e67e22, #f39c12); }
+        .timer-fill.critical { background: linear-gradient(90deg, #dc3545, #ff6b6b); }
+        .timer-btn {
+            background: #0f3460; color: #fff; border: none; padding: 0.45rem 1rem;
+            border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s;
+        }
+        .timer-btn:hover { background: #1a1a2e; }
+        /* TOOLBAR */
+        .toolbar {
+            max-width: 960px; margin: 1rem auto 0; padding: 0 1rem;
+            display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; justify-content: space-between;
+        }
+        .toolbar button {
+            background: #0f3460; color: #fff; border: none; padding: 0.5rem 1.1rem;
+            border-radius: 6px; cursor: pointer; font-size: 0.88rem; transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #1a1a2e; }
+        .toggle-label {
+            display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; cursor: pointer; user-select: none;
+        }
+        .toggle-label input { accent-color: #0f3460; width: 18px; height: 18px; cursor: pointer; }
+        /* PROGRESS */
+        .progress-container { max-width: 960px; margin: 1rem auto 0; padding: 0 1rem; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; color: #555; margin-bottom: 0.3rem; }
+        .progress-bar { width: 100%; height: 12px; background: #dce3ea; border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0f3460, #3a86ff); border-radius: 6px; transition: width 0.4s ease; }
+        /* CONTAINER */
+        .container { max-width: 960px; margin: 1.5rem auto 2rem; padding: 0 1rem; }
+        /* SECTION HEADER */
+        .section-title {
+            background: #1a1a2e; color: #fff; padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0; font-size: 1.05rem; margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* QUESTION CARD */
+        .question-card {
+            background: #fff; border: 1px solid #dce3ea; border-radius: 0 0 8px 8px;
+            margin-bottom: 1.25rem; padding: 1.4rem; box-shadow: 0 2px 6px rgba(0,0,0,0.06); transition: box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block; background: #e8f0fe; color: #0f3460; font-weight: 700;
+            padding: 0.2rem 0.7rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 0.6rem;
+        }
+        .question-text { font-size: 1rem; font-weight: 600; margin-bottom: 0.6rem; line-height: 1.5; }
+        /* GESETZESTEXT BOX */
+        .gesetz-box {
+            background: #f8f9fb; border-left: 4px solid #0f3460; padding: 0.8rem 1rem;
+            margin-bottom: 1rem; border-radius: 0 6px 6px 0; font-size: 0.92rem; line-height: 1.6;
+        }
+        .gesetz-box .gesetz-label {
+            font-weight: 700; color: #0f3460; display: block; margin-bottom: 0.3rem; font-size: 0.88rem;
+        }
+        .gesetz-box em { font-style: italic; color: #333; }
+        /* OPTIONS */
+        .options-list { list-style: none; }
+        .options-list li { margin-bottom: 0.45rem; }
+        .options-list label {
+            display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.85rem;
+            border: 2px solid #dce3ea; border-radius: 6px; cursor: pointer;
+            transition: background 0.15s, border-color 0.15s; font-size: 0.93rem;
+        }
+        .options-list label:hover { background: #f0f7ff; border-color: #a0c4e8; }
+        .options-list input[type="radio"] { accent-color: #0f3460; margin-top: 3px; flex-shrink: 0; }
+        .options-list label.selected { background: #e8f0fe; border-color: #0f3460; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; }
+        /* BUTTON & FEEDBACK */
+        .check-btn {
+            margin-top: 0.7rem; background: #0f3460; color: #fff; border: none;
+            padding: 0.5rem 1.3rem; border-radius: 6px; cursor: pointer; font-size: 0.88rem; transition: background 0.2s;
+        }
+        .check-btn:hover { background: #1a1a2e; }
+        .check-btn:disabled { background: #8faec8; cursor: default; }
+        .feedback { margin-top: 0.7rem; padding: 0.7rem 1rem; border-radius: 6px; font-size: 0.88rem; display: none; }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .feedback.incorrect { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        /* NAVIGATION */
+        .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+        .nav-btn {
+            background: #0f3460; color: #fff; border: none; padding: 0.5rem 1.3rem;
+            border-radius: 6px; cursor: pointer; font-size: 0.88rem; transition: background 0.2s;
+        }
+        .nav-btn:hover { background: #1a1a2e; }
+        .nav-btn:disabled { background: #8faec8; cursor: default; }
+        /* RESULTS */
+        .results-panel {
+            background: #fff; border: 2px solid #0f3460; border-radius: 10px;
+            padding: 2rem; text-align: center; margin-top: 2rem; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #1a1a2e; margin-bottom: 0.8rem; }
+        .score-big { font-size: 3rem; font-weight: 700; color: #0f3460; }
+        .grade { font-size: 1.4rem; margin: 0.5rem 0 1rem; font-weight: 600; }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown { text-align: left; max-width: 650px; margin: 1rem auto; }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #dce3ea; font-size: 0.88rem; }
+        .section-breakdown th { background: #e8f0fe; color: #1a1a2e; text-align: left; }
+        .ihk-scale { text-align: left; max-width: 400px; margin: 1.5rem auto 0; }
+        .ihk-scale h3 { font-size: 1rem; color: #1a1a2e; margin-bottom: 0.5rem; }
+        .ihk-scale table { width: 100%; border-collapse: collapse; }
+        .ihk-scale td { padding: 0.3rem 0.5rem; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+        .ihk-scale tr.active-grade { background: #e8f0fe; font-weight: 700; }
+        /* REFERENCES */
+        .references { max-width: 960px; margin: 2rem auto 3rem; padding: 1.5rem; background: #fff; border-radius: 8px; border: 1px solid #dce3ea; }
+        .references h3 { color: #1a1a2e; margin-bottom: 0.8rem; font-size: 1.05rem; }
+        .references p { font-size: 0.85rem; color: #333; margin-bottom: 0.4rem; padding-left: 2rem; text-indent: -2rem; line-height: 1.5; }
+        /* FOOTER */
+        .footer { text-align: center; padding: 1.5rem 1rem; font-size: 0.8rem; color: #777; border-top: 1px solid #dce3ea; }
+        /* OVERLAY */
+        .time-up-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .time-up-overlay.show { display: flex; }
+        .time-up-box {
+            background: #fff; border-radius: 12px; padding: 2.5rem; text-align: center; max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .time-up-box h2 { color: #dc3545; margin-bottom: 0.5rem; font-size: 1.6rem; }
+        .time-up-box p { color: #555; margin-bottom: 1.2rem; }
+        /* PRINT */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel, .timer-bar, .time-up-overlay { display: none !important; }
+            .header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+            .timer-bar { flex-direction: column; }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <h1>Pr&uuml;fungssimulation &ndash; Wirtschafts- und Sozialkunde</h1>
+    <div class="subtitle">Tag 01&ndash;04 | Gesetzestextbasierte Aufgaben</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; 60 Minuten</span>
+    </div>
+</header>
+
+<!-- TIMER -->
+<div class="timer-bar">
+    <div class="timer-display" id="timerDisplay">60:00</div>
+    <div class="timer-progress"><div class="timer-fill" id="timerFill"></div></div>
+    <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Timer starten</button>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- QUIZ BODY -->
+<div class="container" id="quizContainer"></div>
+
+<!-- RESULTS -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <div class="ihk-scale" id="ihkScale"></div>
+        <div style="margin-top:1.2rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+            <button class="nav-btn" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+            <button class="nav-btn" onclick="reviewWrong()">Falsche Fragen ansehen</button>
+        </div>
+    </div>
+</div>
+
+<!-- TIME-UP OVERLAY -->
+<div class="time-up-overlay" id="timeUpOverlay">
+    <div class="time-up-box">
+        <h2>Zeit abgelaufen!</h2>
+        <p>Die 60 Minuten sind vorbei. Dein Ergebnis wird jetzt ausgewertet.</p>
+        <button class="nav-btn" onclick="closeOverlayAndShowResults()">Ergebnis anzeigen</button>
+    </div>
+</div>
+
+<!-- REFERENCES -->
+<div class="references">
+    <h3>Rechtsquellenverzeichnis</h3>
+    <p>Berufsbildungsgesetz (BBiG) i.d.F. vom 04.05.2020, zuletzt ge&auml;ndert durch BVaDiG 2024.</p>
+    <p>B&uuml;rgerliches Gesetzbuch (BGB) i.d.F. vom 02.01.2002, zuletzt ge&auml;ndert 2024.</p>
+    <p>K&uuml;ndigungsschutzgesetz (KSchG) vom 25.08.1969, zuletzt ge&auml;ndert 2024.</p>
+    <p>Arbeitszeitgesetz (ArbZG) vom 06.06.1994, zuletzt ge&auml;ndert 2024.</p>
+    <p>Bundesurlaubsgesetz (BUrlG) vom 08.01.1963, zuletzt ge&auml;ndert 2024.</p>
+    <p>Mutterschutzgesetz (MuSchG) vom 23.05.2017, zuletzt ge&auml;ndert 2024.</p>
+    <p>Entgeltfortzahlungsgesetz (EntgFG) vom 26.05.1994, zuletzt ge&auml;ndert 2024.</p>
+    <p>Tarifvertragsgesetz (TVG) vom 09.04.1949, zuletzt ge&auml;ndert 2024.</p>
+    <p>Sozialgesetzbuch III, V, VI, VII, XI in der jeweils aktuellen Fassung.</p>
+    <p>Grundgesetz (GG) f&uuml;r die Bundesrepublik Deutschland vom 23.05.1949.</p>
+</div>
+
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<script>
+// ===================== TIMER =====================
+const TOTAL_SECONDS = 60 * 60;
+let secondsLeft = TOTAL_SECONDS;
+let timerInterval = null;
+let timerRunning = false;
+
+function toggleTimer() {
+    if (timerRunning) { pauseTimer(); } else { startTimer(); }
+}
+function startTimer() {
+    timerRunning = true;
+    document.getElementById('timerBtn').textContent = 'Pause';
+    timerInterval = setInterval(() => {
+        secondsLeft--;
+        updateTimerDisplay();
+        if (secondsLeft <= 0) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerBtn').textContent = 'Abgelaufen';
+            document.getElementById('timerBtn').disabled = true;
+            document.getElementById('timeUpOverlay').classList.add('show');
+        }
+    }, 1000);
+}
+function pauseTimer() {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timerBtn').textContent = 'Fortsetzen';
+}
+function updateTimerDisplay() {
+    const m = Math.floor(secondsLeft / 60);
+    const s = secondsLeft % 60;
+    const el = document.getElementById('timerDisplay');
+    const fill = document.getElementById('timerFill');
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const pct = (secondsLeft / TOTAL_SECONDS) * 100;
+    fill.style.width = pct + '%';
+    el.className = 'timer-display' + (pct <= 10 ? ' critical' : pct <= 25 ? ' warning' : '');
+    fill.className = 'timer-fill' + (pct <= 10 ? ' critical' : pct <= 25 ? ' warning' : '');
+}
+function closeOverlayAndShowResults() {
+    document.getElementById('timeUpOverlay').classList.remove('show');
+    // auto-check all unanswered
+    flatQ.forEach(q => { if (answered[q.id] !== undefined && !checked[q.id]) checked[q.id] = true; });
+    showResults();
+}
+
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Teil A: Berufliche Bildung im dualen System (Fragen 1\u201315)",
+        questions: [
+            {
+                id: 1,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 1 Abs. 1 BBiG: \u201eBerufsbildung im Sinne dieses Gesetzes sind die Berufsausbildungsvorbereitung, die Berufsausbildung, die berufliche Fortbildung und die berufliche Umschulung.\u201c",
+                question: "Wie viele Bereiche umfasst die Berufsbildung nach \u00a7 1 BBiG?",
+                options: ["A) Zwei: Ausbildung und Fortbildung","B) Drei: Ausbildung, Fortbildung und Umschulung","C) Vier: Vorbereitung, Ausbildung, Fortbildung und Umschulung","D) F\u00fcnf: Vorbereitung, Ausbildung, Fortbildung, Umschulung und Studium"],
+                correct: 2,
+                explanation: "Der Gesetzestext z\u00e4hlt vier Bereiche auf: Berufsausbildungsvorbereitung, Berufsausbildung, berufliche Fortbildung und berufliche Umschulung."
+            },
+            {
+                id: 2,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 1 Abs. 3 BBiG: \u201eDie Berufsausbildung hat die f\u00fcr die Aus\u00fcbung einer qualifizierten beruflichen T\u00e4tigkeit in einer sich wandelnden Arbeitswelt notwendigen beruflichen Fertigkeiten, Kenntnisse und F\u00e4higkeiten (berufliche Handlungsf\u00e4higkeit) in einem geordneten Ausbildungsgang zu vermitteln. Sie hat ferner den Erwerb der erforderlichen Berufserfahrungen zu erm\u00f6glichen.\u201c",
+                question: "Was ist laut Gesetzestext das Ziel der Berufsausbildung?",
+                options: ["A) Die Vermittlung ausschlie\u00dflich theoretischer Kenntnisse","B) Die Vermittlung beruflicher Handlungsf\u00e4higkeit in einem geordneten Ausbildungsgang","C) Die Vorbereitung auf ein Hochschulstudium","D) Die Erteilung eines Schulabschlusses"],
+                correct: 1,
+                explanation: "Gem\u00e4\u00df \u00a7 1 Abs. 3 BBiG ist das Ziel die Vermittlung der beruflichen Handlungsf\u00e4higkeit (Fertigkeiten, Kenntnisse und F\u00e4higkeiten) in einem geordneten Ausbildungsgang."
+            },
+            {
+                id: 3,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 5 Abs. 1 BBiG: \u201eDas zust\u00e4ndige Bundesministerium kann im Einvernehmen mit dem Bundesministerium f\u00fcr Bildung und Forschung durch Rechtsverordnung [\u2026] Ausbildungsberufe staatlich anerkennen und hierf\u00fcr Ausbildungsordnungen erlassen. Die Ausbildungsordnung hat festzulegen: 1. die Bezeichnung des Ausbildungsberufes, 2. die Ausbildungsdauer, 3. die beruflichen Fertigkeiten, Kenntnisse und F\u00e4higkeiten, die mindestens Gegenstand der Berufsausbildung sind (Ausbildungsberufsbild), 4. eine Anleitung zur sachlichen und zeitlichen Gliederung (Ausbildungsrahmenplan), 5. die Pr\u00fcfungsanforderungen.\u201c",
+                question: "Welcher der folgenden Punkte geh\u00f6rt NICHT zu den f\u00fcnf Mindestinhalten der Ausbildungsordnung nach \u00a7 5 BBiG?",
+                options: ["A) Die Bezeichnung des Ausbildungsberufes","B) Der Ausbildungsrahmenplan","C) Die H\u00f6he der Ausbildungsverg\u00fctung","D) Die Pr\u00fcfungsanforderungen"],
+                correct: 2,
+                explanation: "Die f\u00fcnf Mindestinhalte sind: Bezeichnung, Dauer, Berufsbild, Rahmenplan und Pr\u00fcfungsanforderungen. Die Verg\u00fctung ist NICHT Bestandteil der Ausbildungsordnung."
+            },
+            {
+                id: 4,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 27 Abs. 1 BBiG: \u201eAuszubildende d\u00fcrfen nur eingestellt und ausgebildet werden, wenn die Ausbildungsst\u00e4tte nach Art und Einrichtung f\u00fcr die Berufsausbildung geeignet ist und die Zahl der Auszubildenden in einem angemessenen Verh\u00e4ltnis zur Zahl der Ausbildungspl\u00e4tze oder zur Zahl der besch\u00e4ftigten Fachkr\u00e4fte steht [\u2026].\u201c",
+                question: "Welche Voraussetzung muss ein Betrieb laut \u00a7 27 BBiG erf\u00fcllen?",
+                options: ["A) Der Betrieb muss mindestens 50 Mitarbeiter haben","B) Der Betrieb muss nach Art und Einrichtung f\u00fcr die Ausbildung geeignet sein","C) Der Betrieb muss einen Tarifvertrag anwenden","D) Der Betrieb muss ein Handwerksbetrieb sein"],
+                correct: 1,
+                explanation: "Laut Gesetzestext muss die Ausbildungsst\u00e4tte nach Art und Einrichtung geeignet sein und ein angemessenes Verh\u00e4ltnis zwischen Auszubildenden und Fachkr\u00e4ften bestehen."
+            },
+            {
+                id: 5,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7\u00a7 28\u201330 BBiG (zusammengefasst): Wer Auszubildende einstellt oder ausbildet, muss pers\u00f6nlich und fachlich geeignet sein. Pers\u00f6nlich nicht geeignet ist insbesondere, wer Kinder und Jugendliche nicht besch\u00e4ftigen darf oder wiederholt oder schwer gegen dieses Gesetz versto\u00dfen hat. Fachlich geeignet ist, wer die beruflichen sowie die berufs- und arbeitsp\u00e4dagogischen Fertigkeiten, Kenntnisse und F\u00e4higkeiten besitzt, die f\u00fcr die Vermittlung der Ausbildungsinhalte erforderlich sind.",
+                question: "Welche drei Eignungsvoraussetzungen muss ein Ausbilder nach dem BBiG erf\u00fcllen?",
+                options: ["A) Pers\u00f6nliche, fachliche und finanzielle Eignung","B) Pers\u00f6nliche, fachliche und p\u00e4dagogische Eignung","C) Fachliche, sprachliche und gesundheitliche Eignung","D) Pers\u00f6nliche, akademische und soziale Eignung"],
+                correct: 1,
+                explanation: "Aus dem Gesetzestext ergeben sich drei Eignungen: pers\u00f6nliche Eignung, fachliche Eignung (berufliche Qualifikation) und berufs- und arbeitsp\u00e4dagogische Eignung (nachgewiesen z. B. durch AEVO)."
+            },
+            {
+                id: 6,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 43 Abs. 1 BBiG: \u201eZur Abschlusspr\u00fcfung ist zuzulassen, 1. wer die Ausbildungsdauer zur\u00fcckgelegt hat oder wessen Ausbildungsdauer nicht sp\u00e4ter als zwei Monate nach dem Pr\u00fcfungstermin endet, 2. wer an vorgeschriebenen Zwischenpr\u00fcfungen teilgenommen sowie einen vom Ausbilder und Auszubildenden unterzeichneten Ausbildungsnachweis vorgelegt hat und 3. wessen Berufsausbildungsverh\u00e4ltnis in das Verzeichnis der Berufsausbildungsverh\u00e4ltnisse eingetragen [\u2026] ist.\u201c",
+                question: "Welche der folgenden Voraussetzungen wird im Gesetzestext NICHT als Zulassungsvoraussetzung zur Abschlusspr\u00fcfung genannt?",
+                options: ["A) Teilnahme an der Zwischenpr\u00fcfung","B) Vorlage des Ausbildungsnachweises (Berichtsheft)","C) Bestehen der Zwischenpr\u00fcfung mit mindestens \u201eausreichend\u201c","D) Eintragung des Ausbildungsverh\u00e4ltnisses in das Verzeichnis"],
+                correct: 2,
+                explanation: "Der Text fordert die Teilnahme an der Zwischenpr\u00fcfung \u2013 nicht deren Bestehen. Auch der Ausbildungsnachweis und die Eintragung sind Voraussetzungen."
+            },
+            {
+                id: 7,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 14 Abs. 1 BBiG (Auszug): \u201eAusbildende haben 1. daf\u00fcr zu sorgen, dass den Auszubildenden die berufliche Handlungsf\u00e4higkeit vermittelt wird [\u2026], 2. selbst auszubilden oder einen Ausbilder oder eine Ausbilderin ausdr\u00fccklich damit zu beauftragen, 3. Auszubildenden kostenlos die Ausbildungsmittel [\u2026] zur Verf\u00fcgung zu stellen, 4. Auszubildende zum F\u00fchren der Ausbildungsnachweise anzuhalten und diese regelm\u00e4\u00dfig durchzusehen.\u201c",
+                question: "Wer tr\u00e4gt laut \u00a7 14 Abs. 1 Nr. 3 BBiG die Kosten f\u00fcr die Ausbildungsmittel?",
+                options: ["A) Der Auszubildende","B) Die Berufsschule","C) Der Ausbildende (kostenlos f\u00fcr den Azubi)","D) Die IHK"],
+                correct: 2,
+                explanation: "Der Gesetzestext sagt eindeutig: Der Ausbildende hat dem Auszubildenden die Ausbildungsmittel \u201ekostenlos\u201c zur Verf\u00fcgung zu stellen."
+            },
+            {
+                id: 8,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 39 Abs. 1\u20132 BBiG (Auszug): \u201eF\u00fcr die Durchf\u00fchrung der Abschlusspr\u00fcfung errichtet die zust\u00e4ndige Stelle Pr\u00fcfungsaussch\u00fcsse. Der Pr\u00fcfungsausschuss besteht aus mindestens drei Mitgliedern. Die Mitglieder m\u00fcssen f\u00fcr die Pr\u00fcfungsgebiete sachkundig und f\u00fcr die Mitwirkung im Pr\u00fcfungswesen geeignet sein. Dem Pr\u00fcfungsausschuss m\u00fcssen als Mitglieder Beauftragte der Arbeitgeber und der Arbeitnehmer in gleicher Zahl [\u2026] sowie mindestens eine Lehrkraft einer berufsbildenden Schule angeh\u00f6ren.\u201c",
+                question: "Wie ist der Pr\u00fcfungsausschuss laut \u00a7 39 BBiG zusammengesetzt?",
+                options: ["A) Ausschlie\u00dflich aus IHK-Mitarbeitern","B) Parit\u00e4tisch aus Arbeitgeber- und Arbeitnehmervertretern plus mindestens einer Lehrkraft","C) Nur aus Berufsschullehrern","D) Aus Vertretern des Kultusministeriums"],
+                correct: 1,
+                explanation: "Der Text verlangt Arbeitgeber- und Arbeitnehmerbeauftragte in gleicher Zahl sowie mindestens eine Lehrkraft einer berufsbildenden Schule."
+            },
+            {
+                id: 9,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 34 Abs. 1 BBiG: \u201eDie zust\u00e4ndige Stelle hat ein Verzeichnis der in ihrem Bezirk bestehenden Berufsausbildungsverh\u00e4ltnisse einzurichten und zu f\u00fchren [\u2026]. Die Eintragung ist f\u00fcr den Auszubildenden gebührenfrei.\u201c",
+                question: "Wer f\u00fchrt das Verzeichnis der Berufsausbildungsverh\u00e4ltnisse und wer tr\u00e4gt die Kosten?",
+                options: ["A) Der Betrieb f\u00fchrt es, die IHK bezahlt","B) Die zust\u00e4ndige Stelle (z. B. IHK) f\u00fchrt es; die Eintragung ist f\u00fcr den Azubi geb\u00fchrenfrei","C) Das Arbeitsamt f\u00fchrt es; der Betrieb zahlt","D) Die Berufsschule f\u00fchrt es"],
+                correct: 1,
+                explanation: "Laut \u00a7 34 BBiG f\u00fchrt die zust\u00e4ndige Stelle (z. B. IHK oder HWK) das Verzeichnis. Die Eintragung ist f\u00fcr den Auszubildenden geb\u00fchrenfrei."
+            },
+            {
+                id: 10,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 53 BBiG (Auszug): \u201eAls Fortbildungsstufen werden festgelegt: 1. die erste Fortbildungsstufe: Gepr\u00fcfte/r Berufsspezialist/in, 2. die zweite Fortbildungsstufe: Bachelor Professional, 3. die dritte Fortbildungsstufe: Master Professional.\u201c",
+                question: "Welche drei Fortbildungsstufen kennt das BBiG seit der Reform 2020?",
+                options: ["A) Facharbeiter, Meister, Techniker","B) Berufsspezialist, Bachelor Professional, Master Professional","C) Geselle, Meister, Diplom","D) Assistent, Fachwirt, Betriebswirt"],
+                correct: 1,
+                explanation: "Der Gesetzestext nennt die drei Stufen: Gepr\u00fcfte/r Berufsspezialist/in, Bachelor Professional und Master Professional."
+            },
+            {
+                id: 11,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 17 Abs. 1 BBiG: \u201eAusbildende haben Auszubildenden eine angemessene Verg\u00fctung zu gew\u00e4hren. Sie ist nach dem Lebensalter des Auszubildenden so zu bemessen, dass sie mit fortschreitender Berufsausbildung, mindestens j\u00e4hrlich, ansteigt.\u201c",
+                question: "Was fordert der Gesetzestext \u00fcber die Entwicklung der Ausbildungsverg\u00fctung?",
+                options: ["A) Sie darf w\u00e4hrend der Ausbildung nicht ver\u00e4ndert werden","B) Sie muss mindestens j\u00e4hrlich ansteigen","C) Sie darf nur bei guter Leistung erh\u00f6ht werden","D) Sie wird einmalig am Ende der Ausbildung gezahlt"],
+                correct: 1,
+                explanation: "Der Gesetzestext sagt eindeutig, dass die Verg\u00fctung \u201emit fortschreitender Berufsausbildung, mindestens j\u00e4hrlich, ansteigt\u201c."
+            },
+            {
+                id: 12,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 45 Abs. 2 BBiG: \u201eZur Abschlusspr\u00fcfung ist ferner zuzulassen, wer in einem Beruf ausgebildet worden ist und nachweist, dass er mindestens das Eineinhalbfache der Zeit, die als Ausbildungsdauer vorgeschrieben ist, in dem Beruf t\u00e4tig gewesen ist [\u2026].\u201c",
+                question: "Ein Ausbildungsberuf hat eine Regelausbildungsdauer von 3 Jahren. Wie viele Jahre Berufserfahrung muss eine externe Person mindestens nachweisen, um zur Pr\u00fcfung zugelassen zu werden?",
+                options: ["A) 3 Jahre","B) 4 Jahre","C) 4,5 Jahre","D) 6 Jahre"],
+                correct: 2,
+                explanation: "Das Eineinhalbfache von 3 Jahren = 4,5 Jahre. Wer also mindestens 4,5 Jahre Berufserfahrung hat, kann ohne Ausbildungsvertrag zur Externenpr\u00fcfung zugelassen werden."
+            },
+            {
+                id: 13,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 48 BBiG (Auszug): \u201eW\u00e4hrend der Berufsausbildung ist zur Ermittlung des Ausbildungsstandes eine Zwischenpr\u00fcfung [\u2026] durchzuf\u00fchren [\u2026]. Das Ergebnis der Zwischenpr\u00fcfung hat keine Auswirkungen auf die Fortsetzung des Berufsausbildungsverh\u00e4ltnisses.\u201c",
+                question: "Welche Aussage zum Ergebnis der Zwischenpr\u00fcfung l\u00e4sst sich dem Text entnehmen?",
+                options: ["A) Wer die Zwischenpr\u00fcfung nicht besteht, muss die Ausbildung abbrechen","B) Das Ergebnis flie\u00dft in die Abschlussnote ein","C) Das Ergebnis hat keine Auswirkungen auf die Fortsetzung der Ausbildung","D) Die Zwischenpr\u00fcfung kann die Ausbildungszeit verk\u00fcrzen"],
+                correct: 2,
+                explanation: "Der Text sagt ausdr\u00fccklich: \u201eDas Ergebnis der Zwischenpr\u00fcfung hat keine Auswirkungen auf die Fortsetzung des Berufsausbildungsverh\u00e4ltnisses.\u201c"
+            },
+            {
+                id: 14,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 16 BBiG: \u201eAusbildende haben den Auszubildenden bei Beendigung des Berufsausbildungsverh\u00e4ltnisses ein schriftliches Zeugnis auszustellen. [\u2026] Auf Verlangen Auszubildender sind auch Angaben \u00fcber Verhalten und Leistung in das Zeugnis aufzunehmen.\u201c",
+                question: "Unter welcher Bedingung enth\u00e4lt das Zeugnis auch Angaben \u00fcber Verhalten und Leistung?",
+                options: ["A) Immer automatisch","B) Nur wenn der Ausbilder es f\u00fcr n\u00f6tig h\u00e4lt","C) Auf Verlangen des Auszubildenden","D) Nur bei besonders guter Leistung"],
+                correct: 2,
+                explanation: "Der Gesetzestext sagt: \u201eAuf Verlangen Auszubildender\u201c \u2013 das qualifizierte Zeugnis mit Leistung und Verhalten wird also nur auf Wunsch des Azubis ausgestellt."
+            },
+            {
+                id: 15,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 21 Abs. 3 BBiG: \u201eBesteht der Auszubildende die Abschlusspr\u00fcfung nicht, so verl\u00e4ngert sich das Berufsausbildungsverh\u00e4ltnis auf sein Verlangen bis zur n\u00e4chstm\u00f6glichen Wiederholungspr\u00fcfung, h\u00f6chstens um ein Jahr.\u201c",
+                question: "Was passiert laut Gesetzestext, wenn ein Auszubildender die Abschlusspr\u00fcfung nicht besteht?",
+                options: ["A) Die Ausbildung endet sofort","B) Der Ausbildungsvertrag wird automatisch um zwei Jahre verl\u00e4ngert","C) Auf Verlangen des Auszubildenden verl\u00e4ngert sich die Ausbildung bis zur n\u00e4chsten Wiederholungspr\u00fcfung, maximal um ein Jahr","D) Der Betrieb entscheidet, ob die Ausbildung fortgesetzt wird"],
+                correct: 2,
+                explanation: "Laut \u00a7 21 Abs. 3 BBiG kann der Auszubildende verlangen, dass sich die Ausbildung verl\u00e4ngert \u2013 maximal um ein Jahr bis zur n\u00e4chsten Wiederholungspr\u00fcfung."
+            }
+        ]
+    },
+    {
+        title: "Teil B: Berufsausbildungsvertrag (Fragen 16\u201330)",
+        questions: [
+            {
+                id: 16,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 11 Abs. 1 BBiG (Auszug, seit BVaDiG 2024): \u201eDer wesentliche Inhalt des Vertrages ist unverz\u00fcglich nach Abschluss des Berufsausbildungsvertrages [\u2026] in Textform niederzulegen. Die Niederschrift muss mindestens Angaben enthalten \u00fcber: 1. Namen und Anschriften der Vertragsparteien [\u2026], 2. Art, sachliche und zeitliche Gliederung sowie Ziel der Berufsausbildung [\u2026], 3. Beginn und Dauer der Berufsausbildung, 4. Ausbildungsma\u00dfnahmen au\u00dferhalb der Ausbildungsst\u00e4tte, 5. Dauer der regelm\u00e4\u00dfigen t\u00e4glichen Ausbildungszeit, 6. Dauer der Probezeit, 7. Zahlung und H\u00f6he der Verg\u00fctung [\u2026], 8. Regelung der \u00dcberstunden, 9. Dauer des Urlaubs, 10. Voraussetzungen, unter denen der Vertrag gek\u00fcndigt werden kann, 11. ein in allgemeiner Form gehaltener Hinweis auf Tarifvertr\u00e4ge [\u2026], 12. die Form des Ausbildungsnachweises.\u201c",
+                question: "Wie viele Mindestinhalte muss die Vertragsniederschrift seit der Reform durch das BVaDiG 2024 enthalten?",
+                options: ["A) 8 Mindestinhalte","B) 10 Mindestinhalte","C) 12 Mindestinhalte","D) 14 Mindestinhalte"],
+                correct: 2,
+                explanation: "Der Gesetzestext z\u00e4hlt 12 Punkte auf (Nr. 1\u201312). Seit dem BVaDiG 2024 sind u. a. die \u201eRegelung der \u00dcberstunden\u201c (Nr. 8) hinzugekommen."
+            },
+            {
+                id: 17,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 11 BBiG (seit BVaDiG 2024): \u201eDer wesentliche Inhalt des Vertrages ist [\u2026] in Textform niederzulegen.\u201c\n\nVorherige Fassung: \u201e[\u2026] schriftlich niederzulegen. Eine elektronische Form ist ausgeschlossen.\u201c",
+                question: "Welche Form\u00e4nderung hat das BVaDiG 2024 bei der Vertragsabfassung eingef\u00fchrt?",
+                options: ["A) Statt m\u00fcndlicher Form ist nun Schriftform erforderlich","B) Statt Schriftform gen\u00fcgt nun Textform (z. B. E-Mail)","C) Die elektronische Form ist weiterhin ausgeschlossen","D) Der Vertrag muss nun notariell beurkundet werden"],
+                correct: 1,
+                explanation: "Das BVaDiG 2024 hat die strenge Schriftform (mit Originalunterschrift) durch Textform (z. B. E-Mail, PDF) ersetzt. Der Azubi kann aber weiterhin Schriftform verlangen."
+            },
+            {
+                id: 18,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 12 Abs. 1 BBiG (Auszug): \u201eEine Vereinbarung, die Auszubildende f\u00fcr die Zeit nach Beendigung des Berufsausbildungsverh\u00e4ltnisses in der Aus\u00fcbung ihrer beruflichen T\u00e4tigkeit beschr\u00e4nkt, ist nichtig.\u201c\n\n\u00a7 12 Abs. 2 BBiG: \u201eNichtig ist eine Vereinbarung \u00fcber: 1. die Verpflichtung Auszubildender, f\u00fcr die Berufsausbildung eine Entsch\u00e4digung zu zahlen, 2. Vertragsstrafen, 3. den Ausschluss oder die Beschr\u00e4nkung von Schadensersatzanspr\u00fcchen [\u2026].\u201c",
+                question: "Der Ausbildungsvertrag von Lisa enth\u00e4lt eine Klausel: \u201eDie Auszubildende verpflichtet sich, bei vorzeitigem Ausscheiden 5.000 \u20ac Ausbildungskosten zur\u00fcckzuzahlen.\u201c Ist diese Klausel wirksam?",
+                options: ["A) Ja, denn der Betrieb hat Kosten investiert","B) Ja, aber nur bei K\u00fcndigung durch den Azubi","C) Nein, eine solche R\u00fcckzahlungsklausel ist nach \u00a7 12 BBiG nichtig","D) Nein, aber nur wenn der Betrag \u00fcber 3.000 \u20ac liegt"],
+                correct: 2,
+                explanation: "\u00a7 12 Abs. 2 Nr. 1 BBiG erkl\u00e4rt Vereinbarungen, die den Azubi zur Zahlung einer Entsch\u00e4digung f\u00fcr die Ausbildung verpflichten, ausdr\u00fccklich f\u00fcr nichtig."
+            },
+            {
+                id: 19,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 20 BBiG: \u201eDas Berufsausbildungsverh\u00e4ltnis beginnt mit der Probezeit. Sie muss mindestens einen Monat und darf h\u00f6chstens vier Monate betragen.\u201c",
+                question: "Ein Betrieb vereinbart mit einem Auszubildenden eine Probezeit von 6 Monaten. Welche Rechtsfolge ergibt sich?",
+                options: ["A) Die Vereinbarung ist wirksam, da der Betrieb die Probezeit frei festlegen darf","B) Die gesamte Probezeit ist unwirksam; es gibt keine Probezeit","C) Die Probezeit wird auf das gesetzliche Maximum von 4 Monaten reduziert","D) Der gesamte Ausbildungsvertrag ist unwirksam"],
+                correct: 2,
+                explanation: "Eine Probezeit von 6 Monaten \u00fcberschreitet das gesetzliche Maximum von 4 Monaten (\u00a7 20 BBiG). Die \u00fcberschie\u00dfende Vereinbarung ist nichtig; es gilt das Maximum von 4 Monaten."
+            },
+            {
+                id: 20,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 22 Abs. 1 BBiG: \u201eW\u00e4hrend der Probezeit kann das Berufsausbildungsverh\u00e4ltnis jederzeit ohne Einhalten einer K\u00fcndigungsfrist gek\u00fcndigt werden.\u201c\n\n\u00a7 22 Abs. 2 BBiG: \u201eNach der Probezeit kann das Berufsausbildungsverh\u00e4ltnis nur gek\u00fcndigt werden: 1. aus einem wichtigen Grund ohne Einhalten einer K\u00fcndigungsfrist, 2. von Auszubildenden mit einer K\u00fcndigungsfrist von vier Wochen, wenn sie die Berufsausbildung aufgeben oder sich f\u00fcr eine andere Berufst\u00e4tigkeit ausbilden lassen wollen.\u201c",
+                question: "Welche Asymmetrie besteht laut Gesetzestext bei der K\u00fcndigung NACH der Probezeit?",
+                options: ["A) Beide Seiten k\u00f6nnen jederzeit ordentlich k\u00fcndigen","B) Der Ausbildende kann ordentlich und au\u00dferordentlich k\u00fcndigen, der Azubi nur au\u00dferordentlich","C) Der Azubi kann au\u00dferordentlich (wichtiger Grund) ODER ordentlich (4 Wochen, Berufswechsel) k\u00fcndigen; der Ausbildende nur au\u00dferordentlich","D) Keine Seite kann nach der Probezeit k\u00fcndigen"],
+                correct: 2,
+                explanation: "Nach der Probezeit hat der Auszubildende zwei M\u00f6glichkeiten (Nr. 1 und Nr. 2), der Ausbildende dagegen nur die au\u00dferordentliche K\u00fcndigung aus wichtigem Grund (Nr. 1)."
+            },
+            {
+                id: 21,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 22 Abs. 4 BBiG: \u201eDie K\u00fcndigung muss schriftlich und [\u2026] nach der Probezeit unter Angabe der K\u00fcndigungsgr\u00fcnde erfolgen.\u201c\n\n\u00a7 22 Abs. 3 BBiG: \u201eEine K\u00fcndigung aus einem wichtigen Grund ist unwirksam, wenn die ihr zugrunde liegenden Tatsachen dem K\u00fcndigungsberechtigten l\u00e4nger als zwei Wochen bekannt sind.\u201c",
+                question: "Der Ausbilder erf\u00e4hrt am 1. M\u00e4rz von einem schweren Diebstahl des Azubis. Am 20. M\u00e4rz spricht er die fristlose K\u00fcndigung aus. Ist die K\u00fcndigung wirksam?",
+                options: ["A) Ja, denn Diebstahl ist ein wichtiger Grund","B) Nein, denn die 2-Wochen-Frist des \u00a7 22 Abs. 3 ist \u00fcberschritten","C) Ja, wenn eine Abmahnung vorausging","D) Nein, weil K\u00fcndigungen nur zum Monatsende wirksam werden"],
+                correct: 1,
+                explanation: "Zwischen dem 1. M\u00e4rz (Kenntnisnahme) und dem 20. M\u00e4rz liegen 19 Tage \u2013 mehr als 2 Wochen. Die K\u00fcndigung ist daher nach \u00a7 22 Abs. 3 BBiG unwirksam."
+            },
+            {
+                id: 22,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 13 S. 1 BBiG: \u201eAuszubildende haben sich zu bem\u00fchen, die berufliche Handlungsf\u00e4higkeit zu erwerben, die zum Erreichen des Ausbildungsziels erforderlich ist.\u201c",
+                question: "Welche besondere Formulierung verwendet der Gesetzgeber f\u00fcr die Lernpflicht des Auszubildenden?",
+                options: ["A) Der Auszubildende muss das Ausbildungsziel erreichen","B) Der Auszubildende hat sich zu bem\u00fchen \u2013 er schuldet den Lernprozess, nicht den Lernerfolg","C) Der Auszubildende muss die Pr\u00fcfung bestehen","D) Der Auszubildende muss mindestens die Note \u201eausreichend\u201c erzielen"],
+                correct: 1,
+                explanation: "Der Gesetzgeber w\u00e4hlt bewusst \u201esich bem\u00fchen\u201c \u2013 der Azubi schuldet den Einsatz im Lernprozess, nicht den tats\u00e4chlichen Lernerfolg."
+            },
+            {
+                id: 23,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 13 S. 2 BBiG (Auszug): \u201eAuszubildende haben insbesondere [\u2026] 6. \u00fcber Betriebs- und Gesch\u00e4ftsgeheimnisse Stillschweigen zu bewahren, 7. einen Ausbildungsnachweis ordnungsgem\u00e4\u00df zu f\u00fchren, 8. den Empfang der Vertragsabfassung zu best\u00e4tigen.\u201c",
+                question: "Welche NEUE Pflicht hat das BVaDiG 2024 in \u00a7 13 BBiG f\u00fcr Auszubildende eingef\u00fchrt?",
+                options: ["A) Pflicht zur Schweigepflicht","B) Pflicht zum F\u00fchren des Berichtshefts","C) Pflicht zur Best\u00e4tigung des Empfangs der Vertragsabfassung","D) Pflicht zur Teilnahme an der Berufsschule"],
+                correct: 2,
+                explanation: "Nr. 8 ist neu durch das BVaDiG 2024: Der Auszubildende muss den Empfang der Vertragsabfassung best\u00e4tigen. Die anderen Pflichten bestanden bereits vorher."
+            },
+            {
+                id: 24,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 17 Abs. 2 BBiG (Auszug): \u201eDie Angemessenheit der Verg\u00fctung ist ausgeschlossen, wenn sie folgende monatliche Mindestverg\u00fctung unterschreitet: 1. im ersten Jahr einer Berufsausbildung den Grundbetrag [\u2026], 2. im zweiten Jahr einer Berufsausbildung den Betrag nach Nummer 1 zuz\u00fcglich 18 Prozent, 3. im dritten Jahr einer Berufsausbildung den Betrag nach Nummer 1 zuz\u00fcglich 35 Prozent, 4. im vierten Jahr einer Berufsausbildung den Betrag nach Nummer 1 zuz\u00fcglich 40 Prozent.\u201c",
+                question: "Der Grundbetrag der Mindestausbildungsverg\u00fctung im 1. Ausbildungsjahr betr\u00e4gt 650 \u20ac. Wie hoch ist die Mindestverg\u00fctung im 3. Ausbildungsjahr?",
+                options: ["A) 767 \u20ac","B) 845 \u20ac","C) 877,50 \u20ac","D) 910 \u20ac"],
+                correct: 2,
+                explanation: "Laut Gesetzestext: 3. Jahr = Grundbetrag + 35 %. Rechnung: 650 \u20ac + (650 \u00d7 0,35) = 650 + 227,50 = 877,50 \u20ac."
+            },
+            {
+                id: 25,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 15 BBiG (Auszug): \u201eAusbildende haben Auszubildende f\u00fcr die Teilnahme am Berufsschulunterricht [\u2026] freizustellen. Das Gleiche gilt [\u2026] f\u00fcr Pr\u00fcfungen und Au\u00dfenunterrichtsveranstaltungen [\u2026]. Die Freistellung umfasst auch den Tag, der der schriftlichen Abschlusspr\u00fcfung unmittelbar vorangeht.\u201c",
+                question: "Tim hat am Donnerstag seine schriftliche IHK-Abschlusspr\u00fcfung. F\u00fcr welche Tage muss der Arbeitgeber ihn laut \u00a7 15 BBiG freistellen?",
+                options: ["A) Nur f\u00fcr Donnerstag (Pr\u00fcfungstag)","B) F\u00fcr Mittwoch (Vortag) und Donnerstag (Pr\u00fcfungstag)","C) F\u00fcr die gesamte Pr\u00fcfungswoche","D) Nur wenn Tim dies beantragt"],
+                correct: 1,
+                explanation: "Der Gesetzestext sagt: Freistellung f\u00fcr Pr\u00fcfungen UND f\u00fcr den Tag, der der schriftlichen Abschlusspr\u00fcfung unmittelbar vorangeht. Also Mittwoch + Donnerstag."
+            },
+            {
+                id: 26,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 23 BBiG: \u201eWird das Berufsausbildungsverh\u00e4ltnis nach der Probezeit vorzeitig gel\u00f6st, so kann der Ausbildende oder der Auszubildende Ersatz des Schadens verlangen, wenn der andere den Grund f\u00fcr die Aufl\u00f6sung zu vertreten hat. Der Anspruch erlischt, wenn er nicht innerhalb von drei Monaten nach Beendigung des Berufsausbildungsverh\u00e4ltnisses geltend gemacht wird.\u201c",
+                question: "Innerhalb welcher Frist muss ein Schadensersatzanspruch nach \u00a7 23 BBiG geltend gemacht werden?",
+                options: ["A) 2 Wochen","B) 4 Wochen","C) 3 Monate","D) 1 Jahr"],
+                correct: 2,
+                explanation: "Der Gesetzestext sagt: \u201eDer Anspruch erlischt, wenn er nicht innerhalb von drei Monaten nach Beendigung des Berufsausbildungsverh\u00e4ltnisses geltend gemacht wird.\u201c"
+            },
+            {
+                id: 27,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 24 BBiG: \u201eWerden Auszubildende im Anschluss an das Berufsausbildungsverh\u00e4ltnis besch\u00e4ftigt, ohne dass hier\u00fcber ausdr\u00fccklich etwas vereinbart worden ist, so gilt ein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet.\u201c",
+                question: "Was geschieht laut \u00a7 24 BBiG, wenn ein Azubi nach Ausbildungsende einfach weiterarbeitet, ohne dass etwas vereinbart wurde?",
+                options: ["A) Es entsteht ein befristetes Arbeitsverh\u00e4ltnis","B) Es entsteht ein unbefristetes Arbeitsverh\u00e4ltnis","C) Es entsteht kein Arbeitsverh\u00e4ltnis","D) Der Azubi muss innerhalb einer Woche einen Vertrag unterschreiben"],
+                correct: 1,
+                explanation: "Laut \u00a7 24 BBiG gilt dann automatisch \u201eein Arbeitsverh\u00e4ltnis auf unbestimmte Zeit als begr\u00fcndet\u201c \u2013 also ein unbefristetes Arbeitsverh\u00e4ltnis."
+            },
+            {
+                id: 28,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 35 Abs. 1 BBiG (seit BVaDiG 2024): \u201eDer Berufsausbildungsvertrag ist in das Verzeichnis einzutragen, wenn 1. der Berufsausbildungsvertrag diesem Gesetz und der Ausbildungsordnung entspricht, 2. die pers\u00f6nliche und fachliche Eignung sowie die Eignung der Ausbildungsst\u00e4tte [\u2026] vorliegen und 3. f\u00fcr Auszubildende unter 18 Jahren die \u00e4rztliche Bescheinigung \u00fcber die Erstuntersuchung nach \u00a7 32 Absatz 1 des Jugendarbeitsschutzgesetzes zur Einsicht vorgelegt wird.\u201c",
+                question: "Welche DREI Eintragungsvoraussetzungen nennt \u00a7 35 BBiG f\u00fcr die Registrierung des Ausbildungsvertrags?",
+                options: ["A) Vertrag entspricht dem BBiG, Eignung liegt vor, bei Minderj\u00e4hrigen: \u00e4rztliche Bescheinigung","B) Vertrag ist notariell beglaubigt, Betrieb hat einen Betriebsrat, Azubi hat Abitur","C) Vertrag ist unterschrieben, Betrieb zahlt Mindestlohn, Azubi hat Berufsschulplatz","D) Vertrag ist bei der Agentur f\u00fcr Arbeit registriert, Betrieb ist tarifgebunden, Azubi ist vollj\u00e4hrig"],
+                correct: 0,
+                explanation: "Die drei Voraussetzungen aus dem Gesetzestext: 1) Vertrag entspricht BBiG und Ausbildungsordnung, 2) Eignung (pers\u00f6nlich, fachlich, Betrieb), 3) bei U18: \u00e4rztliche Erstuntersuchung."
+            },
+            {
+                id: 29,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 17 Abs. 6 BBiG (Auszug): \u201eSachleistungen k\u00f6nnen in H\u00f6he der nach \u00a7 17 Abs. 1 Satz 1 Nummer 4 des Vierten Buches Sozialgesetzbuch festgesetzten Sachbez\u00fcge angerechnet werden, jedoch nicht \u00fcber 75 Prozent der Bruttoverg\u00fctung hinaus.\u201c",
+                question: "Bis zu welchem Anteil der Bruttoverg\u00fctung d\u00fcrfen Sachleistungen (z. B. Unterkunft/Verpflegung) auf die Ausbildungsverg\u00fctung angerechnet werden?",
+                options: ["A) 25 %","B) 50 %","C) 75 %","D) 100 %"],
+                correct: 2,
+                explanation: "Laut \u00a7 17 Abs. 6 BBiG d\u00fcrfen Sachleistungen h\u00f6chstens 75 % der Bruttoverg\u00fctung betragen."
+            },
+            {
+                id: 30,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 21 Abs. 1\u20132 BBiG: \u201eDas Berufsausbildungsverh\u00e4ltnis endet mit dem Ablauf der Ausbildungsdauer. Bestehen Auszubildende vor Ablauf der Ausbildungsdauer die Abschlusspr\u00fcfung, so endet das Berufsausbildungsverh\u00e4ltnis mit Bekanntgabe des Ergebnisses durch den Pr\u00fcfungsausschuss.\u201c",
+                question: "Anna besteht ihre Abschlusspr\u00fcfung am 15. Juni 2026. Ihr Ausbildungsvertrag l\u00e4uft bis 31. August 2026. Wann endet ihr Ausbildungsverh\u00e4ltnis?",
+                options: ["A) Am 31. August 2026 (Vertragsende)","B) Am 15. Juni 2026 (Bekanntgabe des Pr\u00fcfungsergebnisses)","C) Am 30. Juni 2026 (Ende des Monats)","D) Am 1. Juli 2026 (n\u00e4chster Werktag)"],
+                correct: 1,
+                explanation: "Laut \u00a7 21 Abs. 2 BBiG endet das Verh\u00e4ltnis bei Bestehen der Pr\u00fcfung mit der Bekanntgabe des Ergebnisses \u2013 also am 15. Juni, nicht erst am Vertragsende."
+            }
+        ]
+    },
+    {
+        title: "Teil C: Arbeitsrechtliche Bestimmungen (Fragen 31\u201345)",
+        questions: [
+            {
+                id: 31,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 622 Abs. 1\u20132 BGB (Auszug): \u201eDas Arbeitsverh\u00e4ltnis [\u2026] kann mit einer Frist von vier Wochen zum F\u00fcnfzehnten oder zum Ende eines Kalendermonats gek\u00fcndigt werden. F\u00fcr eine K\u00fcndigung durch den Arbeitgeber betr\u00e4gt die K\u00fcndigungsfrist, wenn das Arbeitsverh\u00e4ltnis [\u2026] 2 Jahre bestanden hat, einen Monat zum Ende eines Kalendermonats [\u2026], 5 Jahre bestanden hat, zwei Monate zum Ende eines Kalendermonats [\u2026], 20 Jahre bestanden hat, sieben Monate zum Ende eines Kalendermonats.\u201c",
+                question: "Ein Arbeitnehmer ist seit 6 Jahren im Betrieb. Welche K\u00fcndigungsfrist gilt f\u00fcr den Arbeitgeber?",
+                options: ["A) 4 Wochen","B) 1 Monat zum Monatsende","C) 2 Monate zum Monatsende","D) 3 Monate zum Monatsende"],
+                correct: 2,
+                explanation: "Bei 6 Jahren Betriebszugeh\u00f6rigkeit gilt laut Gesetzestext die Stufe \u201e5 Jahre\u201c: 2 Monate zum Ende eines Kalendermonats."
+            },
+            {
+                id: 32,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 626 Abs. 1\u20132 BGB: \u201eDas Dienstverh\u00e4ltnis kann von jedem Vertragsteil aus wichtigem Grund ohne Einhaltung einer K\u00fcndigungsfrist gek\u00fcndigt werden [\u2026]. Die K\u00fcndigung kann nur innerhalb von zwei Wochen erfolgen. Die Frist beginnt mit dem Zeitpunkt, in dem der K\u00fcndigungsberechtigte von den f\u00fcr die K\u00fcndigung ma\u00dfgebenden Tatsachen Kenntnis erlangt.\u201c",
+                question: "Wann beginnt die 2-Wochen-Frist f\u00fcr die au\u00dferordentliche K\u00fcndigung laut \u00a7 626 BGB?",
+                options: ["A) Ab dem Zeitpunkt des Fehlverhaltens","B) Ab Kenntnis des K\u00fcndigungsberechtigten von den ma\u00dfgebenden Tatsachen","C) Ab dem n\u00e4chsten Werktag","D) Ab Zugang der Abmahnung"],
+                correct: 1,
+                explanation: "Der Gesetzestext sagt: \u201eDie Frist beginnt mit dem Zeitpunkt, in dem der K\u00fcndigungsberechtigte von den [\u2026] Tatsachen Kenntnis erlangt.\u201c"
+            },
+            {
+                id: 33,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 1 Abs. 1\u20132 KSchG: \u201eDie K\u00fcndigung des Arbeitsverh\u00e4ltnisses gegen\u00fcber einem Arbeitnehmer [\u2026] ist rechtsunwirksam, wenn sie sozial ungerechtfertigt ist. [\u2026] Sozial ungerechtfertigt ist die K\u00fcndigung, wenn sie nicht durch Gr\u00fcnde, die in der Person oder in dem Verhalten des Arbeitnehmers liegen, oder durch dringende betriebliche Erfordernisse [\u2026] bedingt ist.\u201c",
+                question: "Welche drei Gr\u00fcnde k\u00f6nnen eine sozial gerechtfertigte K\u00fcndigung nach \u00a7 1 KSchG begr\u00fcnden?",
+                options: ["A) Wirtschaftliche, politische und pers\u00f6nliche Gr\u00fcnde","B) Personenbedingte, verhaltensbedingte und betriebsbedingte Gr\u00fcnde","C) Altersbedingte, leistungsbedingte und finanzielle Gr\u00fcnde","D) Pers\u00f6nliche Gr\u00fcnde, Gr\u00fcnde der Arbeitszeitgestaltung und saisonale Gr\u00fcnde"],
+                correct: 1,
+                explanation: "Der Text nennt: \u201eGr\u00fcnde, die in der Person\u201c (personenbedingt), \u201ein dem Verhalten\u201c (verhaltensbedingt) oder \u201edringende betriebliche Erfordernisse\u201c (betriebsbedingt)."
+            },
+            {
+                id: 34,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 1 Abs. 3 KSchG: \u201eIst einem Arbeitnehmer aus dringenden betrieblichen Erfordernissen [\u2026] gek\u00fcndigt worden, so ist die K\u00fcndigung trotzdem sozial ungerechtfertigt, wenn der Arbeitgeber bei der Auswahl des Arbeitnehmers die Dauer der Betriebszugeh\u00f6rigkeit, das Lebensalter, die Unterhaltspflichten und die Schwerbehinderung des Arbeitnehmers nicht oder nicht ausreichend ber\u00fccksichtigt hat.\u201c",
+                question: "Welche vier Kriterien muss der Arbeitgeber bei der Sozialauswahl ber\u00fccksichtigen?",
+                options: ["A) Geschlecht, Religion, Nationalit\u00e4t, Schulbildung","B) Dauer der Betriebszugeh\u00f6rigkeit, Lebensalter, Unterhaltspflichten, Schwerbehinderung","C) Leistung, Qualifikation, Erfahrung, Flexibilit\u00e4t","D) Gehaltsh\u00f6he, Arbeitszeit, Abteilung, Position"],
+                correct: 1,
+                explanation: "Der Gesetzestext nennt vier Kriterien: Betriebszugeh\u00f6rigkeit, Lebensalter, Unterhaltspflichten und Schwerbehinderung. Merkwort: DAUS."
+            },
+            {
+                id: 35,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 4 KSchG: \u201eWill ein Arbeitnehmer geltend machen, dass eine K\u00fcndigung sozial ungerechtfertigt [\u2026] ist, so muss er innerhalb von drei Wochen nach Zugang der schriftlichen K\u00fcndigung Klage beim Arbeitsgericht auf Feststellung erheben, dass das Arbeitsverh\u00e4ltnis durch die K\u00fcndigung nicht aufgel\u00f6st ist.\u201c",
+                question: "Ein Arbeitnehmer erh\u00e4lt am 5. M\u00e4rz eine K\u00fcndigung. Bis wann muss er K\u00fcndigungsschutzklage einreichen?",
+                options: ["A) Bis zum 12. M\u00e4rz","B) Bis zum 19. M\u00e4rz","C) Bis zum 26. M\u00e4rz","D) Bis zum 5. April"],
+                correct: 2,
+                explanation: "Laut \u00a7 4 KSchG: 3 Wochen nach Zugang. Zugang am 5. M\u00e4rz + 3 Wochen = 26. M\u00e4rz."
+            },
+            {
+                id: 36,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 3 ArbZG: \u201eDie werkt\u00e4gliche Arbeitszeit der Arbeitnehmer darf acht Stunden nicht \u00fcberschreiten. Sie kann auf bis zu zehn Stunden nur verl\u00e4ngert werden, wenn innerhalb von sechs Kalendermonaten oder innerhalb von 24 Wochen im Durchschnitt acht Stunden werkt\u00e4glich nicht \u00fcberschritten werden.\u201c",
+                question: "Unter welcher Bedingung darf die t\u00e4gliche Arbeitszeit laut \u00a7 3 ArbZG auf 10 Stunden verl\u00e4ngert werden?",
+                options: ["A) Wenn der Arbeitgeber es anordnet","B) Wenn im Durchschnitt von 6 Monaten oder 24 Wochen 8 Stunden werkt\u00e4glich nicht \u00fcberschritten werden","C) Wenn der Arbeitnehmer schriftlich zustimmt","D) Nur an Samstagen"],
+                correct: 1,
+                explanation: "Die Verl\u00e4ngerung auf 10 Stunden ist nur zul\u00e4ssig, wenn der Durchschnitt von 8 h/Tag im Zeitraum von 6 Monaten oder 24 Wochen eingehalten wird."
+            },
+            {
+                id: 37,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 4 ArbZG: \u201eDie Arbeit ist durch im Voraus feststehende Ruhepausen von mindestens 30 Minuten bei einer Arbeitszeit von mehr als sechs bis zu neun Stunden und 45 Minuten bei einer Arbeitszeit von mehr als neun Stunden insgesamt zu unterbrechen. Die Ruhepausen nach Satz 1 k\u00f6nnen in Zeitabschnitte von jeweils mindestens 15 Minuten aufgeteilt werden.\u201c",
+                question: "Frau M\u00fcller arbeitet 9,5 Stunden. Wie viel Pause steht ihr mindestens zu?",
+                options: ["A) 15 Minuten","B) 30 Minuten","C) 45 Minuten","D) 60 Minuten"],
+                correct: 2,
+                explanation: "Bei mehr als 9 Stunden Arbeitszeit: mindestens 45 Minuten. Da 9,5 > 9, stehen Frau M\u00fcller 45 Minuten zu."
+            },
+            {
+                id: 38,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 5 Abs. 1 ArbZG: \u201eDie Arbeitnehmer m\u00fcssen nach Beendigung der t\u00e4glichen Arbeitszeit eine ununterbrochene Ruhezeit von mindestens elf Stunden haben.\u201c",
+                question: "Ein Arbeitnehmer beendet seine Arbeit um 22:00 Uhr. Ab wann darf er am n\u00e4chsten Tag fr\u00fchestens wieder arbeiten?",
+                options: ["A) Ab 06:00 Uhr","B) Ab 07:00 Uhr","C) Ab 08:00 Uhr","D) Ab 09:00 Uhr"],
+                correct: 3,
+                explanation: "22:00 Uhr + 11 Stunden Ruhezeit = 09:00 Uhr. Fr\u00fchester Arbeitsbeginn ist 09:00 Uhr."
+            },
+            {
+                id: 39,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 3 BUrlG: \u201eDer Urlaub betr\u00e4gt j\u00e4hrlich mindestens 24 Werktage.\u201c\n\n\u00a7 3 Abs. 2 BUrlG: \u201eAls Werktage gelten alle Kalendertage, die nicht Sonn- oder gesetzliche Feiertage sind.\u201c",
+                question: "Wie viele Arbeitstage Mindesturlaub ergeben sich bei einer 5-Tage-Woche, wenn der gesetzliche Mindesturlaub 24 Werktage betr\u00e4gt?",
+                options: ["A) 18 Arbeitstage","B) 20 Arbeitstage","C) 24 Arbeitstage","D) 30 Arbeitstage"],
+                correct: 1,
+                explanation: "Werktage = Mo\u2013Sa (6 Tage). Umrechnung: 24 \u00f7 6 \u00d7 5 = 20 Arbeitstage bei einer 5-Tage-Woche."
+            },
+            {
+                id: 40,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 3 Abs. 1 EntgFG: \u201eWird ein Arbeitnehmer durch Arbeitsunf\u00e4higkeit infolge Krankheit an seiner Arbeitsleistung verhindert, ohne dass ihn ein Verschulden trifft, so hat er Anspruch auf Entgeltfortzahlung im Krankheitsfall durch den Arbeitgeber f\u00fcr die Zeit der Arbeitsunf\u00e4higkeit bis zur Dauer von sechs Wochen.\u201c",
+                question: "Wie lange zahlt der Arbeitgeber bei Krankheit laut \u00a7 3 EntgFG das Entgelt weiter?",
+                options: ["A) 4 Wochen","B) 6 Wochen","C) 8 Wochen","D) 12 Wochen"],
+                correct: 1,
+                explanation: "Der Gesetzestext sagt: \u201ebis zur Dauer von sechs Wochen\u201c. Danach zahlt die Krankenkasse Krankengeld."
+            },
+            {
+                id: 41,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 17 Abs. 1 MuSchG: \u201eDie K\u00fcndigung gegen\u00fcber einer Frau ist unzul\u00e4ssig 1. w\u00e4hrend ihrer Schwangerschaft, 2. bis zum Ablauf von vier Monaten nach einer Fehlgeburt nach der zw\u00f6lften Schwangerschaftswoche und 3. bis zum Ende ihrer Schutzfrist nach der Entbindung, mindestens jedoch bis zum Ablauf von vier Monaten nach der Entbindung [\u2026].\u201c",
+                question: "Bis wann ist die K\u00fcndigung einer Arbeitnehmerin nach der Entbindung laut \u00a7 17 MuSchG unzul\u00e4ssig?",
+                options: ["A) Bis 8 Wochen nach der Entbindung","B) Bis 3 Monate nach der Entbindung","C) Mindestens bis 4 Monate nach der Entbindung","D) Bis 6 Monate nach der Entbindung"],
+                correct: 2,
+                explanation: "Der Gesetzestext sagt \u201emindestens jedoch bis zum Ablauf von vier Monaten nach der Entbindung\u201c."
+            },
+            {
+                id: 42,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 3 MuSchG (Auszug): \u201eDer Arbeitgeber darf eine schwangere Frau in den letzten sechs Wochen vor der Entbindung nicht besch\u00e4ftigen, es sei denn, dass sie sich zur Arbeitsleistung ausdr\u00fccklich bereit erkl\u00e4rt [\u2026]. Er darf sie bis zum Ablauf von acht Wochen [\u2026] nach der Entbindung nicht besch\u00e4ftigen.\u201c",
+                question: "Welcher Unterschied besteht zwischen den Schutzfristen VOR und NACH der Entbindung?",
+                options: ["A) Beide k\u00f6nnen von der Frau aufgehoben werden","B) Die 6 Wochen vorher k\u00f6nnen von der Frau aufgehoben werden; die 8 Wochen nachher sind zwingend","C) Beide Fristen sind zwingend und nicht aufhebbar","D) Die Frist vorher ist zwingend, die Frist nachher ist freiwillig"],
+                correct: 1,
+                explanation: "Vor der Entbindung: Die Frau kann sich \u201eausdr\u00fccklich bereit erkl\u00e4ren\u201c (freiwillig verzichten). Nach der Entbindung: keine Ausnahme \u2013 8 Wochen sind zwingend."
+            },
+            {
+                id: 43,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 611a Abs. 1 BGB (Auszug): \u201eDurch den Arbeitsvertrag wird der Arbeitnehmer im Dienste eines anderen zur Leistung weisungsgebundener, fremdbestimmter Arbeit in pers\u00f6nlicher Abh\u00e4ngigkeit verpflichtet.\u201c",
+                question: "Was ist laut \u00a7 611a BGB das zentrale Merkmal eines Arbeitsverh\u00e4ltnisses?",
+                options: ["A) Selbstst\u00e4ndige T\u00e4tigkeit ohne Weisungen","B) Weisungsgebundene, fremdbestimmte Arbeit in pers\u00f6nlicher Abh\u00e4ngigkeit","C) Freie Zeiteinteilung bei eigener Betriebsmittelnutzung","D) Werkvertragliche Leistung gegen Honorar"],
+                correct: 1,
+                explanation: "Der Text definiert: \u201eweisungsgebundene, fremdbestimmte Arbeit in pers\u00f6nlicher Abh\u00e4ngigkeit\u201c als Kernmerkmal."
+            },
+            {
+                id: 44,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 106 GewO: \u201eDer Arbeitgeber kann Inhalt, Ort und Zeit der Arbeitsleistung nach billigem Ermessen n\u00e4her bestimmen, soweit diese Arbeitsbedingungen nicht durch den Arbeitsvertrag, Bestimmungen einer Betriebsvereinbarung, eines anwendbaren Tarifvertrages oder gesetzliche Vorschriften festgelegt sind.\u201c",
+                question: "Welche Grenzen hat das Direktionsrecht des Arbeitgebers laut \u00a7 106 GewO?",
+                options: ["A) Keine \u2013 der Arbeitgeber bestimmt alles frei","B) Arbeitsvertrag, Betriebsvereinbarung, Tarifvertrag und gesetzliche Vorschriften","C) Nur der Arbeitsvertrag","D) Nur gesetzliche Vorschriften"],
+                correct: 1,
+                explanation: "Laut Gesetzestext ist das Direktionsrecht durch vier Quellen begrenzt: Arbeitsvertrag, Betriebsvereinbarung, Tarifvertrag und gesetzliche Vorschriften."
+            },
+            {
+                id: 45,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 9 BUrlG: \u201eErkrankt ein Arbeitnehmer w\u00e4hrend des Urlaubs, so werden die durch \u00e4rztliches Zeugnis nachgewiesenen Tage der Arbeitsunf\u00e4higkeit auf den Jahresurlaub nicht angerechnet.\u201c",
+                question: "Frau Schmidt wird im Urlaub krank und legt ein \u00e4rztliches Attest vor. Was passiert mit den Krankheitstagen?",
+                options: ["A) Sie werden als Urlaubstage gez\u00e4hlt","B) Sie werden nicht auf den Urlaub angerechnet; Frau Schmidt beh\u00e4lt den Urlaubsanspruch","C) Nur die H\u00e4lfte der Tage wird angerechnet","D) Der gesamte Urlaub muss neu genommen werden"],
+                correct: 1,
+                explanation: "Laut \u00a7 9 BUrlG werden durch \u00e4rztliches Zeugnis nachgewiesene Krankheitstage nicht auf den Jahresurlaub angerechnet."
+            }
+        ]
+    },
+    {
+        title: "Teil D: Sozialrecht und Tarifrecht (Fragen 46\u201360)",
+        questions: [
+            {
+                id: 46,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "Art. 20 Abs. 1 GG: \u201eDie Bundesrepublik Deutschland ist ein demokratischer und sozialer Bundesstaat.\u201c",
+                question: "Welches verfassungsrechtliche Prinzip bildet die Grundlage der gesetzlichen Sozialversicherung?",
+                options: ["A) Das Demokratieprinzip","B) Das Rechtsstaatsprinzip","C) Das Sozialstaatsprinzip","D) Das F\u00f6deralismusprinzip"],
+                correct: 2,
+                explanation: "Aus Art. 20 Abs. 1 GG \u2013 \u201esozialer Bundesstaat\u201c \u2013 leitet sich das Sozialstaatsprinzip ab, das den Staat zur sozialen Sicherung verpflichtet."
+            },
+            {
+                id: 47,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 104 Abs. 1 SGB VII: \u201eUnternehmer sind den Versicherten, die f\u00fcr ihre Unternehmen t\u00e4tig sind [\u2026], zum Ersatz des Personenschadens, den ein Versicherungsfall verursacht hat, nur verpflichtet, wenn sie den Versicherungsfall vors\u00e4tzlich [\u2026] herbeigef\u00fchrt haben.\u201c\n\nPrinzip: Der Arbeitgeber finanziert die Unfallversicherung allein und ist im Gegenzug von der zivilrechtlichen Haftung befreit.",
+                question: "Wie wird dieses Prinzip \u2013 Arbeitgeber finanziert allein, daf\u00fcr Haftungsbefreiung \u2013 in der gesetzlichen Unfallversicherung genannt?",
+                options: ["A) Solidarit\u00e4tsprinzip","B) \u00c4quivalenzprinzip","C) Haftungsabl\u00f6sung","D) Versicherungspflichtprinzip"],
+                correct: 2,
+                explanation: "Das Prinzip hei\u00dft Haftungsabl\u00f6sung: Der Arbeitgeber tr\u00e4gt allein die Beitr\u00e4ge zur GUV und wird daf\u00fcr von der zivilrechtlichen Haftung gegen\u00fcber Arbeitnehmern bei Arbeitsunf\u00e4llen befreit."
+            },
+            {
+                id: 48,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "SGB V, SGB VI, SGB VII, SGB XI, SGB III \u2013 Die f\u00fcnf S\u00e4ulen der Sozialversicherung:\n\u2022 Krankenversicherung (SGB V): Beitrag 14,6 % + Zusatzbeitrag, AG/AN je 50 %\n\u2022 Rentenversicherung (SGB VI): Beitrag 18,6 %, AG/AN je 50 %\n\u2022 Arbeitslosenversicherung (SGB III): Beitrag 2,6 %, AG/AN je 50 %\n\u2022 Pflegeversicherung (SGB XI): Beitrag 3,6 % (mit Kind) / 4,2 % (ohne Kind), AG/AN je 50 %\n\u2022 Unfallversicherung (SGB VII): Beitrag variabel, Arbeitgeber tr\u00e4gt 100 %",
+                question: "Welche Sozialversicherung wird ausschlie\u00dflich vom Arbeitgeber finanziert?",
+                options: ["A) Krankenversicherung","B) Rentenversicherung","C) Unfallversicherung","D) Arbeitslosenversicherung"],
+                correct: 2,
+                explanation: "Die gesetzliche Unfallversicherung (SGB VII) wird zu 100 % vom Arbeitgeber finanziert \u2013 als einzige der f\u00fcnf S\u00e4ulen."
+            },
+            {
+                id: 49,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "SGB III, \u00a7 136 ff.: Arbeitslosengeld I\n\u2022 Voraussetzung: Mindestens 12 Monate sozialversicherungspflichtige Besch\u00e4ftigung in den letzten 30 Monaten (Anwartschaftszeit)\n\u2022 H\u00f6he: 60 % des pauschalierten Nettoentgelts (67 % mit Kind)\n\u2022 Tr\u00e4ger: Bundesagentur f\u00fcr Arbeit",
+                question: "Ein kinderloser Arbeitnehmer mit einem Nettoeinkommen von 2.000 \u20ac wird arbeitslos. Wie hoch ist sein ALG I (vereinfacht)?",
+                options: ["A) 1.000 \u20ac (50 %)","B) 1.200 \u20ac (60 %)","C) 1.340 \u20ac (67 %)","D) 1.600 \u20ac (80 %)"],
+                correct: 1,
+                explanation: "Kinderlos: 60 % des Nettoentgelts. 2.000 \u20ac \u00d7 60 % = 1.200 \u20ac."
+            },
+            {
+                id: 50,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "SGB VI (Rentenversicherung): Finanzierung nach dem Umlageverfahren (Generationenvertrag)\n\u2022 Die aktuellen Beitragszahler finanzieren die aktuellen Rentner\n\u2022 Kein Kapitalstock wird aufgebaut\n\u2022 Erg\u00e4nzt durch Bundeszusch\u00fcsse aus Steuereinnahmen",
+                question: "Was bedeutet das \u201eUmlageverfahren\u201c in der Rentenversicherung?",
+                options: ["A) Jeder spart individuell f\u00fcr seine eigene Rente an","B) Die aktuellen Beitragszahler finanzieren die aktuellen Rentner","C) Der Staat finanziert alle Renten aus Steuermitteln","D) Private Versicherungen \u00fcbernehmen die Rentenzahlung"],
+                correct: 1,
+                explanation: "Beim Umlageverfahren (Generationenvertrag) finanzieren die heutigen Beitragszahler die heutigen Rentner \u2013 es wird kein Kapital angespart."
+            },
+            {
+                id: 51,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "Art. 9 Abs. 3 GG: \u201eDas Recht, zur Wahrung und F\u00f6rderung der Arbeits- und Wirtschaftsbedingungen Vereinigungen zu bilden, ist f\u00fcr jedermann und f\u00fcr alle Berufe gew\u00e4hrleistet. Abreden, die dieses Recht einschr\u00e4nken oder zu behindern suchen, sind nichtig, hierauf gerichtete Ma\u00dfnahmen sind rechtswidrig.\u201c",
+                question: "Welches Grundrecht wird in Art. 9 Abs. 3 GG garantiert?",
+                options: ["A) Die Berufsfreiheit","B) Die Koalitionsfreiheit (Recht auf Vereinigungsbildung)","C) Die Meinungsfreiheit","D) Die Versammlungsfreiheit"],
+                correct: 1,
+                explanation: "Art. 9 Abs. 3 GG garantiert die Koalitionsfreiheit \u2013 das Recht, Vereinigungen zur Wahrung von Arbeits- und Wirtschaftsbedingungen zu bilden (Gewerkschaften, Arbeitgeberverb\u00e4nde)."
+            },
+            {
+                id: 52,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 1 Abs. 1 TVG: \u201eDer Tarifvertrag regelt die Rechte und Pflichten der Tarifvertragsparteien und enth\u00e4lt Rechtsnormen, die den Inhalt, den Abschluss und die Beendigung von Arbeitsverh\u00e4ltnissen sowie betriebliche und betriebsverfassungsrechtliche Fragen ordnen k\u00f6nnen.\u201c",
+                question: "Was regelt ein Tarifvertrag laut \u00a7 1 TVG?",
+                options: ["A) Nur die Lohnh\u00f6he","B) Rechte und Pflichten der Tarifparteien sowie Normen \u00fcber Inhalt, Abschluss und Beendigung von Arbeitsverh\u00e4ltnissen","C) Ausschlie\u00dflich die Arbeitszeit","D) Nur das Verh\u00e4ltnis zwischen Arbeitgeber und Betriebsrat"],
+                correct: 1,
+                explanation: "Der Gesetzestext sagt: Rechte und Pflichten der Tarifvertragsparteien UND Rechtsnormen \u00fcber Inhalt, Abschluss und Beendigung von Arbeitsverh\u00e4ltnissen."
+            },
+            {
+                id: 53,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 4 Abs. 1 TVG: \u201eDie Rechtsnormen des Tarifvertrags, die den Inhalt, den Abschluss oder die Beendigung von Arbeitsverh\u00e4ltnissen ordnen, gelten unmittelbar und zwingend zwischen den beiderseits Tarifgebundenen [\u2026].\u201c",
+                question: "Wie wirken die Rechtsnormen eines Tarifvertrags auf die Arbeitsverh\u00e4ltnisse?",
+                options: ["A) Nur als Empfehlung","B) Unmittelbar und zwingend zwischen den beiderseits Tarifgebundenen","C) Nur wenn der Arbeitgeber zustimmt","D) Nur f\u00fcr Betriebe mit Betriebsrat"],
+                correct: 1,
+                explanation: "Der Text sagt: \u201eunmittelbar und zwingend zwischen den beiderseits Tarifgebundenen\u201c \u2013 d. h. Arbeitnehmer muss Gewerkschaftsmitglied sein UND Arbeitgeber muss tarifgebunden sein."
+            },
+            {
+                id: 54,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 4 Abs. 3 TVG: \u201eAbweichende Abmachungen sind nur zul\u00e4ssig, soweit sie durch den Tarifvertrag gestattet sind oder eine \u00c4nderung der Regelungen zugunsten des Arbeitnehmers enthalten.\u201c",
+                question: "Ein Tarifvertrag sieht 30 Urlaubstage vor. Der individuelle Arbeitsvertrag eines Arbeitnehmers enth\u00e4lt nur 25 Tage. Was gilt?",
+                options: ["A) 25 Tage, weil der Arbeitsvertrag vorgeht","B) 30 Tage, weil der Tarifvertrag den Mindeststandard setzt (G\u00fcnstigkeitsprinzip)","C) Ein Mittelwert von 27,5 Tagen","D) 25 Tage, weil der Arbeitnehmer unterschrieben hat"],
+                correct: 1,
+                explanation: "Laut \u00a7 4 Abs. 3 TVG: Abweichungen sind nur zul\u00e4ssig, wenn sie g\u00fcnstiger f\u00fcr den Arbeitnehmer sind. 25 < 30, also gilt der Tarifvertrag mit 30 Tagen."
+            },
+            {
+                id: 55,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 5 Abs. 1 TVG (Auszug): \u201eDas Bundesministerium f\u00fcr Arbeit und Soziales kann einen Tarifvertrag [\u2026] f\u00fcr allgemeinverbindlich erkl\u00e4ren, wenn [\u2026] die Allgemeinverbindlicherkl\u00e4rung im \u00f6ffentlichen Interesse geboten erscheint.\u201c",
+                question: "Was bewirkt eine Allgemeinverbindlicherkl\u00e4rung nach \u00a7 5 TVG?",
+                options: ["A) Der Tarifvertrag gilt nur noch f\u00fcr Gewerkschaftsmitglieder","B) Der Tarifvertrag wird aufgehoben","C) Der Tarifvertrag gilt auch f\u00fcr nicht tarifgebundene Arbeitgeber und Arbeitnehmer der Branche","D) Der Tarifvertrag wird zum Bundesgesetz"],
+                correct: 2,
+                explanation: "Durch die AVE erstreckt sich der Tarifvertrag auf alle Arbeitgeber und Arbeitnehmer der Branche \u2013 auch auf Nicht-Mitglieder."
+            },
+            {
+                id: 56,
+                text: "Lesen Sie den folgenden Gesetzestext und beantworten Sie die Frage.",
+                gesetz: "\u00a7 77 Abs. 3 BetrVG: \u201eArbeitsentgelte und sonstige Arbeitsbedingungen, die durch Tarifvertrag geregelt sind oder \u00fcblicherweise geregelt werden, k\u00f6nnen nicht Gegenstand einer Betriebsvereinbarung sein. Dies gilt nicht, wenn ein Tarifvertrag den Abschluss erg\u00e4nzender Betriebsvereinbarungen ausdr\u00fccklich zul\u00e4sst.\u201c",
+                question: "Was verbietet die \u201eTarifsperre\u201c in \u00a7 77 Abs. 3 BetrVG?",
+                options: ["A) Den Abschluss jeglicher Betriebsvereinbarungen","B) Betriebsvereinbarungen \u00fcber Arbeitsentgelte und Bedingungen, die \u00fcblicherweise tarifvertraglich geregelt werden","C) Tarifvertr\u00e4ge, die g\u00fcnstiger als Betriebsvereinbarungen sind","D) Streiks w\u00e4hrend der Laufzeit eines Tarifvertrags"],
+                correct: 1,
+                explanation: "Die Tarifsperre verbietet, dass Betriebsvereinbarungen Themen regeln, die typischerweise durch Tarifvertr\u00e4ge geregelt werden \u2013 es sei denn, der TV enth\u00e4lt eine \u00d6ffnungsklausel."
+            },
+            {
+                id: 57,
+                text: "Lesen Sie die folgende Information und beantworten Sie die Frage.",
+                gesetz: "Voraussetzungen f\u00fcr die Rechtm\u00e4\u00dfigkeit eines Streiks:\n1. Durchf\u00fchrung durch eine tariff\u00e4hige Gewerkschaft\n2. Verfolgung eines tariflich regelbaren Ziels\n3. Friedenspflicht ist abgelaufen (kein laufender Tarifvertrag)\n4. Einsatz als letztes Mittel (Ultima Ratio) \u2013 Verhandlungen m\u00fcssen gescheitert sein\n5. Verh\u00e4ltnism\u00e4\u00dfigkeit\n6. Urabstimmung mit mindestens 75 % Zustimmung der Mitglieder",
+                question: "Die Belegschaft eines Betriebs tritt spontan in den Streik, ohne Gewerkschaftsbeteiligung. Wie ist dieser Streik rechtlich einzuordnen?",
+                options: ["A) Rechtm\u00e4\u00dfig als Warnstreik","B) Rechtm\u00e4\u00dfig als Erzwingungsstreik","C) Rechtswidrig als \u201ewilder Streik\u201c \u2013 es fehlt die Gewerkschaftsorganisation","D) Rechtm\u00e4\u00dfig als Sympathiestreik"],
+                correct: 2,
+                explanation: "Ein Streik ohne tariff\u00e4hige Gewerkschaft ist ein \u201ewilder Streik\u201c und damit rechtswidrig. Voraussetzung Nr. 1 ist nicht erf\u00fcllt."
+            },
+            {
+                id: 58,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "Beitragsbemessungsgrenzen (BBG) 2025:\n\u2022 BBG KV/PV: 5.512,50 \u20ac/Monat (66.150 \u20ac/Jahr)\n\u2022 BBG RV/AV: 8.050,00 \u20ac/Monat (96.600 \u20ac/Jahr)\n\nBeispiel: Arbeitnehmer mit 7.000 \u20ac Bruttogehalt, Beitragssatz GKV 14,6 % + 2,5 % Zusatzbeitrag = 17,1 %",
+                question: "Von welchem Betrag wird der Krankenversicherungsbeitrag berechnet, wenn das Bruttogehalt 7.000 \u20ac betr\u00e4gt?",
+                options: ["A) 7.000 \u20ac (volles Bruttogehalt)","B) 5.512,50 \u20ac (BBG KV/PV)","C) 8.050 \u20ac (BBG RV/AV)","D) 3.500 \u20ac (H\u00e4lfte des Bruttos)"],
+                correct: 1,
+                explanation: "Das Bruttogehalt (7.000 \u20ac) liegt \u00fcber der BBG KV/PV (5.512,50 \u20ac). Der Beitrag wird daher nur bis zur BBG berechnet, also von 5.512,50 \u20ac."
+            },
+            {
+                id: 59,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "SGB V: Gesetzliche Krankenversicherung\n\u2022 Krankengeld (ab 7. Woche der Arbeitsunf\u00e4higkeit): ca. 70 % des Bruttoentgelts, h\u00f6chstens 90 % des Nettoentgelts\n\u2022 Maximale Bezugsdauer: 78 Wochen wegen derselben Krankheit innerhalb von 3 Jahren",
+                question: "Ab wann zahlt die gesetzliche Krankenkasse Krankengeld und wie hoch ist es?",
+                options: ["A) Ab dem 1. Tag; 100 % des Bruttos","B) Ab der 7. Woche; ca. 70 % des Bruttos, max. 90 % des Nettos","C) Ab der 3. Woche; 80 % des Bruttos","D) Ab dem 2. Monat; 50 % des Nettos"],
+                correct: 1,
+                explanation: "In den ersten 6 Wochen zahlt der Arbeitgeber (EntgFG). Ab der 7. Woche zahlt die GKV Krankengeld: ca. 70 % brutto, max. 90 % netto, max. 78 Wochen."
+            },
+            {
+                id: 60,
+                text: "Lesen Sie die folgende Gesetzesgrundlage und beantworten Sie die Frage.",
+                gesetz: "Pflegeversicherung (SGB XI):\n\u2022 Beitragssatz 2025/2026: 3,6 % (mit Kind) / 4,2 % (ohne Kind)\n\u2022 Der Kinderlosenzuschlag von 0,6 % wird allein vom Arbeitnehmer getragen\n\u2022 Grundbeitrag (3,6 %): AG und AN je 50 % (= je 1,8 %)\n\nBeispiel: Arbeitnehmer, kinderlos, 3.000 \u20ac brutto",
+                question: "Wie hoch ist der monatliche Arbeitnehmeranteil zur Pflegeversicherung f\u00fcr einen kinderlosen Arbeitnehmer mit 3.000 \u20ac brutto?",
+                options: ["A) 54 \u20ac (1,8 %)","B) 60 \u20ac (2,0 %)","C) 72 \u20ac (2,4 %)","D) 126 \u20ac (4,2 %)"],
+                correct: 2,
+                explanation: "AN-Anteil kinderlos: Grundanteil 1,8 % + Kinderlosenzuschlag 0,6 % = 2,4 %. Rechnung: 3.000 \u20ac \u00d7 2,4 % = 72 \u20ac."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};
+let checked = {};
+let showAll = false;
+let currentQ = 0;
+const totalQ = 60;
+
+function allQuestions() { const f=[]; sections.forEach(s=>s.questions.forEach(q=>f.push(q))); return f; }
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+    sections.forEach((sec) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<div class="gesetz-box"><span class="gesetz-label">Gesetzestext:</span><em>${q.gesetz.replace(/\n/g,'<br>')}</em></div>`;
+            html += `<p class="question-text" style="font-size:0.95rem;">${q.question}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) { cls = 'selected'; }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ===0?'disabled':''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#0f3460;">Frage ${currentQ+1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ===totalQ-1?'disabled':''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) { if (checked[qid]) return; answered[qid] = idx; render(); }
+function checkAnswer(qid) { if (answered[qid]===undefined||checked[qid]) return; checked[qid]=true; render(); updateProgress(); }
+function navigate(dir) { currentQ=Math.max(0,Math.min(totalQ-1,currentQ+dir)); render(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done/totalQ)*100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+const ihkScale = [
+    {min:92,max:100,note:'1',text:'Sehr gut',pass:true},
+    {min:81,max:91,note:'2',text:'Gut',pass:true},
+    {min:67,max:80,note:'3',text:'Befriedigend',pass:true},
+    {min:50,max:66,note:'4',text:'Ausreichend',pass:true},
+    {min:30,max:49,note:'5',text:'Mangelhaft',pass:false},
+    {min:0,max:29,note:'6',text:'Ungen\u00fcgend',pass:false}
+];
+
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done===0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+    let correct=0;
+    flatQ.forEach(q=>{ if(checked[q.id]&&answered[q.id]===q.correct) correct++; });
+    const pct=Math.round((correct/done)*100);
+    const punkte = correct;
+    const maxPunkte = done;
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let grade = ihkScale.find(g=>pct>=g.min&&pct<=g.max) || ihkScale[5];
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = `IHK-Note: ${grade.note} \u2013 ${grade.text}`;
+    gEl.className = 'grade ' + (grade.pass?'pass':'fail');
+
+    let tbl='<table><tr><th>Themenbereich</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec=>{
+        let sC=0,sT=0;
+        sec.questions.forEach(q=>{ if(checked[q.id]){sT++;if(answered[q.id]===q.correct)sC++;} });
+        const sP=sT>0?Math.round((sC/sT)*100):0;
+        tbl+=`<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sC}/${sT}</td><td>${sP} %</td></tr>`;
+    });
+    tbl+='</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    let scaleTbl='<h3>IHK-Notenschl\u00fcssel</h3><table>';
+    ihkScale.forEach(g=>{
+        const act = (pct>=g.min&&pct<=g.max) ? ' class="active-grade"' : '';
+        scaleTbl+=`<tr${act}><td><strong>Note ${g.note}</strong> \u2013 ${g.text}</td><td>${g.min}\u2013${g.max} %</td></tr>`;
+    });
+    scaleTbl+='</table>';
+    document.getElementById('ihkScale').innerHTML = scaleTbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({behavior:'smooth'});
+}
+
+function reviewWrong() {
+    document.getElementById('resultsPanel').classList.remove('show');
+    showAll = true;
+    document.getElementById('toggleView').checked = true;
+    render();
+    // scroll to first wrong
+    for (const q of flatQ) {
+        if (checked[q.id] && answered[q.id] !== q.correct) {
+            const el = document.getElementById('qcard-'+q.id);
+            if (el) { el.scrollIntoView({behavior:'smooth',block:'center'}); break; }
+        }
+    }
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length>0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered={}; checked={}; currentQ=0;
+    secondsLeft=TOTAL_SECONDS; timerRunning=false;
+    clearInterval(timerInterval);
+    document.getElementById('timerBtn').textContent='Timer starten';
+    document.getElementById('timerBtn').disabled=false;
+    updateTimerDisplay();
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function(){ showAll=this.checked; render(); });
+
+// ===================== SHUFFLE OPTIONS =====================
+function shuffleQuizOptions() {
+    let seed = 42;
+    function seededRandom() { seed=(seed*16807+0)%2147483647; return(seed-1)/2147483646; }
+    sections.forEach(sec=>{
+        sec.questions.forEach(q=>{
+            const correctText=q.options[q.correct];
+            const cleaned=q.options.map(o=>o.replace(/^[A-D]\)\s*/,''));
+            for(let i=cleaned.length-1;i>0;i--){
+                const j=Math.floor(seededRandom()*(i+1));
+                [cleaned[i],cleaned[j]]=[cleaned[j],cleaned[i]];
+            }
+            const prefixes=['A) ','B) ','C) ','D) '];
+            const correctClean=correctText.replace(/^[A-D]\)\s*/,'');
+            q.options=cleaned.map((c,i)=>prefixes[i]+c);
+            q.correct=cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+updateTimerDisplay();
+</script>
+</body>
+</html>
