@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Tag 10 &ndash; Umweltschutz im Betrieb</title>
+    <style>
+        /* ============ RESET & BASE ============ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ============ HEADER ============ */
+        .header {
+            background: linear-gradient(135deg, #003366 0%, #004a99 50%, #0066cc 100%);
+            color: #ffffff;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .header h1 {
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .header .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.9;
+        }
+        .header .meta {
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        /* ============ TOOLBAR ============ */
+        .toolbar {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+            padding: 0 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toolbar button, .toolbar .toggle-label {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .toolbar button:hover { background: #003366; }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-label input { accent-color: #004a99; width: 18px; height: 18px; cursor: pointer; }
+        /* ============ PROGRESS ============ */
+        .progress-container {
+            max-width: 960px;
+            margin: 1.2rem auto 0;
+            padding: 0 1rem;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.3rem;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dce3ea;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #0066cc, #00aaff);
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+        /* ============ MAIN CONTAINER ============ */
+        .container {
+            max-width: 960px;
+            margin: 1.5rem auto 2rem;
+            padding: 0 1rem;
+        }
+        /* ============ SECTION HEADER ============ */
+        .section-title {
+            background: #003366;
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        .section-title:first-child { margin-top: 0; }
+        /* ============ QUESTION CARD ============ */
+        .question-card {
+            background: #ffffff;
+            border: 1px solid #dce3ea;
+            border-radius: 0 0 8px 8px;
+            padding: 1.3rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .question-card.correct-card { border-left: 5px solid #28a745; }
+        .question-card.incorrect-card { border-left: 5px solid #dc3545; }
+        .question-number {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #003366;
+            padding: 0.2rem 0.7rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.6rem;
+        }
+        .question-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 0.9rem;
+        }
+        .options-list { list-style: none; }
+        .options-list li { margin-bottom: 0.5rem; }
+        .options-list label {
+            display: block;
+            padding: 0.55rem 0.8rem;
+            background: #f7f9fc;
+            border: 1.5px solid #dce3ea;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .options-list label:hover { background: #e8f0fe; border-color: #004a99; }
+        .options-list label.selected { background: #d4e2f7; border-color: #004a99; }
+        .options-list label.correct-opt { background: #d4edda; border-color: #28a745; font-weight: 600; }
+        .options-list label.incorrect-opt { background: #f8d7da; border-color: #dc3545; text-decoration: line-through; }
+        .options-list input { margin-right: 0.5rem; accent-color: #004a99; }
+        /* ============ FEEDBACK ============ */
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #d4edda; border-left: 4px solid #28a745; color: #155724; }
+        .feedback.incorrect { background: #f8d7da; border-left: 4px solid #dc3545; color: #721c24; }
+        /* ============ BUTTONS ============ */
+        .check-btn {
+            margin-top: 0.8rem;
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .check-btn:disabled { background: #9aa7b9; cursor: not-allowed; }
+        .check-btn:hover:not(:disabled) { background: #003366; }
+        /* ============ NAVIGATION ============ */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            padding: 0.5rem 0;
+        }
+        .nav-btn {
+            background: #004a99;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+        .nav-btn:disabled { background: #9aa7b9; cursor: not-allowed; }
+        .nav-btn:hover:not(:disabled) { background: #003366; }
+        /* ============ RESULTS PANEL ============ */
+        .results-panel {
+            background: #fff;
+            border: 2px solid #003366;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            display: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .results-panel.show { display: block; }
+        .results-panel h2 { color: #003366; margin-bottom: 0.8rem; }
+        .score-big {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #004a99;
+        }
+        .grade {
+            font-size: 1.4rem;
+            margin: 0.5rem 0 1rem;
+            font-weight: 600;
+        }
+        .grade.pass { color: #28a745; }
+        .grade.fail { color: #dc3545; }
+        .section-breakdown {
+            text-align: left;
+            max-width: 600px;
+            margin: 1rem auto;
+        }
+        .section-breakdown table { width: 100%; border-collapse: collapse; }
+        .section-breakdown th, .section-breakdown td {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #dce3ea;
+            font-size: 0.9rem;
+        }
+        .section-breakdown th { background: #e8f0fe; color: #003366; text-align: left; }
+        /* ============ REFERENCES ============ */
+        .references {
+            max-width: 960px;
+            margin: 2rem auto 3rem;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #dce3ea;
+        }
+        .references h3 { color: #003366; margin-bottom: 0.8rem; font-size: 1.1rem; }
+        .references p {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            padding-left: 2rem;
+            text-indent: -2rem;
+            line-height: 1.55;
+        }
+        /* ============ FOOTER ============ */
+        .footer {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            font-size: 0.8rem;
+            color: #777;
+            border-top: 1px solid #dce3ea;
+        }
+        /* ============ PRINT ============ */
+        @media print {
+            body { background: #fff; }
+            .toolbar, .progress-container, .nav-row, .check-btn, .results-panel { display: none !important; }
+            .header { background: #003366 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .question-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+            .section-title { break-after: avoid; }
+            .feedback.show { display: block !important; }
+        }
+        /* ============ RESPONSIVE ============ */
+        @media (max-width: 600px) {
+            .header { padding: 1.4rem 0.8rem; }
+            .question-card { padding: 1rem; }
+            .toolbar { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        /* ============ HIDDEN HELPER ============ */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<!-- ============================== HEADER ============================== -->
+<header class="header">
+    <h1>Quiz Tag 10 &ndash; Umweltschutz im Betrieb</h1>
+    <div class="subtitle">Kaufm&auml;nnische Berufe &ndash; Wirtschafts- und Sozialkunde</div>
+    <div class="meta">
+        <span>&copy; Can Siebert</span>
+        <span>Stand 04/2026</span>
+        <span>60 Fragen &bull; Multiple Choice</span>
+    </div>
+</header>
+
+<!-- ============================== TOOLBAR ============================== -->
+<div class="toolbar">
+    <label class="toggle-label">
+        <input type="checkbox" id="toggleView"> Alle Fragen auf einmal anzeigen
+    </label>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="showResults()">Ergebnis anzeigen</button>
+        <button onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== PROGRESS ============================== -->
+<div class="progress-container">
+    <div class="progress-info">
+        <span id="progressText">0 von 60 beantwortet</span>
+        <span id="progressPct">0 %</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- ============================== QUIZ BODY ============================== -->
+<div class="container" id="quizContainer"></div>
+
+<!-- ============================== RESULTS ============================== -->
+<div class="container">
+    <div class="results-panel" id="resultsPanel">
+        <h2>Dein Ergebnis</h2>
+        <div class="score-big" id="scoreBig"></div>
+        <div class="grade" id="gradeText"></div>
+        <div class="section-breakdown" id="sectionBreakdown"></div>
+        <button class="nav-btn" style="margin-top:1rem;" onclick="resetQuiz()">Quiz zur&uuml;cksetzen</button>
+    </div>
+</div>
+
+<!-- ============================== REFERENCES ============================== -->
+<div class="references">
+    <h3>Literaturverzeichnis (APA 7)</h3>
+    <p>Bundesministerium der Justiz. (1974). <em>Bundes-Immissionsschutzgesetz (BImSchG)</em>. https://www.gesetze-im-internet.de/bimschg/</p>
+    <p>Bundesministerium der Justiz. (2009). <em>Wasserhaushaltsgesetz (WHG)</em>. https://www.gesetze-im-internet.de/whg_2009/</p>
+    <p>Bundesministerium der Justiz. (2009). <em>Bundesnaturschutzgesetz (BNatSchG)</em>. https://www.gesetze-im-internet.de/bnatschg_2009/</p>
+    <p>Bundesministerium der Justiz. (2012). <em>Kreislaufwirtschaftsgesetz (KrWG)</em>. https://www.gesetze-im-internet.de/krwg/</p>
+    <p>Bundesministerium der Justiz. (2023). <em>Erneuerbare-Energien-Gesetz (EEG 2023)</em>. https://www.gesetze-im-internet.de/eeg_2014/</p>
+    <p>Europ&auml;isches Parlament und Rat. (2009). <em>Verordnung (EG) Nr. 1221/2009 (EMAS)</em>. https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32009R1221</p>
+    <p>Hansmann, K. &amp; Sellner, D. (2016). <em>Grundz&uuml;ge des Umweltrechts</em> (5. Aufl.). Erich Schmidt Verlag.</p>
+    <p>International Organization for Standardization. (2015). <em>ISO 14001:2015 &ndash; Umweltmanagementsysteme &ndash; Anforderungen mit Anleitung zur Anwendung</em>. https://www.iso.org/standard/60857.html</p>
+    <p>Kloepfer, M. (2019). <em>Umweltrecht</em> (4. Aufl.). C. H. Beck.</p>
+    <p>M&uuml;ller, M., Fuentes, U. &amp; Kohl, H. (2020). <em>Umweltmanagement in der Praxis f&uuml;r Dummies</em>. Wiley-VCH.</p>
+    <p>Semler, S. &amp; Kolbe, C. (2021). <em>Wirtschafts- und Sozialkunde</em>. Westermann.</p>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<footer class="footer">
+    &copy; 2026 Can Siebert. Alle Rechte vorbehalten. | Stand 04/2026
+</footer>
+
+<!-- ============================== DATA + LOGIC ============================== -->
+<script>
+// ===================== QUESTION DATA =====================
+const sections = [
+    {
+        title: "Abschnitt 1: Umweltschutzgesetze (Fragen 1\u201310)",
+        questions: [
+            {
+                id: 1,
+                text: "Welches Gesetz ist das zentrale Gesetz zum Schutz vor sch\u00e4dlichen Umwelteinwirkungen in Deutschland?",
+                options: [
+                    "A) BImSchG (Bundes-Immissionsschutzgesetz)",
+                    "B) BGB (B\u00fcrgerliches Gesetzbuch)",
+                    "C) HGB (Handelsgesetzbuch)",
+                    "D) GewO (Gewerbeordnung)"
+                ],
+                correct: 0,
+                explanation: "Das BImSchG ist das zentrale Gesetz zum Schutz vor sch\u00e4dlichen Umwelteinwirkungen (Luft, L\u00e4rm, Ersch\u00fctterungen, Strahlung)."
+            },
+            {
+                id: 2,
+                text: "Welches Gesetz regelt die Abfallhierarchie und die Kreislaufwirtschaft?",
+                options: [
+                    "A) BImSchG",
+                    "B) WHG",
+                    "C) KrWG (Kreislaufwirtschaftsgesetz)",
+                    "D) BBodSchG"
+                ],
+                correct: 2,
+                explanation: "Das Kreislaufwirtschaftsgesetz (KrWG) regelt die Abfallvermeidung, Verwertung, Beseitigung und die 5-stufige Abfallhierarchie."
+            },
+            {
+                id: 3,
+                text: "Wof\u00fcr steht die Abk\u00fcrzung WHG?",
+                options: [
+                    "A) Wohnungsgesetz",
+                    "B) Wasserhaushaltsgesetz",
+                    "C) Warenhandelsgesetz",
+                    "D) Wirtschaftsg\u00fcterhaftungsgesetz"
+                ],
+                correct: 1,
+                explanation: "WHG steht f\u00fcr Wasserhaushaltsgesetz und sch\u00fctzt Gew\u00e4sser als Bestandteil des Naturhaushalts."
+            },
+            {
+                id: 4,
+                text: "Was ist der Unterschied zwischen Emission und Immission?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Emission = Aussto\u00df am Ort der Entstehung, Immission = Einwirkung am Ort des Eintreffens",
+                    "C) Emission betrifft nur Luft, Immission nur Wasser",
+                    "D) Emission ist gesetzlich geregelt, Immission nicht"
+                ],
+                correct: 1,
+                explanation: "Emission bezeichnet den Aussto\u00df von Schadstoffen am Ort der Entstehung (z.\u202fB. Schornstein). Immission ist die Einwirkung am Ort des Eintreffens auf Mensch und Umwelt."
+            },
+            {
+                id: 5,
+                text: "Welches Gesetz sch\u00fctzt Natur und Landschaft sowie die biologische Vielfalt?",
+                options: [
+                    "A) BNatSchG (Bundesnaturschutzgesetz)",
+                    "B) BImSchG",
+                    "C) KrWG",
+                    "D) ChemG"
+                ],
+                correct: 0,
+                explanation: "Das Bundesnaturschutzgesetz (BNatSchG) sch\u00fctzt Natur und Landschaft zur dauerhaften Sicherung der biologischen Vielfalt."
+            },
+            {
+                id: 6,
+                text: "Was bedeutet die Genehmigungspflicht nach BImSchG?",
+                options: [
+                    "A) Alle Betriebe ben\u00f6tigen eine Genehmigung",
+                    "B) Bestimmte Anlagen (z.\u202fB. Kraftwerke, Fabriken) m\u00fcssen vor Inbetriebnahme genehmigt werden",
+                    "C) Nur B\u00fcrogeb\u00e4ude sind genehmigungspflichtig",
+                    "D) Die Genehmigung ist nur f\u00fcr kleine Betriebe erforderlich"
+                ],
+                correct: 1,
+                explanation: "Das BImSchG schreibt eine Genehmigungspflicht f\u00fcr bestimmte Anlagen vor (z.\u202fB. Kraftwerke, Fabriken, gro\u00dfe Chemieanlagen)."
+            },
+            {
+                id: 7,
+                text: "Welche Verordnung konkretisiert das BImSchG f\u00fcr Luftemissionen?",
+                options: [
+                    "A) TA L\u00e4rm",
+                    "B) TA Luft",
+                    "C) AVV",
+                    "D) GefStoffV"
+                ],
+                correct: 1,
+                explanation: "Die TA Luft (Technische Anleitung zur Reinhaltung der Luft) konkretisiert das BImSchG mit Grenzwerten f\u00fcr Luftschadstoffe."
+            },
+            {
+                id: 8,
+                text: "Welche besondere Pflicht besteht beim Umgang mit wassergef\u00e4hrdenden Stoffen?",
+                options: [
+                    "A) Meldung beim Finanzamt",
+                    "B) Sorgfaltspflicht nach WHG (z.\u202fB. Auffangwannen, dichte Lagerbeh\u00e4lter)",
+                    "C) Jahresabgabe an die Gemeinde",
+                    "D) Keine besondere Pflicht"
+                ],
+                correct: 1,
+                explanation: "Wer wassergef\u00e4hrdende Stoffe lagert oder verwendet, unterliegt einer besonderen Sorgfaltspflicht nach WHG -- z.\u202fB. Auffangwannen, dichte Lagerbeh\u00e4lter, regelm\u00e4\u00dfige Pr\u00fcfungen."
+            },
+            {
+                id: 9,
+                text: "Was regelt das BBodSchG?",
+                options: [
+                    "A) Den Schutz des Bodens vor Verunreinigungen",
+                    "B) Den Schutz vor L\u00e4rmbelastung",
+                    "C) Den Schutz von Wasservorr\u00e4ten",
+                    "D) Den Schutz von Wohngeb\u00e4uden"
+                ],
+                correct: 0,
+                explanation: "Das Bundes-Bodenschutzgesetz (BBodSchG) sch\u00fctzt den Boden vor sch\u00e4dlichen Ver\u00e4nderungen und regelt die Sanierung von Altlasten."
+            },
+            {
+                id: 10,
+                text: "Auf welchen Ebenen basiert der betriebliche Umweltschutz?",
+                options: [
+                    "A) Nur auf EU-Recht",
+                    "B) Nur auf Bundesgesetzen",
+                    "C) Auf EU-Recht, Bundes-, Landesgesetzen und Verordnungen (mehrstufiges System)",
+                    "D) Nur auf Landesrecht"
+                ],
+                correct: 2,
+                explanation: "Der betriebliche Umweltschutz basiert auf einem mehrstufigen Rechtssystem: EU-Recht, Bundesgesetze, Landesgesetze und Verordnungen."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 2: Umweltbelastungen durch Betriebe (Fragen 11\u201320)",
+        questions: [
+            {
+                id: 11,
+                text: "Was sind Emissionen?",
+                options: [
+                    "A) Steuerabgaben an den Staat",
+                    "B) Schadstoffe, die von einer Quelle an die Umwelt abgegeben werden",
+                    "C) Versicherungsleistungen",
+                    "D) Investitionen in Umwelttechnologien"
+                ],
+                correct: 1,
+                explanation: "Emissionen sind Schadstoffe (Gase, Staub, L\u00e4rm), die von einer Quelle (z.\u202fB. Schornstein, Auspuff) an die Umwelt abgegeben werden."
+            },
+            {
+                id: 12,
+                text: "Welches Gas ist der Hauptverursacher des Klimawandels?",
+                options: [
+                    "A) Stickoxide (NOx)",
+                    "B) Schwefeldioxid (SO2)",
+                    "C) Kohlendioxid (CO2)",
+                    "D) Ozon (O3)"
+                ],
+                correct: 2,
+                explanation: "Kohlendioxid (CO2) ist ein Treibhausgas und der Hauptverursacher des Klimawandels. Reduktion ist zentrales Ziel der Klimapolitik."
+            },
+            {
+                id: 13,
+                text: "Was verursacht Feinstaub in der Umwelt?",
+                options: [
+                    "A) Er ist unsch\u00e4dlich f\u00fcr den Menschen",
+                    "B) Er ist nur optisch st\u00f6rend",
+                    "C) Er f\u00fchrt zu Atemwegserkrankungen",
+                    "D) Er verbessert die Luftqualit\u00e4t"
+                ],
+                correct: 2,
+                explanation: "Feinstaub (v.\u202fa. PM10, PM2,5) kann tief in die Lunge eindringen und Atemwegserkrankungen sowie Herz-Kreislauf-Probleme verursachen."
+            },
+            {
+                id: 14,
+                text: "Welche betriebliche Abwasserquelle verursacht eine thermische Belastung von Gew\u00e4ssern?",
+                options: [
+                    "A) Produktionsabwasser",
+                    "B) K\u00fchlwasser",
+                    "C) Sanit\u00e4rabwasser",
+                    "D) Niederschlagswasser"
+                ],
+                correct: 1,
+                explanation: "K\u00fchlwasser verursacht eine thermische Belastung: Warmes K\u00fchlwasser reduziert den Sauerstoffgehalt im Gew\u00e4sser und kann Fischsterben zur Folge haben."
+            },
+            {
+                id: 15,
+                text: "Welche Pflicht haben Betriebe, die Abwasser in Gew\u00e4sser einleiten?",
+                options: [
+                    "A) Sie m\u00fcssen eine Einleitungserlaubnis einholen und Grenzwerte einhalten",
+                    "B) Sie k\u00f6nnen frei entscheiden",
+                    "C) Nur gro\u00dfe Industriebetriebe ben\u00f6tigen Genehmigungen",
+                    "D) Eine Meldung beim Finanzamt reicht aus"
+                ],
+                correct: 0,
+                explanation: "Nach WHG m\u00fcssen Betriebe eine Einleitungserlaubnis einholen, Grenzwerte einhalten und Abwasser ggf. vorbehandeln (z.\u202fB. \u00dcber Betriebskl\u00e4ranlagen)."
+            },
+            {
+                id: 16,
+                text: "Wie m\u00fcssen gef\u00e4hrliche Abf\u00e4lle behandelt werden?",
+                options: [
+                    "A) Zusammen mit Restm\u00fcll entsorgt werden",
+                    "B) Getrennt gesammelt, dokumentiert und fachgerecht \u00fcber zugelassene Entsorger entsorgt werden",
+                    "C) Kostenlos auf \u00f6ffentliche Deponien gebracht werden",
+                    "D) Nicht dokumentiert werden"
+                ],
+                correct: 1,
+                explanation: "Gef\u00e4hrliche Abf\u00e4lle (z.\u202fB. L\u00f6semittel, Batterien) m\u00fcssen getrennt gesammelt, dokumentiert (Nachweispflicht nach KrWG) und \u00fcber zugelassene Entsorger beseitigt werden."
+            },
+            {
+                id: 17,
+                text: "Was versteht man unter Bodenversiegelung?",
+                options: [
+                    "A) Die Abdichtung des Bodens gegen Regen durch Bauwerke und befestigte Fl\u00e4chen",
+                    "B) Das Aufbringen einer Schutzschicht gegen Sch\u00e4dlinge",
+                    "C) Die Verg\u00e4rung organischer Stoffe",
+                    "D) Das Verdichten des Bodens durch Maschinen"
+                ],
+                correct: 0,
+                explanation: "Bodenversiegelung bedeutet die Abdichtung des Bodens durch Bauwerke und befestigte Fl\u00e4chen -- Regenwasser kann nicht mehr versickern."
+            },
+            {
+                id: 18,
+                text: "Welches Gesetz und welche Verordnung regeln den Schutz vor L\u00e4rm?",
+                options: [
+                    "A) WHG und TA Luft",
+                    "B) KrWG und GefStoffV",
+                    "C) BImSchG und TA L\u00e4rm",
+                    "D) BNatSchG und AVV"
+                ],
+                correct: 2,
+                explanation: "L\u00e4rm wird durch das BImSchG und die TA L\u00e4rm geregelt. Je nach Gebietstyp (Gewerbe, Wohn, Misch) gelten unterschiedliche Immissionsrichtwerte."
+            },
+            {
+                id: 19,
+                text: "In welchem Gebiet gelten die strengsten L\u00e4rmgrenzwerte?",
+                options: [
+                    "A) Gewerbegebiet",
+                    "B) Industriegebiet",
+                    "C) Mischgebiet",
+                    "D) Reines Wohngebiet"
+                ],
+                correct: 3,
+                explanation: "Im reinen Wohngebiet gelten die strengsten L\u00e4rmgrenzwerte (tags 50 dB(A), nachts 35 dB(A)), weil dort vor allem gewohnt wird."
+            },
+            {
+                id: 20,
+                text: "Welche dieser Belastungen wird NICHT direkt im BImSchG geregelt?",
+                options: [
+                    "A) L\u00e4rm",
+                    "B) Ersch\u00fctterungen",
+                    "C) Luftverunreinigungen",
+                    "D) Abwassereinleitungen"
+                ],
+                correct: 3,
+                explanation: "Abwassereinleitungen werden im WHG geregelt. Das BImSchG regelt Luftverunreinigungen, L\u00e4rm, Ersch\u00fctterungen und Strahlung."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 3: Umweltmanagement und Beauftragte (Fragen 21\u201330)",
+        questions: [
+            {
+                id: 21,
+                text: "Was ist ein Umweltmanagementsystem (UMS)?",
+                options: [
+                    "A) Eine Steuererkl\u00e4rung f\u00fcr umweltfreundliche Unternehmen",
+                    "B) Ein systematischer Ansatz zur Planung, Steuerung und \u00dcberwachung umweltrelevanter Aktivit\u00e4ten",
+                    "C) Eine Software zur Berechnung des CO2-Aussto\u00dfes",
+                    "D) Eine Abteilung in der Gesch\u00e4ftsf\u00fchrung"
+                ],
+                correct: 1,
+                explanation: "Ein UMS ist ein systematischer Ansatz zur Planung, Steuerung und \u00dcberwachung aller umweltrelevanten Aktivit\u00e4ten mit dem Ziel der kontinuierlichen Verbesserung."
+            },
+            {
+                id: 22,
+                text: "Welche internationale Norm beschreibt Umweltmanagementsysteme?",
+                options: [
+                    "A) ISO 9001",
+                    "B) ISO 14001",
+                    "C) ISO 27001",
+                    "D) ISO 45001"
+                ],
+                correct: 1,
+                explanation: "ISO 14001:2015 ist die weltweit anerkannte Norm f\u00fcr Umweltmanagementsysteme. ISO 9001 regelt Qualit\u00e4t, 45001 Arbeitsschutz, 27001 Informationssicherheit."
+            },
+            {
+                id: 23,
+                text: "Wof\u00fcr steht der PDCA-Zyklus?",
+                options: [
+                    "A) Plan -- Do -- Check -- Act",
+                    "B) Plant -- Deliver -- Control -- Analyze",
+                    "C) Produce -- Distribute -- Consume -- Allocate",
+                    "D) Prepare -- Discuss -- Confirm -- Accept"
+                ],
+                correct: 0,
+                explanation: "PDCA steht f\u00fcr Plan -- Do -- Check -- Act. Es ist der Grundzyklus der ISO 14001 zur kontinuierlichen Verbesserung."
+            },
+            {
+                id: 24,
+                text: "Was ist der zentrale Unterschied zwischen ISO 14001 und EMAS?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) EMAS ist international, ISO 14001 nur EU-weit",
+                    "C) EMAS verlangt eine \u00f6ffentliche Umwelterkl\u00e4rung, ISO 14001 nicht",
+                    "D) ISO 14001 ist verpflichtend, EMAS freiwillig"
+                ],
+                correct: 2,
+                explanation: "EMAS (EU-weit) verlangt eine verpflichtende \u00f6ffentliche Umwelterkl\u00e4rung und strengere Anforderungen bei der Rechtskonformit\u00e4t. ISO 14001 (international) hat keine Umwelterkl\u00e4rungspflicht."
+            },
+            {
+                id: 25,
+                text: "Wof\u00fcr steht die Abk\u00fcrzung EMAS?",
+                options: [
+                    "A) European Management and Audit Standard",
+                    "B) Eco-Management and Audit Scheme",
+                    "C) Environmental Management Accounting System",
+                    "D) European Monitoring of Air Standards"
+                ],
+                correct: 1,
+                explanation: "EMAS steht f\u00fcr Eco-Management and Audit Scheme -- das europ\u00e4ische Umweltmanagementsystem der EU."
+            },
+            {
+                id: 26,
+                text: "Welche Aufgabe hat der Immissionsschutzbeauftragte?",
+                options: [
+                    "A) Steuerliche Beratung der Gesch\u00e4ftsleitung",
+                    "B) \u00dcberwachung der Einhaltung des BImSchG und Beratung der Gesch\u00e4ftsleitung",
+                    "C) Verwaltung des Betriebsverm\u00f6gens",
+                    "D) Organisation der Betriebsfeier"
+                ],
+                correct: 1,
+                explanation: "Der Immissionsschutzbeauftragte \u00fcberwacht die Einhaltung des BImSchG und ber\u00e4t die Gesch\u00e4ftsleitung. Er genie\u00dft besonderen K\u00fcndigungsschutz und ist weisungsfrei."
+            },
+            {
+                id: 27,
+                text: "Welche Besonderheit kennzeichnet die Rolle von Umweltbeauftragten?",
+                options: [
+                    "A) Sie sind dem direkten Weisungsrecht des Vorgesetzten unterworfen",
+                    "B) Sie genie\u00dfen besonderen K\u00fcndigungsschutz und sind in ihrer Funktion weisungsfrei",
+                    "C) Sie werden vom Betriebsrat ernannt",
+                    "D) Sie sind Pflichtbeauftragte in allen Kleinbetrieben"
+                ],
+                correct: 1,
+                explanation: "Umweltbeauftragte genie\u00dfen besonderen K\u00fcndigungsschutz und sind in ihrer Funktion weisungsfrei -- nur so k\u00f6nnen sie ihre Kontrollaufgabe unabh\u00e4ngig wahrnehmen."
+            },
+            {
+                id: 28,
+                text: "Welcher Beauftragte \u00fcberwacht die Einhaltung des Wasserhaushaltsgesetzes?",
+                options: [
+                    "A) Gew\u00e4sserschutzbeauftragter",
+                    "B) Immissionsschutzbeauftragter",
+                    "C) Abfallbeauftragter",
+                    "D) Datenschutzbeauftragter"
+                ],
+                correct: 0,
+                explanation: "Der Gew\u00e4sserschutzbeauftragte \u00fcberwacht die Gew\u00e4sserbenutzung und die Einhaltung des WHG im Betrieb."
+            },
+            {
+                id: 29,
+                text: "Welche Pflicht hat jeder Besch\u00e4ftigte im betrieblichen Umweltschutz?",
+                options: [
+                    "A) Nur der Umweltbeauftragte tr\u00e4gt Verantwortung",
+                    "B) Keine -- Umweltschutz ist Sache der Gesch\u00e4ftsleitung",
+                    "C) Betriebliche Umweltvorschriften einhalten, Abf\u00e4lle trennen, Ressourcen sparen",
+                    "D) Nur die Einhaltung von Zeitvorgaben"
+                ],
+                correct: 2,
+                explanation: "Jeder Besch\u00e4ftigte hat Mitwirkungspflichten: Betriebliche Umweltvorschriften einhalten, Abf\u00e4lle richtig trennen, Ressourcen sparsam nutzen und Umweltgef\u00e4hrdungen melden."
+            },
+            {
+                id: 30,
+                text: "Was ist das Ziel eines Umweltmanagementsystems?",
+                options: [
+                    "A) Senkung der Personalkosten",
+                    "B) Kontinuierliche Verbesserung der Umweltleistung",
+                    "C) Erh\u00f6hung des Absatzes",
+                    "D) Maximierung des Gewinns kurzfristig"
+                ],
+                correct: 1,
+                explanation: "Ziel eines UMS ist die kontinuierliche Verbesserung der Umweltleistung -- basierend auf dem PDCA-Zyklus."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 4: Energie- und Materialeffizienz (Fragen 31\u201340)",
+        questions: [
+            {
+                id: 31,
+                text: "Was bedeutet Ressourceneffizienz?",
+                options: [
+                    "A) Mit m\u00f6glichst geringem Einsatz von Energie und Material m\u00f6glichst hohen Nutzen erzielen",
+                    "B) Nur erneuerbare Energien nutzen",
+                    "C) Alle Rohstoffe ausschlie\u00dflich aus Recycling beziehen",
+                    "D) Den Energieverbrauch maximieren"
+                ],
+                correct: 0,
+                explanation: "Ressourceneffizienz bedeutet, mit m\u00f6glichst geringem Einsatz von Energie und Material einen m\u00f6glichst hohen Nutzen zu erzielen."
+            },
+            {
+                id: 32,
+                text: "Welches ist eine technische Ma\u00dfnahme zur Verbesserung der Energieeffizienz?",
+                options: [
+                    "A) Austausch von Gl\u00fchlampen gegen LED",
+                    "B) Energieaudits durchf\u00fchren",
+                    "C) Mitarbeiter sensibilisieren",
+                    "D) Energiekennzahlen erfassen"
+                ],
+                correct: 0,
+                explanation: "Der Austausch von Gl\u00fchlampen gegen LED ist eine technische Ma\u00dfnahme. Audits, Sensibilisierung und Kennzahlenerfassung sind organisatorische Ma\u00dfnahmen."
+            },
+            {
+                id: 33,
+                text: "Welche Norm regelt Energiemanagementsysteme?",
+                options: [
+                    "A) ISO 9001",
+                    "B) ISO 14001",
+                    "C) ISO 50001",
+                    "D) ISO 27001"
+                ],
+                correct: 2,
+                explanation: "ISO 50001 ist die internationale Norm f\u00fcr Energiemanagementsysteme. ISO 14001 regelt Umweltmanagement allgemein."
+            },
+            {
+                id: 34,
+                text: "Welche Energiequelle geh\u00f6rt NICHT zu den erneuerbaren Energien?",
+                options: [
+                    "A) Solarenergie",
+                    "B) Windenergie",
+                    "C) Erdgas",
+                    "D) Biomasse"
+                ],
+                correct: 2,
+                explanation: "Erdgas ist ein fossiler Brennstoff und geh\u00f6rt NICHT zu den erneuerbaren Energien. Solar, Wind, Biomasse, Wasser und Geothermie sind erneuerbare Energien."
+            },
+            {
+                id: 35,
+                text: "Was regelt das EEG?",
+                options: [
+                    "A) Die F\u00f6rderung erneuerbarer Energien und die Einspeiseverg\u00fctung",
+                    "B) Die Steuer auf Strom",
+                    "C) Die Stromtarife der Endkunden",
+                    "D) Den Bau von Atomkraftwerken"
+                ],
+                correct: 0,
+                explanation: "Das Erneuerbare-Energien-Gesetz (EEG) f\u00f6rdert den Ausbau erneuerbarer Energien und regelt die Einspeiseverg\u00fctung f\u00fcr ins Netz eingespeisten Gr\u00fcnstrom."
+            },
+            {
+                id: 36,
+                text: "Welche Strategie geh\u00f6rt zur Materialeffizienz?",
+                options: [
+                    "A) Mehr Ausschuss produzieren",
+                    "B) Leichtbau, d\u00fcnnere Verpackungen, optimierte Zuschnitte",
+                    "C) Materialien doppelt einkaufen",
+                    "D) Nur Neuware verwenden"
+                ],
+                correct: 1,
+                explanation: "Strategien zur Materialeffizienz sind u.\u202fa. Leichtbau, d\u00fcnnere Verpackungen, optimierte Zuschnitte und Lean Production."
+            },
+            {
+                id: 37,
+                text: "Welche Energiequelle wird per Photovoltaik genutzt?",
+                options: [
+                    "A) Wind",
+                    "B) Wasser",
+                    "C) Sonnenlicht",
+                    "D) Erdw\u00e4rme"
+                ],
+                correct: 2,
+                explanation: "Photovoltaik wandelt Sonnenlicht direkt in elektrische Energie um. Sie ist die h\u00e4ufigste betriebliche erneuerbare Energiequelle."
+            },
+            {
+                id: 38,
+                text: "Welche Einsparung kann ein mittelst\u00e4ndisches Unternehmen durch systematisches Energiemanagement typischerweise erreichen?",
+                options: [
+                    "A) 1--2 % der Energiekosten",
+                    "B) 10--30 % der Energiekosten",
+                    "C) 50--70 % der Energiekosten",
+                    "D) 80--90 % der Energiekosten"
+                ],
+                correct: 1,
+                explanation: "Ein mittelst\u00e4ndisches Unternehmen kann durch systematisches Energiemanagement 10--30 % seiner Energiekosten einsparen."
+            },
+            {
+                id: 39,
+                text: "Was versteht man unter Materialsubstitution?",
+                options: [
+                    "A) Ersatz von Materialien durch nachhaltigere Alternativen (z.\u202fB. Recyclingmaterial statt Neuware)",
+                    "B) Der Einkauf von Materialien im Ausland",
+                    "C) Die Lagerung von Materialien in der N\u00e4he der Produktion",
+                    "D) Die Vernichtung von \u00fcbersch\u00fcssigem Material"
+                ],
+                correct: 0,
+                explanation: "Materialsubstitution bedeutet, Materialien durch nachhaltigere Alternativen zu ersetzen -- z.\u202fB. Recyclingmaterialien statt Neuware oder nachwachsende Rohstoffe."
+            },
+            {
+                id: 40,
+                text: "Warum ist Ressourceneffizienz ein \u201aWin-Win\u2018?",
+                options: [
+                    "A) Weil sie nur Umweltvorteile bringt",
+                    "B) Weil sie nur wirtschaftliche Vorteile bringt",
+                    "C) Weil sie Kosten senkt UND die Umwelt schont",
+                    "D) Weil sie nur Marketingvorteile bringt"
+                ],
+                correct: 2,
+                explanation: "Ressourceneffizienz ist ein doppelter Gewinn: Sie senkt Kosten f\u00fcr den Betrieb UND schont die Umwelt -- Win-Win f\u00fcr Unternehmen und \u00d6kologie."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 5: Abfallvermeidung und Entsorgung (Fragen 41\u201350)",
+        questions: [
+            {
+                id: 41,
+                text: "Wie viele Stufen hat die Abfallhierarchie nach \u00a7 6 KrWG?",
+                options: [
+                    "A) 3 Stufen",
+                    "B) 4 Stufen",
+                    "C) 5 Stufen",
+                    "D) 7 Stufen"
+                ],
+                correct: 2,
+                explanation: "Die Abfallhierarchie nach \u00a7 6 KrWG hat 5 Stufen: Vermeidung, Wiederverwendung, Recycling, sonstige Verwertung, Beseitigung."
+            },
+            {
+                id: 42,
+                text: "Welche Stufe der Abfallhierarchie hat die h\u00f6chste Priorit\u00e4t?",
+                options: [
+                    "A) Vermeidung",
+                    "B) Recycling",
+                    "C) Beseitigung",
+                    "D) Sonstige Verwertung"
+                ],
+                correct: 0,
+                explanation: "Die Abfallvermeidung steht auf Stufe 1 und hat die h\u00f6chste Priorit\u00e4t. Die beste Abfallentsorgung ist die, die gar nicht erst n\u00f6tig wird."
+            },
+            {
+                id: 43,
+                text: "Welche ist die richtige Reihenfolge der Abfallhierarchie?",
+                options: [
+                    "A) Beseitigung > Recycling > Vermeidung > Verwertung > Wiederverwendung",
+                    "B) Vermeidung > Wiederverwendung > Recycling > sonstige Verwertung > Beseitigung",
+                    "C) Recycling > Vermeidung > Verwertung > Wiederverwendung > Beseitigung",
+                    "D) Wiederverwendung > Beseitigung > Recycling > Vermeidung > Verwertung"
+                ],
+                correct: 1,
+                explanation: "Die Reihenfolge lautet: 1. Vermeidung, 2. Vorbereitung zur Wiederverwendung, 3. Recycling, 4. Sonstige Verwertung (z.\u202fB. energetisch), 5. Beseitigung."
+            },
+            {
+                id: 44,
+                text: "Was ist der Unterschied zwischen Recycling und sonstiger Verwertung?",
+                options: [
+                    "A) Es gibt keinen Unterschied",
+                    "B) Recycling ist stofflich (Material wird wiederverwertet), sonstige Verwertung ist energetisch (Verbrennung mit Energiegewinnung)",
+                    "C) Recycling ist nur f\u00fcr Metall, sonstige Verwertung f\u00fcr Kunststoff",
+                    "D) Recycling ist freiwillig, sonstige Verwertung Pflicht"
+                ],
+                correct: 1,
+                explanation: "Recycling ist die STOFFLICHE Verwertung (z.\u202fB. Altglas wird zu neuem Glas). Sonstige Verwertung ist i.\u202fd.\u202fR. die ENERGETISCHE Verwertung (Verbrennung mit Energienutzung)."
+            },
+            {
+                id: 45,
+                text: "Was regelt das Verpackungsgesetz (VerpackG)?",
+                options: [
+                    "A) Die Preise von Verpackungen",
+                    "B) Die R\u00fccknahme und Verwertung von Verpackungen, Produktverantwortung der Hersteller",
+                    "C) Den Import von Lebensmitteln",
+                    "D) Die Lagerung von Chemikalien"
+                ],
+                correct: 1,
+                explanation: "Das VerpackG regelt die R\u00fccknahme und Verwertung von Verpackungen und verpflichtet Hersteller zur Produktverantwortung (z.\u202fB. Beteiligung an dualen Systemen, Pfandpflicht)."
+            },
+            {
+                id: 46,
+                text: "Was ist ein duales System?",
+                options: [
+                    "A) Ein System zur Abwasserreinigung",
+                    "B) Ein Unternehmen, das die Sammlung und Verwertung von Verpackungsabf\u00e4llen organisiert (z.\u202fB. Gr\u00fcner Punkt)",
+                    "C) Ein zweiteiliges Produktionsverfahren",
+                    "D) Eine Software zur Abfalldokumentation"
+                ],
+                correct: 1,
+                explanation: "Duale Systeme (z.\u202fB. der Gr\u00fcne Punkt) organisieren die Sammlung und Verwertung von Verpackungsabf\u00e4llen. Hersteller zahlen Lizenzgeb\u00fchren nach Material und Menge."
+            },
+            {
+                id: 47,
+                text: "Was ist die Produktverantwortung nach \u00a7 23 KrWG?",
+                options: [
+                    "A) Wer Produkte in Verkehr bringt, ist f\u00fcr deren umweltvertr\u00e4gliche Entsorgung mitverantwortlich",
+                    "B) Unternehmen haften nur f\u00fcr Produkte w\u00e4hrend der Nutzung",
+                    "C) Nur der Endverbraucher ist f\u00fcr die Entsorgung zust\u00e4ndig",
+                    "D) Die Kommunen tragen alleinige Entsorgungsverantwortung"
+                ],
+                correct: 0,
+                explanation: "Produktverantwortung (\u00a7 23 KrWG): Wer Produkte in Verkehr bringt, ist f\u00fcr deren umweltvertr\u00e4gliche Entsorgung mitverantwortlich -- das ist die Grundlage der erweiterten Herstellerverantwortung."
+            },
+            {
+                id: 48,
+                text: "Welche Abf\u00e4lle unterliegen einer besonderen Nachweispflicht?",
+                options: [
+                    "A) Papier und Pappe",
+                    "B) B\u00fcroabf\u00e4lle",
+                    "C) Gef\u00e4hrliche Abf\u00e4lle (z.\u202fB. L\u00f6semittel, Altchemikalien)",
+                    "D) Bioabf\u00e4lle"
+                ],
+                correct: 2,
+                explanation: "Gef\u00e4hrliche Abf\u00e4lle m\u00fcssen elektronisch dokumentiert werden (eANV -- elektronischer Abfallnachweis). Jeder Schritt -- Entstehung, Transport, Entsorgung -- ist nachvollziehbar."
+            },
+            {
+                id: 49,
+                text: "Welches Beispiel zeigt die Kreislaufwirtschaft?",
+                options: [
+                    "A) Altpapier wird zu Recyclingpapier verarbeitet",
+                    "B) Abfall wird auf einer Deponie abgelagert",
+                    "C) Alte Ger\u00e4te werden verbrannt ohne Nutzen",
+                    "D) Rohstoffe werden aus Minen abgebaut"
+                ],
+                correct: 0,
+                explanation: "Die Umwandlung von Altpapier zu Recyclingpapier ist ein klassisches Beispiel der Kreislaufwirtschaft -- das Material wird im Wirtschaftskreislauf gehalten."
+            },
+            {
+                id: 50,
+                text: "Welche Fraktionen sind nach \u00a7 3 Gewerbeabfallverordnung (GewAbfV) getrennt zu sammeln?",
+                options: [
+                    "A) Nur Papier und Glas",
+                    "B) Papier, Glas, Kunststoff, Metall, Holz, Textilien und Bioabfall",
+                    "C) Nur gef\u00e4hrliche Abf\u00e4lle",
+                    "D) Nur Restm\u00fcll und Bioabfall"
+                ],
+                correct: 1,
+                explanation: "Die GewAbfV \u00a7 3 Abs. 1 (seit 2017 versch\u00e4rft) verlangt die Getrenntsammlung von 7 Fraktionen: Papier/Pappe/Karton, Glas, Kunststoff, Metall, Holz, Textilien und Bioabfall."
+            }
+        ]
+    },
+    {
+        title: "Abschnitt 6: Nachhaltigkeit und CSR (Fragen 51\u201360)",
+        questions: [
+            {
+                id: 51,
+                text: "Wie lautet die Definition nachhaltiger Entwicklung nach dem Brundtland-Bericht (1987)?",
+                options: [
+                    "A) Maximale Ausbeutung heutiger Ressourcen",
+                    "B) Befriedigung der Bed\u00fcrfnisse der Gegenwart, ohne die M\u00f6glichkeiten zuk\u00fcnftiger Generationen zu gef\u00e4hrden",
+                    "C) Ausschlie\u00dfliche Nutzung fossiler Brennstoffe",
+                    "D) Priorisierung wirtschaftlichen Wachstums ohne R\u00fccksicht"
+                ],
+                correct: 1,
+                explanation: "Die Brundtland-Definition (1987): Nachhaltige Entwicklung befriedigt die Bed\u00fcrfnisse der Gegenwart, ohne die M\u00f6glichkeiten k\u00fcnftiger Generationen zu gef\u00e4hrden."
+            },
+            {
+                id: 52,
+                text: "Welche sind die drei S\u00e4ulen der Nachhaltigkeit?",
+                options: [
+                    "A) \u00d6kologie, Politik, Religion",
+                    "B) \u00d6konomie, Technik, Wissenschaft",
+                    "C) \u00d6kologie, \u00d6konomie, Soziales",
+                    "D) Ressourcen, Energie, Wasser"
+                ],
+                correct: 2,
+                explanation: "Die drei S\u00e4ulen der Nachhaltigkeit sind \u00d6kologie (Umweltschutz), \u00d6konomie (wirtschaftliche Leistung) und Soziales (faire Arbeitsbedingungen)."
+            },
+            {
+                id: 53,
+                text: "Wof\u00fcr steht CSR?",
+                options: [
+                    "A) Corporate Social Responsibility",
+                    "B) Company Sales Report",
+                    "C) Customer Service Ratio",
+                    "D) Control System Recommendation"
+                ],
+                correct: 0,
+                explanation: "CSR steht f\u00fcr Corporate Social Responsibility -- die gesellschaftliche Verantwortung von Unternehmen \u00fcber die gesetzlichen Pflichten hinaus."
+            },
+            {
+                id: 54,
+                text: "Was charakterisiert CSR?",
+                options: [
+                    "A) Gesetzlich vorgeschriebene Mindestanforderungen",
+                    "B) Freiwilliges Engagement \u00fcber die gesetzlichen Pflichten hinaus",
+                    "C) Nur Umweltma\u00dfnahmen",
+                    "D) Nur Spenden an gemeinn\u00fctzige Organisationen"
+                ],
+                correct: 1,
+                explanation: "CSR ist freiwilliges Engagement, das \u00fcber gesetzliche Pflichten hinausgeht -- z.\u202fB. in Umweltschutz, fairen Lieferketten und gesellschaftlichem Engagement."
+            },
+            {
+                id: 55,
+                text: "Was ist die CSRD?",
+                options: [
+                    "A) Customer Service Delivery",
+                    "B) Corporate Sustainability Reporting Directive (EU-Richtlinie zur Nachhaltigkeitsberichterstattung)",
+                    "C) Controlled Substances Regulation Document",
+                    "D) Cross-Sector Research Directive"
+                ],
+                correct: 1,
+                explanation: "CSRD = Corporate Sustainability Reporting Directive -- EU-Richtlinie, die gro\u00dfe Unternehmen zur Nachhaltigkeitsberichterstattung verpflichtet (ab 2024 stufenweise)."
+            },
+            {
+                id: 56,
+                text: "Welches ist das \u00e4lteste Umweltzeichen der Welt?",
+                options: [
+                    "A) EU-Ecolabel",
+                    "B) Blauer Engel",
+                    "C) FSC",
+                    "D) Fairtrade"
+                ],
+                correct: 1,
+                explanation: "Der Blaue Engel (seit 1978) ist das \u00e4lteste Umweltzeichen der Welt. Produkte mit diesem Siegel erf\u00fcllen strenge Umwelt-, Gesundheits- und Gebrauchstauglichkeits\u00adkriterien."
+            },
+            {
+                id: 57,
+                text: "Was bedeutet die Abk\u00fcrzung ESG?",
+                options: [
+                    "A) Energy, Safety, Governance",
+                    "B) Environmental, Social, Governance",
+                    "C) European Standard Group",
+                    "D) Eco-System-Growth"
+                ],
+                correct: 1,
+                explanation: "ESG = Environmental, Social, Governance. Diese Kriterien sind zentral f\u00fcr nachhaltiges Investieren und die Bewertung von Unternehmen."
+            },
+            {
+                id: 58,
+                text: "Was sind Scope 1-Emissionen?",
+                options: [
+                    "A) Alle Emissionen der gesamten Lieferkette",
+                    "B) Direkte Emissionen aus eigenen Quellen (z.\u202fB. Firmenfahrzeuge, Heizung)",
+                    "C) Emissionen aus zugekauftem Strom",
+                    "D) Nur CO2-Emissionen"
+                ],
+                correct: 1,
+                explanation: "Scope 1-Emissionen sind direkte Emissionen aus eigenen Quellen (z.\u202fB. Firmenwagen, eigene Heizung). Scope 2 = indirekter Strombezug, Scope 3 = alle weiteren Emissionen in der Wertsch\u00f6pfungskette."
+            },
+            {
+                id: 59,
+                text: "Welches ist ein zentraler Vorteil von CSR f\u00fcr Unternehmen?",
+                options: [
+                    "A) Automatisch h\u00f6here Steuern",
+                    "B) Verbessertes Image, h\u00f6here Kundenbindung, Attraktivit\u00e4t als Arbeitgeber",
+                    "C) Ausschlie\u00dflich h\u00f6here Kosten",
+                    "D) Keine Vorteile"
+                ],
+                correct: 1,
+                explanation: "Zu den CSR-Vorteilen z\u00e4hlen verbessertes Image, h\u00f6here Kundenbindung, Attraktivit\u00e4t als Arbeitgeber, Risikominimierung und Zugang zu nachhaltigen Finanzprodukten."
+            },
+            {
+                id: 60,
+                text: "Welche Aussage zum Umweltschutz im Betrieb ist korrekt?",
+                options: [
+                    "A) Umweltschutz ist nur Kostenfaktor ohne Nutzen",
+                    "B) Umweltschutz ist Pflicht und Chance zugleich -- Gesetze setzen Rahmen, Ma\u00dfnahmen senken Kosten",
+                    "C) Umweltschutz ist nur Aufgabe gro\u00dfer Konzerne",
+                    "D) Umweltschutz ist im Mittelstand irrelevant"
+                ],
+                correct: 1,
+                explanation: "Umweltschutz ist Pflicht und Chance zugleich: Gesetze setzen den Rahmen, betriebliche Ma\u00dfnahmen sch\u00fctzen die Umwelt UND senken Kosten (Win-Win)."
+            }
+        ]
+    }
+];
+
+// ===================== STATE =====================
+let answered = {};
+let checked  = {};
+let showAll  = false;
+let currentQ = 0;
+const totalQ = 60;
+
+// flat helper
+function allQuestions() {
+    const flat = [];
+    sections.forEach(s => s.questions.forEach(q => flat.push(q)));
+    return flat;
+}
+const flatQ = allQuestions();
+
+// ===================== RENDER =====================
+function render() {
+    const container = document.getElementById('quizContainer');
+    let html = '';
+    let globalIdx = 0;
+
+    sections.forEach((sec, si) => {
+        html += `<div class="section-title">${sec.title}</div>`;
+        sec.questions.forEach((q, qi) => {
+            const vis = showAll || globalIdx === currentQ ? '' : ' hidden';
+            const cardClass = checked[q.id] ? (answered[q.id] === q.correct ? 'correct-card' : 'incorrect-card') : '';
+            html += `<div class="question-card ${cardClass}${vis}" id="qcard-${q.id}">`;
+            html += `<span class="question-number">Frage ${q.id} von ${totalQ}</span>`;
+            html += `<p class="question-text">${q.text}</p>`;
+            html += `<ul class="options-list">`;
+            q.options.forEach((opt, oi) => {
+                let cls = '';
+                if (checked[q.id]) {
+                    if (oi === q.correct) cls = 'correct-opt';
+                    else if (oi === answered[q.id] && oi !== q.correct) cls = 'incorrect-opt';
+                } else if (answered[q.id] === oi) {
+                    cls = 'selected';
+                }
+                const dis = checked[q.id] ? 'disabled' : '';
+                const chk = answered[q.id] === oi ? 'checked' : '';
+                html += `<li><label class="${cls}"><input type="radio" name="q${q.id}" value="${oi}" ${chk} ${dis} onchange="selectOption(${q.id},${oi})"> ${opt}</label></li>`;
+            });
+            html += `</ul>`;
+            const btnDis = (answered[q.id] === undefined || checked[q.id]) ? 'disabled' : '';
+            html += `<button class="check-btn" id="btn-${q.id}" onclick="checkAnswer(${q.id})" ${btnDis}>Antwort pr&uuml;fen</button>`;
+
+            if (checked[q.id]) {
+                const isCorr = answered[q.id] === q.correct;
+                const fbClass = isCorr ? 'correct' : 'incorrect';
+                const fbText = isCorr
+                    ? `<strong>Richtig!</strong> ${q.explanation}`
+                    : `<strong>Leider falsch.</strong> Die richtige Antwort ist: <strong>${q.options[q.correct]}</strong>. ${q.explanation}`;
+                html += `<div class="feedback show ${fbClass}">${fbText}</div>`;
+            } else {
+                html += `<div class="feedback" id="fb-${q.id}"></div>`;
+            }
+
+            html += `</div>`;
+            globalIdx++;
+        });
+    });
+
+    if (!showAll) {
+        html += `<div class="nav-row">`;
+        html += `<button class="nav-btn" onclick="navigate(-1)" ${currentQ === 0 ? 'disabled' : ''}>&laquo; Vorherige</button>`;
+        html += `<span style="font-weight:600;color:#004a99;">Frage ${currentQ + 1} / ${totalQ}</span>`;
+        html += `<button class="nav-btn" onclick="navigate(1)" ${currentQ === totalQ - 1 ? 'disabled' : ''}>N&auml;chste &raquo;</button>`;
+        html += `</div>`;
+    }
+
+    container.innerHTML = html;
+    updateProgress();
+}
+
+// ===================== INTERACTIONS =====================
+function selectOption(qid, idx) {
+    if (checked[qid]) return;
+    answered[qid] = idx;
+    render();
+}
+
+function checkAnswer(qid) {
+    if (answered[qid] === undefined || checked[qid]) return;
+    checked[qid] = true;
+    render();
+    updateProgress();
+}
+
+function navigate(dir) {
+    currentQ = Math.max(0, Math.min(totalQ - 1, currentQ + dir));
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+    const done = Object.keys(checked).length;
+    const pct = Math.round((done / totalQ) * 100);
+    document.getElementById('progressText').textContent = `${done} von ${totalQ} beantwortet`;
+    document.getElementById('progressPct').textContent = `${pct} %`;
+    document.getElementById('progressFill').style.width = `${pct}%`;
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+    const done = Object.keys(checked).length;
+    if (done === 0) { alert('Bitte beantworte und pr\u00fcfe zuerst mindestens eine Frage.'); return; }
+
+    let correct = 0;
+    flatQ.forEach(q => { if (checked[q.id] && answered[q.id] === q.correct) correct++; });
+    const pct = Math.round((correct / done) * 100);
+
+    document.getElementById('scoreBig').textContent = `${correct} / ${done} (${pct} %)`;
+
+    let gradeText = '';
+    let gradeClass = 'pass';
+    if (pct >= 92) gradeText = 'Note: 1 \u2013 Sehr gut';
+    else if (pct >= 81) gradeText = 'Note: 2 \u2013 Gut';
+    else if (pct >= 67) gradeText = 'Note: 3 \u2013 Befriedigend';
+    else if (pct >= 50) gradeText = 'Note: 4 \u2013 Ausreichend (bestanden)';
+    else if (pct >= 30) { gradeText = 'Note: 5 \u2013 Mangelhaft (nicht bestanden)'; gradeClass = 'fail'; }
+    else { gradeText = 'Note: 6 \u2013 Ungen\u00fcgend (nicht bestanden)'; gradeClass = 'fail'; }
+
+    const gEl = document.getElementById('gradeText');
+    gEl.textContent = gradeText;
+    gEl.className = 'grade ' + gradeClass;
+
+    let tbl = '<table><tr><th>Abschnitt</th><th>Richtig</th><th>Prozent</th></tr>';
+    sections.forEach(sec => {
+        let sCorr = 0, sTotal = 0;
+        sec.questions.forEach(q => {
+            if (checked[q.id]) {
+                sTotal++;
+                if (answered[q.id] === q.correct) sCorr++;
+            }
+        });
+        const sPct = sTotal > 0 ? Math.round((sCorr / sTotal) * 100) : 0;
+        tbl += `<tr><td>${sec.title.split('(')[0].trim()}</td><td>${sCorr} / ${sTotal}</td><td>${sPct} %</td></tr>`;
+    });
+    tbl += '</table>';
+    document.getElementById('sectionBreakdown').innerHTML = tbl;
+
+    document.getElementById('resultsPanel').classList.add('show');
+    document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===================== RESET =====================
+function resetQuiz() {
+    if (Object.keys(checked).length > 0 && !confirm('Quiz wirklich zur\u00fccksetzen? Alle Antworten gehen verloren.')) return;
+    answered = {};
+    checked = {};
+    currentQ = 0;
+    document.getElementById('resultsPanel').classList.remove('show');
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== TOGGLE VIEW =====================
+document.getElementById('toggleView').addEventListener('change', function () {
+    showAll = this.checked;
+    render();
+});
+
+// ===================== SHUFFLE OPTIONS =====================
+function shuffleQuizOptions() {
+    let seed = 1010;
+    function seededRandom() {
+        seed = (seed * 16807 + 0) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    sections.forEach(sec => {
+        sec.questions.forEach(q => {
+            const correctText = q.options[q.correct];
+            const cleaned = q.options.map(o => o.replace(/^[A-D]\)\s*/, ''));
+            for (let i = cleaned.length - 1; i > 0; i--) {
+                const j = Math.floor(seededRandom() * (i + 1));
+                [cleaned[i], cleaned[j]] = [cleaned[j], cleaned[i]];
+            }
+            const prefixes = ['A) ', 'B) ', 'C) ', 'D) '];
+            const correctClean = correctText.replace(/^[A-D]\)\s*/, '');
+            q.options = cleaned.map((c, i) => prefixes[i] + c);
+            q.correct = cleaned.indexOf(correctClean);
+        });
+    });
+}
+shuffleQuizOptions();
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>
